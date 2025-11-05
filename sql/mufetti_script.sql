@@ -1,3 +1,7 @@
+-- script for creating the database schema
+
+SET search_path TO lbaw2585;
+
 -----------------------------------------
 -- Cleanup
 -----------------------------------------

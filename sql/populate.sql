@@ -1,3 +1,7 @@
+-- script for populating database with sample data
+
+SET search_path TO lbaw2585;
+
 -----------------------------------------
 -- USERS (25)
 -----------------------------------------

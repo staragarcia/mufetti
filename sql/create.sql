@@ -1,5 +1,10 @@
 -- script for creating the database schema
 
+-----------------------------------------
+-- Config
+-----------------------------------------
+
+CREATE SCHEMA IF NOT EXISTS lbaw2585;
 SET search_path TO lbaw2585;
 
 -----------------------------------------
@@ -112,7 +117,6 @@ CREATE TABLE album_review (
 
 -- Note that a plural 'groups' name was adopted because group is a reserved word in PostgreSQL.
 
-
 CREATE TABLE groups (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name TEXT NOT NULL,
@@ -189,3 +193,218 @@ CREATE TABLE notification (
         (type <> 'reaction' OR id_reaction IS NOT NULL)
     )
 );
+
+-----------------------------------------
+-- Indexes
+-----------------------------------------
+
+--IDX01
+CREATE INDEX content_owner_idx ON content USING btree (owner);
+CLUSTER content USING content_owner_idx;
+
+--IDX02
+CREATE INDEX reaction_content_idx ON reaction USING hash (id_content);
+
+--IDX03
+CREATE INDEX album_review_album_idx ON album_review USING btree (id_album);
+
+--IDX11
+-- Add column to store precomputed text search vectors
+ALTER TABLE content
+ADD COLUMN tsvectors TSVECTOR;
+
+-- Create a function to automatically update the tsvector field
+CREATE FUNCTION content_search_update() RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
+    NEW.tsvectors = (
+      setweight(to_tsvector('english', NEW.title), 'A') ||
+      setweight(to_tsvector('english', NEW.description), 'B')
+    );
+  END IF;
+  RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+-- Create trigger to keep tsvector updated
+CREATE TRIGGER content_search_update
+BEFORE INSERT OR UPDATE ON content
+FOR EACH ROW
+EXECUTE PROCEDURE content_search_update();
+
+-- Create GIN index on tsvectors for fast text search
+CREATE INDEX search_idx ON content USING GIN (tsvectors);
+
+
+-----------------------------------------
+-- Triggers
+-----------------------------------------
+
+-- TRIGGER 01
+CREATE FUNCTION spam_control() RETURNS TRIGGER AS
+$BODY$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM content
+        WHERE owner = NEW.owner
+          AND type = 'post'
+          AND created_at > (CURRENT_TIMESTAMP - INTERVAL '20 seconds')
+    ) THEN
+        RAISE EXCEPTION 'Spam control: Users must wait 20 seconds between posts.';
+    END IF;
+    RETURN NEW;
+END;
+$BODY$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER spam_control
+BEFORE INSERT ON content
+FOR EACH ROW
+WHEN (NEW.type = 'post')
+EXECUTE FUNCTION spam_control();
+
+-- TRIGGER 02
+CREATE FUNCTION check_minimum_age() RETURNS TRIGGER AS
+$BODY$
+DECLARE
+    user_age INTEGER;
+BEGIN
+    user_age := DATE_PART('year', AGE(CURRENT_DATE, NEW.birth_date));
+    IF user_age < 13 THEN
+        RAISE EXCEPTION 'User must be at least 13 years old to register.';
+    END IF;
+    RETURN NEW;
+END;
+$BODY$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER check_minimum_age
+BEFORE INSERT ON user
+FOR EACH ROW
+EXECUTE FUNCTION check_minimum_age();
+
+-- TRIGGER 03
+CREATE FUNCTION anonymize_user() RETURNS TRIGGER AS
+$BODY$
+BEGIN
+    UPDATE user
+    SET name = 'Deleted User',
+        username = CONCAT('deleted_', id),
+        email = NULL,
+        profile_picture = NULL,
+        description = NULL,
+        is_public = FALSE
+    WHERE id = OLD.id;
+
+    RETURN NULL; -- Prevent actual deletion
+END;
+$BODY$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER anonymize_user
+BEFORE DELETE ON user
+FOR EACH ROW
+EXECUTE FUNCTION anonymize_user();
+
+-- TRIGGER 04
+CREATE FUNCTION delete_group_content() RETURNS TRIGGER AS
+$BODY$
+BEGIN
+    DELETE FROM content WHERE id_group = OLD.id;
+    DELETE FROM group_member WHERE id_group = OLD.id;
+    DELETE FROM join_request WHERE id_group = OLD.id;
+    RETURN OLD;
+END;
+$BODY$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER delete_group_content
+AFTER DELETE ON group
+FOR EACH ROW
+EXECUTE FUNCTION delete_group_content();
+
+-----------------------------------------
+-- Triggers
+-----------------------------------------
+
+-- TRAN01
+BEGIN TRANSACTION;
+
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+-- 1. Insert the reaction record
+INSERT INTO reaction (type, created_at, id_user, id_content)
+VALUES ($reaction_type, CURRENT_DATE, $user_id, $content_id);
+
+-- 2. Increment the likes counter on the content post (only if it's a 'like')
+IF $reaction_type = 'like' THEN
+    UPDATE content
+    SET likes = likes + 1
+    WHERE id = $content_id;
+END IF;
+
+COMMIT;
+
+-- TRAN02
+BEGIN TRANSACTION;
+
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+-- 1. Anonymize the user
+UPDATE users
+SET name = 'Deleted User',
+    username = CONCAT('deleted_', id),
+    email = NULL,
+    profile_picture = NULL,
+    description = NULL,
+    is_public = FALSE
+WHERE id = $user_id;
+
+-- 2. Remove user from groups
+DELETE FROM group_member
+WHERE id_user = $user_id;
+
+-- 3. Delete follow relationships
+DELETE FROM following
+WHERE id_user = $user_id OR id_following = $user_id;
+
+-- 4. Delete join requests
+DELETE FROM join_request
+WHERE id_user = $user_id;
+
+-- 5. Delete follow requests
+DELETE FROM follow_request
+WHERE id_follower = $user_id OR id_followed = $user_id;
+
+COMMIT;
+
+
+-- TRAN03
+BEGIN TRANSACTION;
+
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+-- 1. Delete notifications related to group join requests
+DELETE FROM notification
+WHERE id_group_join_request IN (
+    SELECT id FROM join_request WHERE id_group = $group_id
+);
+
+-- 2. Delete join requests for this group
+DELETE FROM join_request
+WHERE id_group = $group_id;
+
+-- 3. Delete group members
+DELETE FROM group_member
+WHERE id_group = $group_id;
+
+-- 4. Optional: delete or anonymize content posted in the group
+DELETE FROM content
+WHERE id_group = $group_id;
+
+-- 5. Finally, delete the group itself
+DELETE FROM groups
+WHERE id = $group_id;
+
+COMMIT;

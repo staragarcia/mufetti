@@ -31,6 +31,21 @@ DROP TYPE IF EXISTS ContentTypes CASCADE;
 DROP TYPE IF EXISTS ReactionTypes CASCADE;
 DROP TYPE IF EXISTS NotificationTypes CASCADE;
 
+DROP INDEX IF EXISTS content_owner_idx CASCADE;
+DROP INDEX IF EXISTS reaction_content_idx CASCADE;
+DROP INDEX IF EXISTS album_review_album_idx CASCADE;
+
+DROP FUNCTION IF EXISTS content_search_update() CASCADE;
+
+DROP FUNCTION IF EXISTS spam_control() CASCADE;
+DROP FUNCTION IF EXISTS check_minimum_age() CASCADE;
+DROP FUNCTION IF EXISTS notify_follow_request() CASCADE;
+DROP FUNCTION IF EXISTS notify_join_request() CASCADE;
+DROP FUNCTION IF EXISTS notify_reaction() CASCADE;
+DROP FUNCTION IF EXISTS notify_comment() CASCADE;
+DROP FUNCTION IF EXISTS update_like_count() CASCADE;
+DROP FUNCTION IF EXISTS update_comment_count() CASCADE;
+
 -----------------------------------------
 -- Types
 -----------------------------------------
@@ -280,131 +295,128 @@ $BODY$
 LANGUAGE plpgsql;
 
 CREATE TRIGGER check_minimum_age
-BEFORE INSERT ON user
+BEFORE INSERT ON users
 FOR EACH ROW
 EXECUTE FUNCTION check_minimum_age();
 
 -- TRIGGER 03
-CREATE FUNCTION anonymize_user() RETURNS TRIGGER AS
+CREATE FUNCTION notify_follow_request() RETURNS TRIGGER AS
 $BODY$
 BEGIN
-    UPDATE user
-    SET name = 'Deleted User',
-        username = CONCAT('deleted_', id),
-        email = NULL,
-        profile_picture = NULL,
-        description = NULL,
-        is_public = FALSE
-    WHERE id = OLD.id;
-
-    RETURN NULL; -- Prevent actual deletion
+   INSERT INTO notification (type, receiver, actor, id_follow_request)
+   VALUES ('followRequest', NEW.id_followed, NEW.id_follower, NEW.id);
+   RETURN NEW;
 END;
 $BODY$
 LANGUAGE plpgsql;
 
-CREATE TRIGGER anonymize_user
-BEFORE DELETE ON user
+CREATE TRIGGER notify_follow_request
+AFTER INSERT ON follow_request
 FOR EACH ROW
-EXECUTE FUNCTION anonymize_user();
+EXECUTE FUNCTION notify_follow_request();
 
 -- TRIGGER 04
-CREATE FUNCTION delete_group_content() RETURNS TRIGGER AS
+CREATE FUNCTION notify_join_request() RETURNS TRIGGER AS
 $BODY$
 BEGIN
-    DELETE FROM content WHERE id_group = OLD.id;
-    DELETE FROM group_member WHERE id_group = OLD.id;
-    DELETE FROM join_request WHERE id_group = OLD.id;
-    RETURN OLD;
+   INSERT INTO notification (type, receiver, actor, id_group_join_request)
+   SELECT 'joinGroupRequest', g.owner, NEW.id_user, NEW.id
+   FROM groups g
+   WHERE g.id = NEW.id_group;
+   RETURN NEW;
 END;
 $BODY$
 LANGUAGE plpgsql;
 
-CREATE TRIGGER delete_group_content
-AFTER DELETE ON group
+CREATE TRIGGER notify_join_request
+AFTER INSERT ON join_request
 FOR EACH ROW
-EXECUTE FUNCTION delete_group_content();
+EXECUTE FUNCTION notify_join_request();
 
------------------------------------------
--- Triggers
------------------------------------------
+-- TRIGGER 05
+CREATE FUNCTION notify_reaction() RETURNS TRIGGER AS
+$BODY$
+BEGIN
+   IF NEW.type IN ('like', 'confetti') THEN
+       INSERT INTO notification (type, receiver, actor, id_reaction)
+       SELECT 'reaction', c.owner, NEW.id_user, NEW.id
+       FROM content c
+       WHERE c.id = NEW.id_content
+       AND c.owner != NEW.id_user;
+   END IF;
+   RETURN NEW;
+END;
+$BODY$
+LANGUAGE plpgsql;
 
--- TRAN01
-BEGIN TRANSACTION;
+CREATE TRIGGER notify_reaction
+AFTER INSERT ON reaction
+FOR EACH ROW
+EXECUTE FUNCTION notify_reaction();
 
-SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+-- TRIGGER 06
+CREATE FUNCTION notify_comment() RETURNS TRIGGER AS
+$BODY$
+BEGIN
+   IF NEW.type = 'comment' THEN
+       INSERT INTO notification (type, receiver, actor, id_comment)
+       SELECT 'comment', c.owner, NEW.owner, NEW.id
+       FROM content c
+       WHERE c.id = NEW.reply_to
+       AND c.owner != NEW.owner;
+       END IF;
+   RETURN NEW;
+END;
+$BODY$
+LANGUAGE plpgsql;
 
--- 1. Insert the reaction record
-INSERT INTO reaction (type, created_at, id_user, id_content)
-VALUES ($reaction_type, CURRENT_DATE, $user_id, $content_id);
+CREATE TRIGGER notify_comment
+AFTER INSERT ON content
+FOR EACH ROW
+EXECUTE FUNCTION notify_comment();
 
--- 2. Increment the likes counter on the content post (only if it's a 'like')
-IF $reaction_type = 'like' THEN
-    UPDATE content
-    SET likes = likes + 1
-    WHERE id = $content_id;
-END IF;
+-- TRIGGER 07
+CREATE FUNCTION update_like_count() RETURNS TRIGGER AS
+$BODY$
+BEGIN
+   IF TG_OP = 'INSERT' AND NEW.type = 'like' THEN
+       UPDATE content
+       SET likes = likes + 1
+       WHERE id = NEW.id_content;
+   ELSIF TG_OP = 'DELETE' AND OLD.type = 'like' THEN
+       UPDATE content
+       SET likes = likes - 1
+       WHERE id = OLD.id_content;
+   END IF;
+   RETURN COALESCE(NEW, OLD);
+END;
+$BODY$
+LANGUAGE plpgsql;
 
-COMMIT;
+CREATE TRIGGER update_like_count
+AFTER INSERT OR DELETE ON reaction
+FOR EACH ROW
+EXECUTE FUNCTION update_like_count();
 
--- TRAN02
-BEGIN TRANSACTION;
+-- TRIGGER 08
+CREATE FUNCTION update_comment_count() RETURNS TRIGGER AS
+$BODY$
+BEGIN
+   IF TG_OP = 'INSERT' AND NEW.type = 'comment' THEN
+       UPDATE content
+       SET comments = comments + 1
+       WHERE id = NEW.reply_to;
+   ELSIF TG_OP = 'DELETE' AND OLD.type = 'comment' THEN
+       UPDATE content
+       SET comments = comments - 1
+       WHERE id = OLD.reply_to;
+   END IF;
+   RETURN COALESCE(NEW, OLD);
+END;
+$BODY$
+LANGUAGE plpgsql;
 
-SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
-
--- 1. Anonymize the user
-UPDATE users
-SET name = 'Deleted User',
-    username = CONCAT('deleted_', id),
-    email = NULL,
-    profile_picture = NULL,
-    description = NULL,
-    is_public = FALSE
-WHERE id = $user_id;
-
--- 2. Remove user from groups
-DELETE FROM group_member
-WHERE id_user = $user_id;
-
--- 3. Delete follow relationships
-DELETE FROM following
-WHERE id_user = $user_id OR id_following = $user_id;
-
--- 4. Delete join requests
-DELETE FROM join_request
-WHERE id_user = $user_id;
-
--- 5. Delete follow requests
-DELETE FROM follow_request
-WHERE id_follower = $user_id OR id_followed = $user_id;
-
-COMMIT;
-
-
--- TRAN03
-BEGIN TRANSACTION;
-
-SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
-
--- 1. Delete notifications related to group join requests
-DELETE FROM notification
-WHERE id_group_join_request IN (
-    SELECT id FROM join_request WHERE id_group = $group_id
-);
-
--- 2. Delete join requests for this group
-DELETE FROM join_request
-WHERE id_group = $group_id;
-
--- 3. Delete group members
-DELETE FROM group_member
-WHERE id_group = $group_id;
-
--- 4. Optional: delete or anonymize content posted in the group
-DELETE FROM content
-WHERE id_group = $group_id;
-
--- 5. Finally, delete the group itself
-DELETE FROM groups
-WHERE id = $group_id;
-
-COMMIT;
+CREATE TRIGGER update_comment_count
+AFTER INSERT OR DELETE ON content
+FOR EACH ROW
+EXECUTE FUNCTION update_comment_count();

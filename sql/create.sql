@@ -83,18 +83,18 @@ CREATE TABLE users (
     CONSTRAINT birth_date CHECK (birth_date < CURRENT_DATE)
 );
 
-CREATE TABLE following (
+CREATE TABLE followings (
     id_user INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
     id_following INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
     PRIMARY KEY (id_user, id_following)
 );
 
-CREATE TABLE genre (
+CREATE TABLE genres (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name TEXT NOT NULL CONSTRAINT genre_name_uk UNIQUE
 );
 
-CREATE TABLE album (
+CREATE TABLE albums (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     title TEXT NOT NULL,
     artist TEXT NOT NULL,
@@ -104,25 +104,25 @@ CREATE TABLE album (
     CONSTRAINT album_release_date_ck CHECK (release_date < CURRENT_DATE)
 );
 
-CREATE TABLE favourite_genre (
+CREATE TABLE favourite_genres (
     id_user INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
     id_genre INTEGER NOT NULL REFERENCES genre (id) ON UPDATE CASCADE,
     PRIMARY KEY (id_user, id_genre)
 );
 
-CREATE TABLE album_genre (
+CREATE TABLE album_genres (
     id_album INTEGER NOT NULL REFERENCES album (id) ON UPDATE CASCADE,
     id_genre INTEGER NOT NULL REFERENCES genre (id) ON UPDATE CASCADE,
     PRIMARY KEY (id_album, id_genre)
 );
 
-CREATE TABLE favourite_album (
+CREATE TABLE favourite_albums (
     id_user INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
     id_album INTEGER NOT NULL REFERENCES album (id) ON UPDATE CASCADE,
     PRIMARY KEY (id_user, id_album)
 );
 
-CREATE TABLE album_review (
+CREATE TABLE album_reviews (
     rating INTEGER NOT NULL CHECK (rating >= 0 AND rating <= 5),
     review_date DATE NOT NULL DEFAULT CURRENT_DATE,
     id_album INTEGER NOT NULL REFERENCES album (id) ON UPDATE CASCADE,
@@ -141,13 +141,13 @@ CREATE TABLE groups (
     member_count INTEGER NOT NULL
 );
 
-CREATE TABLE group_member (
+CREATE TABLE group_members (
     id_group INTEGER NOT NULL REFERENCES groups (id) ON UPDATE CASCADE,
     id_user INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
     PRIMARY KEY (id_group, id_user)
 );
 
-CREATE TABLE join_request (
+CREATE TABLE join_requests (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     status RequestStatus NOT NULL,
     created_at DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -155,7 +155,7 @@ CREATE TABLE join_request (
     id_user INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE
 );
 
-CREATE TABLE follow_request (
+CREATE TABLE follow_requests (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     created_at DATE NOT NULL DEFAULT CURRENT_DATE,
     status RequestStatus NOT NULL,
@@ -163,7 +163,7 @@ CREATE TABLE follow_request (
     id_followed INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE
 );
 
-CREATE TABLE content (
+CREATE TABLE contents (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     type ContentTypes NOT NULL,
     created_at DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -180,7 +180,7 @@ CREATE TABLE content (
     )
 );
 
-CREATE TABLE reaction (
+CREATE TABLE reactions (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     type ReactionTypes NOT NULL,
     created_at DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -188,7 +188,7 @@ CREATE TABLE reaction (
     id_content INTEGER NOT NULL REFERENCES content (id) ON UPDATE CASCADE
 );
 
-CREATE TABLE notification (
+CREATE TABLE notifications (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     created_at DATE NOT NULL DEFAULT CURRENT_DATE,
     is_read BOOLEAN DEFAULT FALSE,

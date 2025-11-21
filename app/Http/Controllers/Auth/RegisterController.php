@@ -41,7 +41,7 @@ class RegisterController extends Controller
             'password'    => $request->password,  // hashed automatically!
             'birth_date'  => $request->birth_date,
             'description' => $request->description,
-            'is_public'   => $request->is_public ? true : false,
+            'is_public'   => $request->is_private ? false : true,
             'is_admin'    => false,
         ]);
 

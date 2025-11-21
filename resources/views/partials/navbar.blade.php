@@ -2,7 +2,6 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
 
-            {{-- Logo --}}
             <a href="{{ route('home') }}" class="flex items-center gap-2">
                 <span class="text-3xl font-bold tracking-tight text-primary">mufetti.</span>
             </a>
@@ -10,46 +9,40 @@
             {{-- Navigation Links --}}
             <div class="flex items-center gap-6">
 
-                {{-- Feed (public) --}}
                 <a href="/feed"
                    class="text-sm font-medium transition-colors
                     {{ request()->is('feed') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
                     Feed
                 </a>
 
-                {{-- Search (public) --}}
                 <a href="/search"
                    class="text-sm font-medium transition-colors
                     {{ request()->is('search') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
                     Search
                 </a>
 
-                {{-- Groups (public) --}}
+
                 <a href="/groups"
                    class="text-sm font-medium transition-colors
                     {{ request()->is('groups') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
                     Groups
                 </a>
 
-                {{-- =====================
-                     AUTHENTICATED LINKS
-                   ===================== --}}
                 @auth
-                    {{-- Create --}}
+
                     <a href="/create"
                        class="text-sm font-medium transition-colors
                             {{ request()->is('create') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
                         Create
                     </a>
 
-                    {{-- Profile --}}
+
                     <a href="{{ route('profile.show') }}"
                        class="text-sm font-medium transition-colors
                             {{ request()->is('profile') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
                         Profile
                     </a>
 
-                    {{-- Logout --}}
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
                         <button
@@ -59,9 +52,6 @@
                     </form>
                 @endauth
 
-                {{-- =====================
-                        GUEST ONLY
-                   ===================== --}}
                 @guest
                     <a href="{{ route('login') }}"
                        class="px-3 py-1 border border-border rounded-md text-sm text-muted-foreground hover:text-primary transition">

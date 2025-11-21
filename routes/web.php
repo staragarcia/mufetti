@@ -8,9 +8,7 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
 
-// =======================
-//      HOME
-// =======================
+
 Route::get('/', function () {
     return auth()->check()
         ? redirect()->route('profile.show')
@@ -18,9 +16,7 @@ Route::get('/', function () {
 })->name('home');
 
 
-// =======================
-//  AUTH (APENAS GUEST)
-// =======================
+
 Route::middleware('guest')->group(function () {
 
     // Login
@@ -31,15 +27,12 @@ Route::middleware('guest')->group(function () {
     // Register
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
-    Route::get('/forgot-password', [ForgotPasswordController::class, 'showForm'])
-    ->name('password.request');
+    Route::get('/forgot-password', [ForgotPasswordController::class, 'showForm']) ->name('password.request');
 
 });
 
 
-// =======================
-//    AUTHENTICATED
-// =======================
+
 Route::middleware('auth')->group(function () {
 
     // Logout
@@ -51,6 +44,12 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/profile/privacy', [ProfileController::class, 'togglePrivacy'])
         ->name('profile.togglePrivacy');
+    
+        Route::get('/profile/edit', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
+
+    Route::post('/profile/edit', [ProfileController::class, 'update'])
+        ->name('profile.update');
 
     Route::delete('/profile/{id}', [ProfileController::class, 'destroy'])
         ->name('profile.delete');

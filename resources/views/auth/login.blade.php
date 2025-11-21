@@ -4,10 +4,8 @@
 <div class="min-h-screen bg-background flex items-center justify-center px-4">
     <div class="w-full max-w-md space-y-8">
 
-        {{-- Logo --}}
         <div class="text-center">
             <a href="/" class="inline-flex items-center gap-2 mb-2">
-                {{-- Icone pode ser outro, substitui se quiseres --}}
                 <svg class="h-10 w-10 text-primary" fill="none" stroke="currentColor" stroke-width="2"
                     viewBox="0 0 24 24">
                     <path d="M9 18V5l12-2v13"></path>
@@ -26,7 +24,6 @@
             <form method="POST" action="{{ route('login') }}" class="space-y-4">
                 @csrf
 
-                {{-- Email --}}
                 <div class="space-y-2">
                     <label for="email" class="block text-sm font-medium">Email</label>
                     <input
@@ -44,7 +41,6 @@
                     @enderror
                 </div>
 
-                {{-- Password --}}
                 <div class="space-y-2">
                     <label for="password" class="block text-sm font-medium">Password</label>
                     <input
@@ -60,13 +56,6 @@
                     @enderror
                 </div>
 
-                {{-- Remember me --}}
-                <label class="flex items-center gap-2 text-sm">
-                    <input type="checkbox" name="remember" value="1" @checked(old('remember')) class="rounded">
-                    Remember me
-                </label>
-
-                {{-- Submit --}}
                 <button
                     type="submit"
                     class="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2 rounded-md transition"
@@ -75,17 +64,6 @@
                 </button>
             </form>
 
-            {{-- Forgot password --}}
-            <div class="mt-4 text-center">
-                <a href="{{ route('password.request') }}" class="text-sm text-primary hover:underline">
-                    Forgot password?
-                </a>
-            </div>
-
-            {{-- Success message --}}
-            @if (session('status'))
-                <p class="text-green-500 mt-4 text-center">{{ session('status') }}</p>
-            @endif
         </div>
 
         {{-- Sign Up --}}

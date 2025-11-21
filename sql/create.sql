@@ -10,20 +10,20 @@ SET search_path TO lbaw2585;
 -----------------------------------------
 -- Cleanup
 -----------------------------------------
-DROP TABLE IF EXISTS notification CASCADE;
-DROP TABLE IF EXISTS reaction CASCADE;
-DROP TABLE IF EXISTS content CASCADE;
-DROP TABLE IF EXISTS follow_request CASCADE;
-DROP TABLE IF EXISTS join_request CASCADE;
-DROP TABLE IF EXISTS group_member CASCADE;
+DROP TABLE IF EXISTS notifications CASCADE;
+DROP TABLE IF EXISTS reactions CASCADE;
+DROP TABLE IF EXISTS contents CASCADE;
+DROP TABLE IF EXISTS follow_requests CASCADE;
+DROP TABLE IF EXISTS join_requests CASCADE;
+DROP TABLE IF EXISTS group_members CASCADE;
 DROP TABLE IF EXISTS groups CASCADE;
-DROP TABLE IF EXISTS album_review CASCADE;
-DROP TABLE IF EXISTS favourite_album CASCADE;
-DROP TABLE IF EXISTS album_genre CASCADE;
-DROP TABLE IF EXISTS favourite_genre CASCADE;
-DROP TABLE IF EXISTS album CASCADE;
-DROP TABLE IF EXISTS genre CASCADE;
-DROP TABLE IF EXISTS following CASCADE;
+DROP TABLE IF EXISTS album_reviews CASCADE;
+DROP TABLE IF EXISTS favourite_albums CASCADE;
+DROP TABLE IF EXISTS album_genres CASCADE;
+DROP TABLE IF EXISTS favourite_genres CASCADE;
+DROP TABLE IF EXISTS albums CASCADE;
+DROP TABLE IF EXISTS genres CASCADE;
+DROP TABLE IF EXISTS followings CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 
 DROP TYPE IF EXISTS RequestStatus CASCADE;
@@ -66,9 +66,6 @@ CREATE TYPE NotificationTypes AS ENUM (
 -- Tables
 -----------------------------------------
 
-
--- Note that a plural 'users' name was adopted because user is a reserved word in PostgreSQL.
-
 CREATE TABLE users (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name TEXT NOT NULL,
@@ -106,31 +103,29 @@ CREATE TABLE albums (
 
 CREATE TABLE favourite_genres (
     id_user INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
-    id_genre INTEGER NOT NULL REFERENCES genre (id) ON UPDATE CASCADE,
+    id_genre INTEGER NOT NULL REFERENCES genres (id) ON UPDATE CASCADE,
     PRIMARY KEY (id_user, id_genre)
 );
 
 CREATE TABLE album_genres (
-    id_album INTEGER NOT NULL REFERENCES album (id) ON UPDATE CASCADE,
-    id_genre INTEGER NOT NULL REFERENCES genre (id) ON UPDATE CASCADE,
+    id_album INTEGER NOT NULL REFERENCES albums (id) ON UPDATE CASCADE,
+    id_genre INTEGER NOT NULL REFERENCES genres (id) ON UPDATE CASCADE,
     PRIMARY KEY (id_album, id_genre)
 );
 
 CREATE TABLE favourite_albums (
     id_user INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
-    id_album INTEGER NOT NULL REFERENCES album (id) ON UPDATE CASCADE,
+    id_album INTEGER NOT NULL REFERENCES albums (id) ON UPDATE CASCADE,
     PRIMARY KEY (id_user, id_album)
 );
 
 CREATE TABLE album_reviews (
     rating INTEGER NOT NULL CHECK (rating >= 0 AND rating <= 5),
     review_date DATE NOT NULL DEFAULT CURRENT_DATE,
-    id_album INTEGER NOT NULL REFERENCES album (id) ON UPDATE CASCADE,
+    id_album INTEGER NOT NULL REFERENCES albums (id) ON UPDATE CASCADE,
     id_user INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
     PRIMARY KEY (id_user, id_album)	
 );
-
--- Note that a plural 'groups' name was adopted because group is a reserved word in PostgreSQL.
 
 CREATE TABLE groups (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -174,7 +169,7 @@ CREATE TABLE contents (
     img TEXT,
     owner INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
     id_group INTEGER REFERENCES groups (id) ON UPDATE CASCADE,
-    reply_to INTEGER REFERENCES content (id) ON UPDATE CASCADE,
+    reply_to INTEGER REFERENCES contents (id) ON UPDATE CASCADE,
     CONSTRAINT content_type_ck CHECK (
         (type <> 'comment') OR (reply_to IS NOT NULL)
     )
@@ -185,7 +180,7 @@ CREATE TABLE reactions (
     type ReactionTypes NOT NULL,
     created_at DATE NOT NULL DEFAULT CURRENT_DATE,
     id_user INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
-    id_content INTEGER NOT NULL REFERENCES content (id) ON UPDATE CASCADE
+    id_content INTEGER NOT NULL REFERENCES contents (id) ON UPDATE CASCADE
 );
 
 CREATE TABLE notifications (
@@ -195,10 +190,10 @@ CREATE TABLE notifications (
     type NotificationTypes NOT NULL,
     receiver INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
     actor INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
-    id_follow_request INTEGER REFERENCES follow_request (id) ON UPDATE CASCADE,
-    id_group_join_request INTEGER REFERENCES join_request (id) ON UPDATE CASCADE,
-    id_comment INTEGER REFERENCES content (id) ON UPDATE CASCADE,
-    id_reaction INTEGER REFERENCES reaction (id) ON UPDATE CASCADE,
+    id_follow_request INTEGER REFERENCES follow_requests (id) ON UPDATE CASCADE,
+    id_group_join_request INTEGER REFERENCES join_requests (id) ON UPDATE CASCADE,
+    id_comment INTEGER REFERENCES contents (id) ON UPDATE CASCADE,
+    id_reaction INTEGER REFERENCES reactions (id) ON UPDATE CASCADE,
     CONSTRAINT notification_type_ck CHECK (
         (type <> 'followRequest' OR id_follow_request IS NOT NULL) AND
         (type <> 'acceptedFollowRequest' OR id_follow_request IS NOT NULL) AND
@@ -213,22 +208,16 @@ CREATE TABLE notifications (
 -- Indexes
 -----------------------------------------
 
---IDX01
-CREATE INDEX content_owner_idx ON content USING btree (owner);
-CLUSTER content USING content_owner_idx;
+CREATE INDEX content_owner_idx ON contents USING btree (owner);
+CLUSTER contents USING content_owner_idx;
 
---IDX02
-CREATE INDEX reaction_content_idx ON reaction USING hash (id_content);
+CREATE INDEX reaction_content_idx ON reactions USING hash (id_content);
 
---IDX03
-CREATE INDEX album_review_album_idx ON album_review USING btree (id_album);
+CREATE INDEX album_review_album_idx ON album_reviews USING btree (id_album);
 
---IDX11
--- Add column to store precomputed text search vectors
-ALTER TABLE content
+ALTER TABLE contents
 ADD COLUMN tsvectors TSVECTOR;
 
--- Create a function to automatically update the tsvector field
 CREATE FUNCTION content_search_update() RETURNS TRIGGER AS $$
 BEGIN
   IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
@@ -241,27 +230,23 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
--- Create trigger to keep tsvector updated
 CREATE TRIGGER content_search_update
-BEFORE INSERT OR UPDATE ON content
+BEFORE INSERT OR UPDATE ON contents
 FOR EACH ROW
 EXECUTE PROCEDURE content_search_update();
 
--- Create GIN index on tsvectors for fast text search
-CREATE INDEX search_idx ON content USING GIN (tsvectors);
-
+CREATE INDEX search_idx ON contents USING GIN (tsvectors);
 
 -----------------------------------------
 -- Triggers
 -----------------------------------------
 
--- TRIGGER 01
 CREATE FUNCTION spam_control() RETURNS TRIGGER AS
 $BODY$
 BEGIN
     IF EXISTS (
         SELECT 1
-        FROM content
+        FROM contents
         WHERE owner = NEW.owner
           AND type = 'post'
           AND created_at > (CURRENT_TIMESTAMP - INTERVAL '20 seconds')
@@ -274,12 +259,11 @@ $BODY$
 LANGUAGE plpgsql;
 
 CREATE TRIGGER spam_control
-BEFORE INSERT ON content
+BEFORE INSERT ON contents
 FOR EACH ROW
 WHEN (NEW.type = 'post')
 EXECUTE FUNCTION spam_control();
 
--- TRIGGER 02
 CREATE FUNCTION check_minimum_age() RETURNS TRIGGER AS
 $BODY$
 DECLARE
@@ -299,11 +283,10 @@ BEFORE INSERT ON users
 FOR EACH ROW
 EXECUTE FUNCTION check_minimum_age();
 
--- TRIGGER 03
 CREATE FUNCTION notify_follow_request() RETURNS TRIGGER AS
 $BODY$
 BEGIN
-   INSERT INTO notification (type, receiver, actor, id_follow_request)
+   INSERT INTO notifications (type, receiver, actor, id_follow_request)
    VALUES ('followRequest', NEW.id_followed, NEW.id_follower, NEW.id);
    RETURN NEW;
 END;
@@ -311,15 +294,14 @@ $BODY$
 LANGUAGE plpgsql;
 
 CREATE TRIGGER notify_follow_request
-AFTER INSERT ON follow_request
+AFTER INSERT ON follow_requests
 FOR EACH ROW
 EXECUTE FUNCTION notify_follow_request();
 
--- TRIGGER 04
 CREATE FUNCTION notify_join_request() RETURNS TRIGGER AS
 $BODY$
 BEGIN
-   INSERT INTO notification (type, receiver, actor, id_group_join_request)
+   INSERT INTO notifications (type, receiver, actor, id_group_join_request)
    SELECT 'joinGroupRequest', g.owner, NEW.id_user, NEW.id
    FROM groups g
    WHERE g.id = NEW.id_group;
@@ -329,18 +311,17 @@ $BODY$
 LANGUAGE plpgsql;
 
 CREATE TRIGGER notify_join_request
-AFTER INSERT ON join_request
+AFTER INSERT ON join_requests
 FOR EACH ROW
 EXECUTE FUNCTION notify_join_request();
 
--- TRIGGER 05
 CREATE FUNCTION notify_reaction() RETURNS TRIGGER AS
 $BODY$
 BEGIN
    IF NEW.type IN ('like', 'confetti') THEN
-       INSERT INTO notification (type, receiver, actor, id_reaction)
+       INSERT INTO notifications (type, receiver, actor, id_reaction)
        SELECT 'reaction', c.owner, NEW.id_user, NEW.id
-       FROM content c
+       FROM contents c
        WHERE c.id = NEW.id_content
        AND c.owner != NEW.id_user;
    END IF;
@@ -350,18 +331,17 @@ $BODY$
 LANGUAGE plpgsql;
 
 CREATE TRIGGER notify_reaction
-AFTER INSERT ON reaction
+AFTER INSERT ON reactions
 FOR EACH ROW
 EXECUTE FUNCTION notify_reaction();
 
--- TRIGGER 06
 CREATE FUNCTION notify_comment() RETURNS TRIGGER AS
 $BODY$
 BEGIN
    IF NEW.type = 'comment' THEN
-       INSERT INTO notification (type, receiver, actor, id_comment)
+       INSERT INTO notifications (type, receiver, actor, id_comment)
        SELECT 'comment', c.owner, NEW.owner, NEW.id
-       FROM content c
+       FROM contents c
        WHERE c.id = NEW.reply_to
        AND c.owner != NEW.owner;
        END IF;
@@ -371,20 +351,19 @@ $BODY$
 LANGUAGE plpgsql;
 
 CREATE TRIGGER notify_comment
-AFTER INSERT ON content
+AFTER INSERT ON contents
 FOR EACH ROW
 EXECUTE FUNCTION notify_comment();
 
--- TRIGGER 07
 CREATE FUNCTION update_like_count() RETURNS TRIGGER AS
 $BODY$
 BEGIN
    IF TG_OP = 'INSERT' AND NEW.type = 'like' THEN
-       UPDATE content
+       UPDATE contents
        SET likes = likes + 1
        WHERE id = NEW.id_content;
    ELSIF TG_OP = 'DELETE' AND OLD.type = 'like' THEN
-       UPDATE content
+       UPDATE contents
        SET likes = likes - 1
        WHERE id = OLD.id_content;
    END IF;
@@ -394,20 +373,19 @@ $BODY$
 LANGUAGE plpgsql;
 
 CREATE TRIGGER update_like_count
-AFTER INSERT OR DELETE ON reaction
+AFTER INSERT OR DELETE ON reactions
 FOR EACH ROW
 EXECUTE FUNCTION update_like_count();
 
--- TRIGGER 08
 CREATE FUNCTION update_comment_count() RETURNS TRIGGER AS
 $BODY$
 BEGIN
    IF TG_OP = 'INSERT' AND NEW.type = 'comment' THEN
-       UPDATE content
+       UPDATE contents
        SET comments = comments + 1
        WHERE id = NEW.reply_to;
    ELSIF TG_OP = 'DELETE' AND OLD.type = 'comment' THEN
-       UPDATE content
+       UPDATE contents
        SET comments = comments - 1
        WHERE id = OLD.reply_to;
    END IF;
@@ -417,6 +395,6 @@ $BODY$
 LANGUAGE plpgsql;
 
 CREATE TRIGGER update_comment_count
-AFTER INSERT OR DELETE ON content
+AFTER INSERT OR DELETE ON contents
 FOR EACH ROW
 EXECUTE FUNCTION update_comment_count();

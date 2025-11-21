@@ -4,58 +4,41 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\Card;
-
 use Illuminate\Support\Facades\Auth;
 
 class CardPolicy
 {
     /**
-     * Determine whether the given user can view a specific card.
-     *
-     * @param  \App\Models\User  $user  The authenticated user
-     * @param  \App\Models\Card  $card  The card being accessed
-     * @return bool
+     * Determine whether the user can view a specific card.
      */
     public function view(User $user, Card $card): bool
     {
-        // A card can only be viewed by its owner.
+        // Only the owner can view the card.
         return $user->id === $card->user_id;
     }
 
     /**
-     * Determine whether the given user can view any cards.
-     *
-     * @param  \App\Models\User  $user
-     * @return bool
+     * Determine whether the user can view ANY cards.
      */
     public function viewAny(User $user): bool
     {
-        // Any authenticated user can view their own cards.
+        // Any authenticated user can view their own list of cards.
         return Auth::check();
     }
 
     /**
-     * Determine whether the given user can create new cards.
-     *
-     * @param  \App\Models\User  $user
-     * @return bool
+     * Determine whether the user can create new cards.
      */
     public function create(User $user): bool
     {
-        // Any authenticated user can create a card.
         return Auth::check();
     }
 
     /**
-     * Determine whether the given user can delete a specific card.
-     *
-     * @param  \App\Models\User  $user  The authenticated user
-     * @param  \App\Models\Card  $card  The card being deleted
-     * @return bool
+     * Determine whether the user can delete a card.
      */
     public function delete(User $user, Card $card): bool
     {
-        // A card can only be deleted by its owner.
-      return $user->id === $card->user_id;
+        return $user->id === $card->user_id;
     }
 }

@@ -34,6 +34,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'birth_date' => 'date',
+        'created_at' => 'date',
         'is_public' => 'boolean',
         'is_admin' => 'boolean',
         'password' => 'hashed',

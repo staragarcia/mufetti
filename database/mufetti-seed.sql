@@ -57,6 +57,7 @@ CREATE TABLE users (
     description TEXT,
     is_public BOOLEAN NOT NULL,
     is_admin BOOLEAN NOT NULL,
+    created_at DATE NOT NULL DEFAULT CURRENT_DATE,
     CONSTRAINT birth_date CHECK (birth_date < CURRENT_DATE)
 );
 

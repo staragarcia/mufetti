@@ -14,7 +14,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        return view('posts.create'); // create this view eventually
+        return view('pages.posts.create'); // create this view eventually
     }
 
     /**
@@ -40,7 +40,7 @@ class PostController extends Controller
             'id_group' => $validated['id_group'] ?? null,
         ]);
 
-        return redirect()->route('timeline')
+        return redirect()->route('profile.show') // mudar para timeline ig ??
             ->with('success', 'Post created successfully!');
     }
 

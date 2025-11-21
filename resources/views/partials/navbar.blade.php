@@ -30,7 +30,7 @@
 
                 @auth
 
-                    <a href="/create"
+                    <a href="/posts/create" 
                        class="text-sm font-medium transition-colors
                             {{ request()->is('create') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
                         Create

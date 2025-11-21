@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PostController;
 
 
 Route::get('/', function () {
@@ -53,4 +54,9 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/profile/{id}', [ProfileController::class, 'destroy'])
         ->name('profile.delete');
+
+    // posts
+    Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
+    Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+    Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
 });

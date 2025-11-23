@@ -116,24 +116,24 @@
                                     
                                     {{-- Image --}}
                                     @if($post->img)
-                                    <div class="flex-shrink-0 w-48">
+                                    <div class="flex-shrink-0 w-48 overflow-hidden rounded-md">
                                         <img 
                                             src="{{ $post->img }}" 
                                             alt="Post image" 
-                                            class="w-full h-48 object-cover rounded-md transition-all duration-200 group-hover:scale-105"
+                                            class="w-full h-48 object-cover transition-all duration-200 group-hover:scale-105"
                                         >
                                     </div>
                                     @endif
                                     
-                                    {{-- Text with Truncation --}}
+                                    {{-- Text with Conditional Fade --}}
                                     <div class="flex-1 min-w-0 @if($post->img) h-48 @endif">
-                                        <div class="@if($post->img) max-h-40 overflow-hidden @endif relative">
-                                            <p class="text-gray-600 @if($post->img) line-clamp-6 @endif">
+                                        <div class="@if($post->img) h-full overflow-hidden relative @endif">
+                                            <p class="text-gray-600" id="text-{{ $post->id }}">
                                                 {{ $post->description }}
                                             </p>
-                                            {{-- "..." indicator --}}
+                                            {{-- Fade Overlay - Hidden by default --}}
                                             @if($post->img)
-                                            <div class="absolute bottom-0 right-0 text-gray-400 text-lg font-light truncation-indicator hidden">...</div>
+                                            <div class="fade-overlay absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent pointer-events-none hidden" id="fade-{{ $post->id }}"></div>
                                             @endif
                                         </div>
                                     </div>
@@ -176,13 +176,14 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    // Show "..." indicator only when text is truncated
-    document.querySelectorAll('.max-h-40').forEach(container => {
-        const text = container.querySelector('p');
-        const indicator = container.querySelector('.truncation-indicator');
+    // Show fade only when text overflows
+    document.querySelectorAll('[id^="text-"]').forEach(textElement => {
+        const postId = textElement.id.replace('text-', '');
+        const fadeElement = document.getElementById(`fade-${postId}`);
+        const container = textElement.parentElement;
         
-        if (text && indicator && text.scrollHeight > container.clientHeight) {
-            indicator.classList.remove('hidden');
+        if (fadeElement && textElement.scrollHeight > container.clientHeight) {
+            fadeElement.classList.remove('hidden');
         }
     });
 });

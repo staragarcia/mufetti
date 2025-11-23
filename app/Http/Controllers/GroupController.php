@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Gate;
 class GroupController extends Controller
 {
 
-    public function showAll()
+    public function showUserGroups()
     {
         $user = auth()->id();
 
@@ -60,15 +60,12 @@ class GroupController extends Controller
     {
         $userId = auth()->id();
 
-        // Secure: user must be owner or member
-        if ($group->owner !== $userId && !$group->members()->where('id_user', $userId)->exists()) {
-            abort(403, 'Unauthorized');
-        }
+        $canView = $group->is_public || ($userId && $group->owner == $userId);
 
         // Get posts inside this group
         $posts = $group->posts()->latest()->get();
 
-        return view('pages.groups.show', compact('group', 'posts'));
+        return view('pages.groups.show', compact('group', 'posts', 'canView'));
     }
 
 

@@ -15,6 +15,18 @@
             </div>
         </div>
 
+        {{-- Se NÃO pode ver --}}
+        @if(!$canView)
+            <div class="p-6 bg-card border border-border rounded-lg text-center shadow-sm">
+                <p class="text-muted-foreground">
+                    This group is private.
+                </p>
+                <p class="text-muted-foreground text-sm mt-1">
+                    Join the group to see their posts.
+                </p>
+            </div>
+        @else
+
         {{-- Posts --}}
         <div class="space-y-6">
             <h2 class="text-xl font-semibold text-foreground">Posts</h2>
@@ -32,7 +44,7 @@
                 <p class="text-muted-foreground">No posts in this group yet.</p>
             @endforelse
         </div>
-
+        @endif
     </div>
 </div>
 @endsection

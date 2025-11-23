@@ -45,6 +45,7 @@ class Group extends Model
         return $this->hasMany(Content::class, 'id_group')->posts();
     }
 
+    //Groups the user is a member or owner
     public function scopeForUser($query, $userId)
     {
         return $query->where('owner', $userId)

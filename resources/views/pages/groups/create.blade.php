@@ -69,7 +69,7 @@
                 {{-- Submit Button --}}
                 <div class="flex gap-4 pt-4">
                     <a
-                        href="{{ route('groups.showAll') }}"
+                        href="{{ route('groups.create') }}"
                         class="flex-1 bg-muted hover:bg-muted/80 text-muted-foreground font-semibold py-2 px-4 rounded-md transition text-center"
                     >
                         Cancel

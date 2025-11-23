@@ -112,32 +112,37 @@
                                 </div>
 
                                 {{-- Post Content --}}
-                                <div class="flex gap-4 @if($post->img) max-h-48 @endif">
-                                    
-                                    {{-- Image --}}
-                                    @if($post->img)
-                                    <div class="flex-shrink-0 w-48 overflow-hidden rounded-md">
-                                        <img 
-                                            src="{{ $post->img }}" 
-                                            alt="Post image" 
-                                            class="w-full h-48 object-cover transition-all duration-200 group-hover:scale-105"
-                                        >
-                                    </div>
-                                    @endif
-                                    
-                                    {{-- Text with Conditional Fade --}}
-                                    <div class="flex-1 min-w-0 @if($post->img) h-48 @endif">
-                                        <div class="@if($post->img) h-full overflow-hidden relative @endif">
-                                            <p class="text-gray-600" id="text-{{ $post->id }}">
-                                                {{ $post->description }}
-                                            </p>
-                                            {{-- Fade Overlay - Hidden by default --}}
-                                            @if($post->img)
-                                            <div class="fade-overlay absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent pointer-events-none hidden" id="fade-{{ $post->id }}"></div>
-                                            @endif
+                                <div class="flex gap-4">
+                                     
+                                     {{-- Image --}}
+                                     @if($post->img)
+                                     <div class="flex-shrink-0 w-48 overflow-hidden rounded-md">
+                                         <img 
+                                             src="{{ $post->img }}" 
+                                             alt="Post image" 
+                                             class="w-full h-48 object-cover transition-all duration-200 group-hover:scale-105"
+                                         >
+                                     </div>
+                                     @endif
+                                     
+                                     {{-- Text with Conditional Fade --}}
+                                     <div class="flex-1 min-w-0"> 
+                                        <div class="max-h-48 overflow-hidden relative"> 
+                                            <p class="text-gray-600 whitespace-pre-line leading-relaxed" id="text-{{ $post->id }}">{{ trim($post->description ?? '') }}</p>
+                                             {{-- Fade Overlay with "Continue reading"--}}
+                                             <div class="fade-overlay absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none hidden" id="fade-{{ $post->id }}">
+                                                  <div class="h-full flex items-end justify-center pb-2">
+                                                      <div class="flex items-center gap-1 text-blue-600 font-semibold text-sm">
+                                                          <span>Continue reading</span>
+                                                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                                          </svg>
+                                                      </div>
+                                                  </div>
+                                              </div>
                                         </div>
                                     </div>
-                                </div>
+                                 </div>
 
                                 {{-- Footer --}}
                                 <div class="flex justify-between items-center text-sm text-gray-500 mt-4 pt-4 border-t border-gray-200">
@@ -176,7 +181,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    // Show fade only when text overflows
+    // Show fade with "Continue reading" only when text overflows
     document.querySelectorAll('[id^="text-"]').forEach(textElement => {
         const postId = textElement.id.replace('text-', '');
         const fadeElement = document.getElementById(`fade-${postId}`);

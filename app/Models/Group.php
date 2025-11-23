@@ -24,7 +24,7 @@ class Group extends Model
     /**
      * The owner of the group (User)
      */
-    public function owner()
+    public function ownerUser()
     {
         return $this->belongsTo(User::class, 'owner'); //here we have to use 'owner', because laravel uses user_id as default
     }

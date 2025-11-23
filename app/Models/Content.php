@@ -16,19 +16,19 @@ class Content extends Model
      */
     protected $fillable = [
         'type',
-        'title', 
+        'title',
         'description',
         'img',
         'owner',      // foreign key to users
-        'id_group',   // foreign key to groups  
+        'id_group',   // foreign key to groups
         'reply_to',   // foreign key to content (but just for comments)
     ];
 
     /**
      * this tells Laravel to convert created_at from a plain string to a smart date object
      * so we can easily format it or do date calculations (in our views etc)
-     * 
-     * 
+     *
+     *
      */
     protected $casts = [
         'created_at' => 'date',
@@ -37,7 +37,7 @@ class Content extends Model
     /**
      * Get the user who owns this content.
      */
-    public function owner(): BelongsTo
+    public function ownerUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner');
     }

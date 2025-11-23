@@ -22,15 +22,15 @@
                 </a>
 
 
-                <a href="/groups"
-                   class="text-sm font-medium transition-colors
-                    {{ request()->is('groups') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
-                    Groups
-                </a>
 
                 @auth
 
-                    <a href="/posts/create" 
+                    <a href="/groups"
+                        class="text-sm font-medium transition-colors
+                        {{ request()->is('groups') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
+                        Groups
+                    </a>
+                    <a href="/posts/create"
                        class="text-sm font-medium transition-colors
                             {{ request()->is('create') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
                         Create

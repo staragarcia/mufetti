@@ -9,6 +9,8 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReactionController;
+use App\Http\Controllers\GroupController;
+use App\Http\Controllers\SearchController;
 
 
 Route::get('/', function () {
@@ -17,6 +19,13 @@ Route::get('/', function () {
         : redirect()->route('login');
 })->name('home');
 
+
+//search
+Route::get('/search', [SearchController::class, 'show'])->name('search.show');
+Route::get('/search/results', [SearchController::class, 'results'])->name('search.results');
+
+// View another user's profile
+Route::get('/profile/{user:id}', [ProfileController::class, 'show'])->name('profile.showOther');
 
 
 Route::middleware('guest')->group(function () {
@@ -41,12 +50,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
 
     // Profile
-    Route::get('/profile', [ProfileController::class, 'show'])
+    Route::get('/profile', [ProfileController::class, 'myProfile'])
         ->name('profile.show');
 
     Route::post('/profile/privacy', [ProfileController::class, 'togglePrivacy'])
         ->name('profile.togglePrivacy');
-    
+
         Route::get('/profile/edit', [ProfileController::class, 'edit'])
         ->name('profile.edit');
 
@@ -65,4 +74,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/posts/{post}/react', [ReactionController::class, 'toggle'])->name('posts.react');
     Route::get('/posts/{post}/reactions', [ReactionController::class, 'getCounts'])->name('posts.reactions.counts');
     
+    //groups
+    Route::get('/groups', [GroupController::class, 'showUserGroups'])->name('groups.showUserGroups');
+    Route::get('/groups/create', [GroupController::class, 'create'])->name('groups.create');
+    Route::post('/groups', [GroupController::class, 'store'])->name('groups.store');
+    Route::get('/groups/{group}', [GroupController::class, 'showGroup'])->name('groups.show');
+
+
 });

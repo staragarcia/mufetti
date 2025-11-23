@@ -6,10 +6,11 @@ use App\Models\Content;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use App\Models\User;
 
 class ProfileController extends Controller
 {
-    public function show()
+    public function myProfile(): View
     {
         $user = Auth::user();
         
@@ -20,9 +21,17 @@ class ProfileController extends Controller
             ->orderBy('id', 'desc') // then it sorts by id in descending order since newer posts have higher ids
             ->get();
 
-        return view('pages.profile', [
+        return view('pages.profile.profile', [
             'user' => $user,
             'posts' => $posts 
         ]);
     }
+
+    public function show(User $user): View
+    {
+        $canView = $user->is_public;
+        return view('pages.profile.show', compact('user', 'canView'));
+
+    }
+
 }

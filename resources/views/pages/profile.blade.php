@@ -75,7 +75,7 @@
 
                 <div class="flex gap-6 text-sm">
                     <div class="hover:underline cursor-pointer">
-                        <span class="font-semibold text-foreground">0</span>
+                        <span class="font-semibold text-foreground">{{ $posts->count() ?? 0 }}</span>
                         <span class="text-muted-foreground">Posts</span>
                     </div>
                     <div class="hover:underline cursor-pointer">
@@ -95,11 +95,96 @@
                 </div>
             </div>
 
-            <p class="text-muted-foreground">
-                No posts yet.
-            </p>
+            {{-- Posts Display --}}
+            @if(isset($posts) && $posts->count() > 0)
+                <div class="space-y-6">
+                    @foreach($posts as $post)
+                        {{-- Clickable Post Card --}}
+                        <a href="#" class="block group">
+                            <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm transition-all duration-200 hover:shadow-xl hover:-translate-y-1 cursor-pointer">
+                                
+                                {{-- Post Header --}}
+                                <div class="flex justify-between items-start mb-4">
+                                    <h3 class="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                                        {{ $post->title }}
+                                    </h3>
+                                    <span class="text-sm text-gray-500">{{ $post->created_at->format('M j, Y') }}</span>
+                                </div>
+
+                                {{-- Post Content --}}
+                                <div class="flex gap-4 @if($post->img) max-h-48 @endif">
+                                    
+                                    {{-- Image --}}
+                                    @if($post->img)
+                                    <div class="flex-shrink-0 w-48">
+                                        <img 
+                                            src="{{ $post->img }}" 
+                                            alt="Post image" 
+                                            class="w-full h-48 object-cover rounded-md transition-all duration-200 group-hover:scale-105"
+                                        >
+                                    </div>
+                                    @endif
+                                    
+                                    {{-- Text with Truncation --}}
+                                    <div class="flex-1 min-w-0 @if($post->img) h-48 @endif">
+                                        <div class="@if($post->img) max-h-40 overflow-hidden @endif relative">
+                                            <p class="text-gray-600 @if($post->img) line-clamp-6 @endif">
+                                                {{ $post->description }}
+                                            </p>
+                                            {{-- "..." indicator --}}
+                                            @if($post->img)
+                                            <div class="absolute bottom-0 right-0 text-gray-400 text-lg font-light truncation-indicator hidden">...</div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Footer --}}
+                                <div class="flex justify-between items-center text-sm text-gray-500 mt-4 pt-4 border-t border-gray-200">
+                                    <div class="flex gap-4">
+                                        <span class="flex items-center gap-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                            </svg>
+                                            {{ $post->likes }} likes
+                                        </span>
+                                        <span class="flex items-center gap-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                            </svg>
+                                            {{ $post->comments }} comments
+                                        </span>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            @else
+                <div class="text-center py-8">
+                    <p class="text-gray-500 mb-4">You haven't created any posts yet.</p>
+                    <a href="{{ route('posts.create') }}" class="text-blue-600 hover:underline font-semibold">
+                        Create your first post!
+                    </a>
+                </div>
+            @endif
 
         </div>
     </main>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    // Show "..." indicator only when text is truncated
+    document.querySelectorAll('.max-h-40').forEach(container => {
+        const text = container.querySelector('p');
+        const indicator = container.querySelector('.truncation-indicator');
+        
+        if (text && indicator && text.scrollHeight > container.clientHeight) {
+            indicator.classList.remove('hidden');
+        }
+    });
+});
+</script>
 @endsection

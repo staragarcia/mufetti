@@ -91,7 +91,7 @@
 
             <div class="border-b border-border mb-6">
                 <div class="px-4 py-3">
-                    <h2 class="font-semibold text-foreground">Posts</h2>
+                    <h2 class="font-semibold text-foreground">posts</h2>
                 </div>
             </div>
 

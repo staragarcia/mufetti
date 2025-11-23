@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\GroupController;
 
 
 Route::get('/', function () {
@@ -45,7 +46,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/profile/privacy', [ProfileController::class, 'togglePrivacy'])
         ->name('profile.togglePrivacy');
-    
+
         Route::get('/profile/edit', [ProfileController::class, 'edit'])
         ->name('profile.edit');
 
@@ -59,4 +60,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
     Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
+
+    //groups
+    Route::get('/groups', [GroupController::class, 'showAll'])->name('groups.showAll');
+    Route::get('/groups/create', [GroupController::class, 'create'])->name('groups.create');
+    Route::post('/groups', [GroupController::class, 'store'])->name('groups.store');
+    Route::get('/groups/{group}', [GroupController::class, 'showGroup'])->name('groups.show');
+
 });

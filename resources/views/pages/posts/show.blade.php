@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="min-h-screen bg-background">
-    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-12">
         
         {{-- Back Button --}}
         <div class="mb-6">
@@ -44,12 +44,15 @@
 
             {{-- Post Image --}}
             @if($post->img)
-            <div class="mb-6">
-                <img 
-                    src="{{ $post->img }}" 
-                    alt="Post image" 
-                    class="w-full max-h-96 object-cover rounded-lg"
-                >
+            <div class="mb-6 flex justify-center">
+                <div class="w-full max-w-2xl"> {{-- Limit maximum width --}}
+                    <img 
+                        src="{{ $post->img }}" 
+                        alt="Post image" 
+                        class="w-full h-auto max-h-[400px] min-h-[200px] object-contain rounded-lg bg-white" 
+                        onerror="this.style.display='none'" {{-- Hide if image fails to load --}}
+                    >
+                </div>
             </div>
             @endif
 

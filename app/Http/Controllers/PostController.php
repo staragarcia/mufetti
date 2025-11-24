@@ -44,6 +44,19 @@ class PostController extends Controller
             ->with('success', 'Post created successfully!');
     }
 
+    public function show(Content $post)
+    {
+        if (!$post->isPost()) {
+            abort(404, 'Post not found.');
+        }
+
+        $post->load('ownerUser', 'reactions.user');
+
+        return view('pages.posts.show', [
+            'post' => $post
+        ]);
+    }
+
     // add the delete post (required)
     // add the edit post
 }

@@ -91,7 +91,7 @@
 
             <div class="border-b border-border mb-6">
                 <div class="px-4 py-3">
-                    <h2 class="font-semibold text-foreground">posts</h2>
+                    <h2 class="font-semibold text-foreground">Posts</h2>
                 </div>
             </div>
 
@@ -103,7 +103,7 @@
                         <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm transition-all duration-200 hover:shadow-xl hover:-translate-y-1 group">
                             
                             {{-- Clickable Upper Part (Header + Content) --}}
-                            <a href="#" class="block cursor-pointer">
+                            <a href="{{ route('posts.show', $post) }}" class="block cursor-pointer">
                                 {{-- Post Header --}}
                                 <div class="flex justify-between items-start mb-4">
                                     <h3 class="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">

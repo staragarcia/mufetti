@@ -12,54 +12,59 @@ class ReactionController extends Controller
     /**
      * Toggle reaction on a post (AJAX)
      */
-    public function toggle(Request $request, Content $post)
+    // App/Http/Controllers/ReactionController.php
+
+public function toggle(Request $request, Content $post)
     {
-        // make sure it's a post and not a comment
+        // only posts
         if (!$post->isPost()) {
             return response()->json(['error' => 'Can only react to posts'], 422);
         }
 
-        $reactionType = $request->input('type'); // like, confetti
+        $reactionType = $request->input('type'); // e.g. 'like' or 'confetti'
         $user = Auth::user();
 
-        // check if user already has this reaction on the post
-        $existingReaction = Reaction::where('id_user', $user->id)
-            ->where('id_content', $post->id)
-            ->where('type', $reactionType)
-            ->first();
-
-        if ($existingReaction) {
-            // remove reaction
-            $existingReaction->delete();
-            $action = 'removed';
-        } else {
-            // remove any existing reactions
-            Reaction::where('id_user', $user->id)
-                ->where('id_content', $post->id)
-                ->delete();
-
-            // add new reaction
-            Reaction::create([
-                'type' => $reactionType,
-                'id_user' => $user->id,
-                'id_content' => $post->id,
-            ]);
-            $action = 'added';
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
         }
 
-        // reaction counts
+        // find any existing reaction by this user for this content
+        $existing = Reaction::where('id_user', $user->id)
+            ->where('id_content', $post->id)
+            ->first();
+
+        // If the user already reacted with the same type => remove (toggle off)
+        if ($existing && $existing->type === $reactionType) {
+            $existing->delete();
+            $action = 'removed';
+            $userReactionType = null;
+        } else {
+            // If exists but different type -> update it
+            if ($existing) {
+                $existing->update(['type' => $reactionType]);
+            } else {
+                Reaction::create([
+                    'type' => $reactionType,
+                    'id_user' => $user->id,
+                    'id_content' => $post->id,
+                ]);
+            }
+            $action = 'added_or_switched';
+            $userReactionType = $reactionType;
+        }
+
+        // fresh counts
         $likesCount = $post->reactions()->where('type', 'like')->count();
         $confettiCount = $post->reactions()->where('type', 'confetti')->count();
-        $userReaction = $post->reactions()->where('id_user', $user->id)->first();
 
         return response()->json([
             'action' => $action,
-            'type' => $reactionType,
             'likes_count' => $likesCount,
             'confetti_count' => $confettiCount,
-            'user_reaction' => $userReaction ? $userReaction->type : null,
+            'user_reaction' => $userReactionType,
         ]);
     }
+
 
     /**
      * Get reaction counts for a post (AJAX)

@@ -57,6 +57,31 @@ class PostController extends Controller
         ]);
     }
 
-    // add the delete post (required)
-    // add the edit post
+
+    public function edit(Content $post) 
+    {
+        
+    }
+
+    /**
+    * Soft delete 
+    */
+    public function destroy(Content $post)
+    {
+        Gate::authorize('delete', $post);
+
+        $post->update([
+            'title' => '[Deleted Post]',
+            'description' => 'This post has been deleted by the user.',
+            'img' => null,
+        ]);
+
+        if (request()->expectsJson()) {
+            return response()->json(['message' => 'Post deleted successfully']);
+        }
+
+        return redirect()->route('profile.show')
+            ->with('success', 'Post deleted successfully!');
+    }
+
 }

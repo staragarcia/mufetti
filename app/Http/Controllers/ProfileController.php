@@ -30,8 +30,18 @@ class ProfileController extends Controller
     public function show(User $user): View
     {
         $canView = $user->is_public;
-        return view('pages.profile.show', compact('user', 'canView'));
 
+        $posts = collect();
+        if ($canView) {
+            $posts = Content::posts()
+                ->where('owner', $user->id)
+                ->where('title', '!=', '[Deleted Post]')
+                ->orderBy('created_at', 'desc')
+                ->orderBy('id', 'desc')
+                ->get();
+        }
+
+        return view('pages.profile.show', compact('user', 'canView', 'posts'));
     }
 
 }

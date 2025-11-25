@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Content;
+use App\Models\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -58,9 +59,48 @@ class PostController extends Controller
     }
 
 
-    public function edit(Content $post) 
+    /**
+     * Show the form for editing the specified post.
+     */
+    public function edit(Content $post)
     {
-        
+        // Authorization - user can only edit their own posts
+        Gate::authorize('update', $post);
+
+        $groups = Group::where('owner', Auth::id())->get();
+
+        return view('pages.posts.edit', [
+            'post' => $post,
+            'groups' => $groups
+        ]);
+    }
+
+    /**
+     * Update the specified post in storage.
+     */
+    public function update(Request $request, Content $post)
+    {
+        // Authorization - user can only update their own posts
+        Gate::authorize('update', $post);
+
+        // Validate the request data
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'img' => 'nullable|string',
+            'id_group' => 'nullable|exists:groups,id',
+        ]);
+
+        // Update the post
+        $post->update([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'img' => $validated['img'] ?? null,
+            'id_group' => $validated['id_group'] ?? null,
+        ]);
+
+        return redirect()->route('posts.show', $post)
+            ->with('success', 'Post updated successfully!');
     }
 
     /**

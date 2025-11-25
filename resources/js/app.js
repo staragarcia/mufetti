@@ -23,28 +23,33 @@ function initializeReactions() {
                 const data = await response.json();
 
                 if (response.ok) {
-                    // counts
-                    const postCard = this.closest('.bg-white');
-                    const likesCountElement = postCard.querySelector('.likes-count');
-                    const confettiCountElement = postCard.querySelector('.confetti-count');
+                    // Find post card using multiple possible selectors
+                    const postCard = this.closest('.bg-white') || 
+                                   this.closest('.border-gray-200')?.closest('.border-gray-200') ||
+                                   this.closest('[data-post-id]')?.closest('div');
                     
-                    if (likesCountElement) {
-                        likesCountElement.textContent = data.likes_count;
-                    }
-                    if (confettiCountElement) {
-                        confettiCountElement.textContent = data.confetti_count;
-                    }
+                    if (postCard) {
+                        const likesCountElement = postCard.querySelector('.likes-count');
+                        const confettiCountElement = postCard.querySelector('.confetti-count');
+                        
+                        if (likesCountElement) {
+                            likesCountElement.textContent = data.likes_count;
+                        }
+                        if (confettiCountElement) {
+                            confettiCountElement.textContent = data.confetti_count;
+                        }
 
-                    const allReactionBtns = postCard.querySelectorAll('.reaction-btn');
-                    allReactionBtns.forEach(btn => {
-                        btn.classList.remove('text-blue-600', 'text-yellow-600', 'scale-110');
-                    });
+                        const allReactionBtns = postCard.querySelectorAll('.reaction-btn');
+                        allReactionBtns.forEach(btn => {
+                            btn.classList.remove('text-blue-600', 'text-yellow-600', 'scale-110');
+                        });
 
-                    if (data.user_reaction === reactionType) {
-                        this.classList.add(
-                            reactionType === 'like' ? 'text-blue-600' : 'text-yellow-600',
-                            'scale-110'
-                        );
+                        if (data.user_reaction === reactionType) {
+                            this.classList.add(
+                                reactionType === 'like' ? 'text-blue-600' : 'text-yellow-600',
+                                'scale-110'
+                            );
+                        }
                     }
 
                     // animation when reactions are clicked/selected
@@ -65,7 +70,11 @@ function initializeReactions() {
     // Load initial reaction states on page load
     document.querySelectorAll('[data-post-id]').forEach(async (element) => {
         const postId = element.dataset.postId;
-        const postCard = element.closest('.bg-white');
+        const postCard = element.closest('.bg-white') || 
+                        element.closest('.border-gray-200')?.closest('.border-gray-200') ||
+                        element.closest('div');
+        
+        if (!postCard) return;
         
         try {
             const response = await fetch(`/posts/${postId}/reactions`);
@@ -100,4 +109,3 @@ function initializeReactions() {
 document.addEventListener('DOMContentLoaded', function() {
     initializeReactions();
 });
-

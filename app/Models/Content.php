@@ -105,4 +105,12 @@ class Content extends Model
     {
         return $this->type === 'comment';
     }
+
+    /**
+     * Check if this content has been soft-deleted
+     */
+    public function isDeleted(): bool
+    {
+        return $this->title === '[Deleted Post]';
+    }
 }

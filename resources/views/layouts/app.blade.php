@@ -11,6 +11,9 @@
         {{-- Tailwind + Vite --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+        {{-- Alpine.js --}}
+        <script src="//unpkg.com/alpinejs" defer></script>
+
         @stack('styles')
     </head>
 

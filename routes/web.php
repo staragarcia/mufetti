@@ -11,6 +11,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\Feed\FeedController;
 
 
 Route::get('/', function () {
@@ -83,5 +84,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/groups', [GroupController::class, 'store'])->name('groups.store');
     Route::get('/groups/{group}', [GroupController::class, 'showGroup'])->name('groups.show');
 
+    // feed
+    Route::get('feed', [FeedController::class, 'showFeed'])->name('feed.show');
 
 });

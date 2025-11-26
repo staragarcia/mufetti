@@ -9,7 +9,7 @@ BEGIN TRANSACTION;
 SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
 
 -- 1. Insert the reaction record
-INSERT INTO reaction (type, created_at, id_user, id_content)
+INSERT INTO reactions (type, created_at, id_user, id_content)
 VALUES ($reaction_type, CURRENT_DATE, $user_id, $content_id);
 
 -- 2. Increment the likes counter on the content post (only if it's a 'like')
@@ -94,14 +94,14 @@ SET status = $status
 WHERE id = $request_id;
 
 -- If accepted, create the following relationship
-INSERT INTO following (id_user, id_following)
+INSERT INTO followings (id_user, id_following)
 SELECT id_followed, id_follower
 FROM follow_request
 WHERE id = $request_id
 AND $status = 'accepted';
 
 -- Notify the requester
-INSERT INTO notification (type, receiver, actor, id_follow_request)
+INSERT INTO notifications (type, receiver, actor, id_follow_request)
 SELECT
    CASE WHEN $status = 'accepted' THEN 'acceptedFollowRequest' ELSE 'startFollowing' END,
    id_follower,
@@ -122,7 +122,7 @@ SET status = $status
 WHERE id = $request_id;
 
 -- 2. If approved, add user to group members
-INSERT INTO group_member (id_group, id_user)
+INSERT INTO group_members (id_group, id_user)
 SELECT id_group, id_user
 FROM join_request
 WHERE id = $request_id
@@ -135,7 +135,7 @@ WHERE id = (SELECT id_group FROM join_request WHERE id = $request_id)
 AND $status = 'accepted';
 
 -- 4. Notify the requester if accepted
-INSERT INTO notification (type, receiver, actor, id_group_join_request)
+INSERT INTO notifications (type, receiver, actor, id_group_join_request)
 SELECT 'acceptedJoinGroupRequest', id_user,
       (SELECT owner FROM groups WHERE id = jr.id_group),
       $request_id

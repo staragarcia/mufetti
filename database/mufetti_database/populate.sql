@@ -3,6 +3,24 @@
 SET search_path TO lbaw2585;
 
 -----------------------------------------
+-- Anonymous User (system account)
+-----------------------------------------
+
+INSERT INTO users (id, name, username, email, password, birth_date, is_public, is_admin)
+VALUES (
+    1,
+    'Anonymous',
+    'anonymous',
+    'anonymous@example.com',
+    crypt('thisisnotused', gen_salt('bf')),
+    CURRENT_DATE,
+    true,
+    false
+)
+ON CONFLICT (id) DO NOTHING;
+
+
+-----------------------------------------
 -- USERS (25)
 -----------------------------------------
 INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)

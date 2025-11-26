@@ -40,7 +40,7 @@ class PostController extends Controller
             'id_group' => $validated['id_group'] ?? null,
         ]);
 
-        return redirect()->route('profile.show') // mudar para timeline ig ??
+        return redirect()->route('pages.profile.show') // mudar para timeline ig ??
             ->with('success', 'Post created successfully!');
     }
 

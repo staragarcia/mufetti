@@ -36,11 +36,14 @@
                         </div>
 
                         <div class="flex gap-2">
-                            <a href="/profile/edit"
-                               class="px-4 py-2 rounded-md border border-border text-sm hover:bg-muted">
-                                Edit Profile
-                            </a>
+                            @if(auth()->check() && auth()->id() === $user->id)
+                                <a href="{{ route('pages.profile.edit') }}"
+                                class="px-4 py-2 rounded-md border border-border text-sm font-medium hover:bg-muted transition">
+                                    Edit Profile
+                                </a>
+                            @endif
                         </div>
+
 
                     </div>
                 </div>

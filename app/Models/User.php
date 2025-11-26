@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
+    const ANONYMOUS_ID = 1;
 
     // Laravel timestamps are NOT present in your SQL table
     public $timestamps = false;

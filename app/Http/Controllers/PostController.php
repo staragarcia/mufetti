@@ -8,10 +8,27 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * @OA\Tag(
+ *     name="M07: Posts",
+ *     description="All endpoints related to creating, viewing, editing and deleting posts."
+ * )
+ */
 class PostController extends Controller
 {
     /**
      * show the form for creating a new post
+     *
+     * @OA\Get(
+     *     path="/posts/create",
+     *     summary="Show form to create a new post",
+     *     description="Returns the UI form to create a new post. Groups owned by user are included.",
+     *     tags={"M07: Posts"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Create post form"
+     *     )
+     * )
      */
     public function create()
     {
@@ -21,6 +38,28 @@ class PostController extends Controller
 
     /**
      * Store a newly created post in storage.
+     *
+     * @OA\Post(
+     *     path="/posts",
+     *     summary="Create a new post",
+     *     description="Stores a new post in the database. Optional group association.",
+     *     tags={"M07: Posts"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/x-www-form-urlencoded",
+     *             @OA\Schema(
+     *                 type="object",
+     *                 required={"title","description"},
+     *                 @OA\Property(property="title", type="string"),
+     *                 @OA\Property(property="description", type="string"),
+     *                 @OA\Property(property="img", type="string"),
+     *                 @OA\Property(property="id_group", type="integer")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=302, description="Redirect after creating post")
+     * )
      */
     public function store(Request $request)
     {
@@ -37,7 +76,7 @@ class PostController extends Controller
             'type' => 'post',
             'title' => $validated['title'],
             'description' => $validated['description'],
-            'img' => $validated['img'] ?? null, 
+            'img' => $validated['img'] ?? null,
             'owner' => Auth::id(),
             'id_group' => $validated['id_group'] ?? null,
         ]);
@@ -46,6 +85,25 @@ class PostController extends Controller
             ->with('success', 'Post created successfully!');
     }
 
+    /**
+     * Display the specified post.
+     *
+     * @OA\Get(
+     *     path="/posts/{post}",
+     *     summary="Show a post",
+     *     description="Displays a single post with owner and reactions.",
+     *     tags={"M07: Posts"},
+     *     @OA\Parameter(
+     *         name="post",
+     *         in="path",
+     *         required=true,
+     *         description="Post ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(response=200, description="Post detail"),
+     *     @OA\Response(response=404, description="Post not found")
+     * )
+     */
     public function show(Content $post)
     {
         if (!$post->isPost()) {
@@ -59,9 +117,24 @@ class PostController extends Controller
         ]);
     }
 
-
     /**
      * Show the form for editing the specified post.
+     *
+     * @OA\Get(
+     *     path="/posts/{post}/edit",
+     *     summary="Show form to edit a post",
+     *     description="Only post owner can edit the post.",
+     *     tags={"M07: Posts"},
+     *     @OA\Parameter(
+     *         name="post",
+     *         in="path",
+     *         required=true,
+     *         description="Post ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(response=200, description="Edit post form"),
+     *     @OA\Response(response=403, description="Access denied")
+     * )
      */
     public function edit(Content $post)
     {
@@ -78,6 +151,36 @@ class PostController extends Controller
 
     /**
      * Update the specified post in storage.
+     *
+     * @OA\Put(
+     *     path="/posts/{post}",
+     *     summary="Update a post",
+     *     description="Only post owner can update the post.",
+     *     tags={"M07: Posts"},
+     *     @OA\Parameter(
+     *         name="post",
+     *         in="path",
+     *         required=true,
+     *         description="Post ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/x-www-form-urlencoded",
+     *             @OA\Schema(
+     *                 type="object",
+     *                 required={"title","description"},
+     *                 @OA\Property(property="title", type="string"),
+     *                 @OA\Property(property="description", type="string"),
+     *                 @OA\Property(property="img", type="string"),
+     *                 @OA\Property(property="id_group", type="integer")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=302, description="Redirect after updating post"),
+     *     @OA\Response(response=403, description="Access denied")
+     * )
      */
     public function update(Request $request, Content $post)
     {
@@ -105,7 +208,23 @@ class PostController extends Controller
     }
 
     /**
-    * Soft delete 
+    * Soft delete the post.
+    *
+    * @OA\Delete(
+    *     path="/posts/{post}",
+    *     summary="Delete a post",
+    *     description="Soft delete a post. Only post owner can delete.",
+    *     tags={"M07: Posts"},
+    *     @OA\Parameter(
+    *         name="post",
+    *         in="path",
+    *         required=true,
+    *         description="Post ID",
+    *         @OA\Schema(type="integer")
+    *     ),
+    *     @OA\Response(response=200, description="Post deleted successfully"),
+    *     @OA\Response(response=403, description="Access denied")
+    * )
     */
     public function destroy(Content $post)
     {
@@ -126,3 +245,4 @@ class PostController extends Controller
     }
 
 }
+

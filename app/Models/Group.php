@@ -67,5 +67,10 @@ class Group extends Model
                      ->whereHas('members', fn($q) => $q->where('id_user', $userId));
     }
 
+    public function joinRequests()
+    {
+        return $this->hasMany(JoinRequest::class, 'id_group');
+    }
+
 }
 

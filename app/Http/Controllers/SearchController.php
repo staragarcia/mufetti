@@ -7,13 +7,59 @@ use App\Models\Group;
 use App\Models\User;
 use Illuminate\Http\Request;
 
+/**
+ * @OA\Tag(
+ *     name="M09: Search",
+ *     description="Endpoints to perform searches for posts, comments, groups, and users."
+ * )
+ */
 class SearchController extends Controller
 {
+    /**
+     * Show the search form.
+     *
+     * @OA\Get(
+     *     path="/search",
+     *     summary="Show search form",
+     *     description="Displays the search page where users can enter a query.",
+     *     tags={"M09: Search"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Search form view"
+     *     )
+     * )
+     */
     public function show()
     {
         return view('pages.search.search');
     }
 
+    /**
+     * Display search results.
+     *
+     * @OA\Get(
+     *     path="/search/results",
+     *     summary="Show search results",
+     *     description="Performs search on posts, comments, groups, or users and returns results.",
+     *     tags={"M09: Search"},
+     *     @OA\Parameter(
+     *         name="query",
+     *         in="query",
+     *         required=true,
+     *         description="The search term",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         required=false,
+     *         description="Type of resource to search: posts, comments, groups, users",
+     *         @OA\Schema(type="string", default="posts")
+     *     ),
+     *     @OA\Response(response=200, description="Search results view"),
+     *     @OA\Response(response=302, description="Redirect if query is empty")
+     * )
+     */
     public function results(Request $request)
     {
         $query = $request->query('query');

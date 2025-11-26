@@ -27,6 +27,8 @@ Route::get('/search/results', [SearchController::class, 'results'])->name('searc
 // View another user's profile
 Route::get('/profile/{user:id}', [ProfileController::class, 'show'])->name('profile.showOther');
 
+//group
+Route::get('/groups/{group}', [GroupController::class, 'showGroup'])->name('groups.show');
 
 Route::middleware('guest')->group(function () {
 
@@ -70,18 +72,38 @@ Route::middleware('auth')->group(function () {
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
     Route::get('/posts/{post}/edit', [PostController::class, 'edit'])->name('posts.edit');
     Route::put('/posts/{post}', [PostController::class, 'update'])->name('posts.update');
-    Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show'); 
+    Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
     Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
 
     // reactions
     Route::post('/posts/{post}/react', [ReactionController::class, 'toggle'])->name('posts.react');
     Route::get('/posts/{post}/reactions', [ReactionController::class, 'getCounts'])->name('posts.reactions.counts');
-    
-    //groups
+
+    //GROUPS
+    // pagina que mostra todos os grupos que o user está associado
     Route::get('/groups', [GroupController::class, 'showUserGroups'])->name('groups.showUserGroups');
+    // pagina para criar novo grupo
     Route::get('/groups/create', [GroupController::class, 'create'])->name('groups.create');
+    //guardar na base de dados o novo grupo
     Route::post('/groups', [GroupController::class, 'store'])->name('groups.store');
-    Route::get('/groups/{group}', [GroupController::class, 'showGroup'])->name('groups.show');
+    //pedir para entrar num grupo
+    Route::post('/groups/{group}/join', [GroupController::class, 'joinRequest'])->name('groups.join');
+    // sair de um grupo
+    Route::post('/groups/{group}/leave', [GroupController::class, 'leaveGroup'])->name('groups.leave');
+    // remover membro
+    Route::delete('/groups/{group}/members/{user}', [GroupController::class, 'removeMember'])->name('groups.members.remove');
+    // pagina para editar grupo
+    Route::get('/groups/{group}/edit', [GroupController::class, 'edit'])->name('groups.edit');
+    // guardar base de dados nova informaçao do grupo
+    Route::post('/groups/{group}/update', [GroupController::class, 'update'])->name('groups.update');
+    // entrar em grupo publico
+    Route::post('/groups/{group}/join/public', [GroupController::class, 'joinPublicGroup'])->name('groups.join.public');
+
+
+    //joinRequest
+    Route::post('/join-requests/{request}/accept', [GroupController::class, 'acceptJoinRequest'])->name('joinRequests.accept');
+    Route::post('/join-requests/{request}/decline', [GroupController::class, 'declineJoinRequest'])->name('joinRequests.decline');
+    Route::get('/groups/{group}/requests', [GroupController::class, 'showJoinRequests'])->name('groups.requests');
 
 
 });

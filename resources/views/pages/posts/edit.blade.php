@@ -80,27 +80,18 @@
                     @endif
                 </div>
 
-                {{-- Group Selection --}}
-                @if(isset($groups) && $groups->count() > 0)
+                {{-- Group Selection (read-only) --}}
                 <div class="space-y-2">
-                    <label for="id_group" class="block text-sm font-medium text-foreground">Post to Group (optional)</label>
-                    <select
-                        id="id_group"
-                        name="id_group"
-                        class="w-full rounded-md border border-border bg-background px-3 py-2 focus:outline-none focus:ring focus:ring-primary/50 @error('id_group') border-red-500 @enderror"
+                    <label for="posted_to" class="block text-sm font-medium text-foreground">Posted to:</label>
+                    <input
+                        id="posted_to"
+                        type="text"
+                        value="{{ $post->id_group ? optional($post->group)->name : 'No Group' }}"
+                        disabled
+                        class="w-full rounded-md border border-border bg-background/50 px-3 py-2 cursor-not-allowed text-muted-foreground"
                     >
-                        <option value="">No Group</option>
-                        @foreach($groups as $group)
-                            <option value="{{ $group->id }}" {{ old('id_group', $post->id_group) == $group->id ? 'selected' : '' }}>
-                                {{ $group->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('id_group')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
+                    <p class="text-sm text-muted-foreground mt-1">Groups cannot be changed after posting.</p>
                 </div>
-                @endif
 
                 {{-- Buttons --}}
                 <div class="flex gap-4 pt-4">

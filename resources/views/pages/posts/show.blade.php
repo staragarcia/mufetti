@@ -6,11 +6,11 @@
         
         {{-- Back Button --}}
         <div class="mb-6">
-            <a href="{{ url()->previous() }}" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
+            <a href="{{ route('profile.show', $post->ownerUser ?? $post->owner) }}" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
-                Back
+                Back to {{ $backLabel ?? (optional($post->ownerUser)->name ?? 'Profile') }}
             </a>
         </div>
 

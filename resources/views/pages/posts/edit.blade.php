@@ -91,7 +91,7 @@
                     >
                         <option value="">No Group</option>
                         @foreach($groups as $group)
-                            <option value="{{ $group->id }}" 
+                            <option value="{{ $group->id }}" {{ old('id_group', $post->id_group) == $group->id ? 'selected' : '' }}>
                                 {{ $group->name }}
                             </option>
                         @endforeach

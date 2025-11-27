@@ -9,30 +9,30 @@
             {{-- Navigation Links --}}
             <div class="flex items-center gap-6">
 
-                <a href="/feed"
-                   class="text-sm font-medium transition-colors
-                    {{ request()->is('feed') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
-                    Feed
+                {{-- any user/visitor --}}
+
+                <a href="{{ route('feed.show') }}"
+                class="text-sm font-medium transition-colors
+                {{ request()->is('feed') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
+                    Public Feed
                 </a>
 
                 <a href="/search"
-                   class="text-sm font-medium transition-colors
+                class="text-sm font-medium transition-colors
                     {{ request()->is('search') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
                     Search
                 </a>
 
-
-                <a href="/groups"
-                   class="text-sm font-medium transition-colors
-                    {{ request()->is('groups') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
-                    Groups
-                </a>
-
                 @auth
 
-                    <a href="/posts/create" 
+                    <a href="/groups"
+                        class="text-sm font-medium transition-colors
+                        {{ request()->is('groups') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
+                        Groups
+                    </a>
+                    <a href="/posts/create"
                        class="text-sm font-medium transition-colors
-                            {{ request()->is('create') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
+                            {{ request()->is('posts/create') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
                         Create
                     </a>
 

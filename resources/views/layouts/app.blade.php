@@ -11,6 +11,12 @@
         {{-- Tailwind + Vite --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+        {{-- Alpine.js --}}
+        <script src="//unpkg.com/alpinejs" defer></script>
+
+        {{-- Script js --}}
+        <script src="{{ asset('js/group.js') }}"></script>
+
         @stack('styles')
     </head>
 

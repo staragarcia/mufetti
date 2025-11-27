@@ -1,0 +1,1371 @@
+openapi: 3.0.0
+
+info:
+  version: '1.0'
+  title: 'Mufetti Web API'
+  description: 'Web Resources Specification (A7) for Mufetti - Corrected Version'
+
+servers:
+  - url: http://mufetti.fe.up.pt
+    description: Production server
+
+externalDocs:
+  description: Find more info here.
+  url: https://web.fe.up.pt/~ssn/wiki/teach/lbaw/mufetti/a07
+
+tags:
+  - name: 'M01: Home and Timelines'
+  - name: 'M02: Authentication and Profile Management'
+  - name: 'M03: Posts, Comments and Reactions'
+  - name: 'M04: Search and Discovery'
+  - name: 'M05: Administration and Moderation'
+  - name: 'M06: Groups and Membership'
+
+paths:
+  # ==================== M01: Home and Timelines ====================
+  /:
+    get:
+      operationId: R101
+      summary: 'R101: Home Redirect'
+      description: 'Redirects visitors to login or logged-in users to their personalized timeline. Access: PUB, USR'
+      tags:
+        - 'M01: Home and Timelines'
+      responses:
+        '302':
+          description: 'Redirect depending on authentication status'
+          headers:
+            Location:
+              schema:
+                type: string
+              examples:
+                LoggedIn:
+                  description: Redirect to user profile
+                  value: '/profile'
+                Guest:
+                  description: Redirect to login page
+                  value: '/login'
+
+  /timeline/public:
+    get:
+      operationId: R102
+      summary: 'R102: View Public Timeline'
+      description: 'Displays recent public posts. Access: PUB'
+      tags:
+        - 'M01: Home and Timelines'
+      responses:
+        '200':
+          description: 'Ok. Show public timeline posts'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    post_id:
+                      type: integer
+                    title:
+                      type: string
+                    content:
+                      type: string
+                    author_id:
+                      type: integer
+                    created_at:
+                      type: string
+                      format: date-time
+
+  # ==================== M02: Authentication and Profile ====================
+  /login:
+    get:
+      operationId: R201
+      summary: 'R201: Login Form'
+      description: 'Provide login form. Access: PUB'
+      tags:
+        - 'M02: Authentication and Profile Management'
+      responses:
+        '200':
+          description: 'Ok. Show Log-in UI'
+
+    post:
+      operationId: R202
+      summary: 'R202: Login Action'
+      description: 'Processes login submission. Access: PUB'
+      tags:
+        - 'M02: Authentication and Profile Management'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        '302':
+          description: 'Redirect after login'
+          headers:
+            Location:
+              schema:
+                type: string
+              examples:
+                Success:
+                  description: Redirect to user profile
+                  value: '/profile'
+                Failure:
+                  description: Redirect back to login
+                  value: '/login'
+
+  /logout:
+    post:
+      operationId: R203
+      summary: 'R203: Logout Action'
+      description: 'Logs out current user. Access: USR, ADM'
+      tags:
+        - 'M02: Authentication and Profile Management'
+      responses:
+        '302':
+          description: 'Redirect after logout'
+          headers:
+            Location:
+              schema:
+                type: string
+              example: '/login'
+
+  /register:
+    get:
+      operationId: R204
+      summary: 'R204: Registration Form'
+      description: 'Provide user registration form. Access: PUB'
+      tags:
+        - 'M02: Authentication and Profile Management'
+      responses:
+        '200':
+          description: 'Ok. Show registration UI'
+
+    post:
+      operationId: R205
+      summary: 'R205: Register Action'
+      description: 'Processes new user registration. Access: PUB'
+      tags:
+        - 'M02: Authentication and Profile Management'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                description:
+                  type: string
+                picture:
+                  type: string
+                  format: binary
+              required:
+                - name
+                - email
+                - password
+      responses:
+        '302':
+          description: 'Redirect after registration'
+          headers:
+            Location:
+              schema:
+                type: string
+              examples:
+                Success:
+                  description: Redirect to profile
+                  value: '/profile'
+                Failure:
+                  description: Redirect to login
+                  value: '/login'
+
+  /profile:
+    get:
+      operationId: R206
+      summary: 'R206: View Own Profile'
+      description: 'Displays the logged-in user profile. Access: USR'
+      tags:
+        - 'M02: Authentication and Profile Management'
+      responses:
+        '200':
+          description: 'Ok. Show user profile UI'
+
+  /profile/privacy:
+    post:
+      operationId: R207
+      summary: 'R207: Toggle Privacy'
+      description: 'Switch between public and private account visibility. Access: USR'
+      tags:
+        - 'M02: Authentication and Profile Management'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                private:
+                  type: boolean
+      responses:
+        '302':
+          description: 'Redirect back to profile after toggling privacy'
+          headers:
+            Location:
+              schema:
+                type: string
+              example: '/profile'
+
+  /profile/edit:
+    get:
+      operationId: R208
+      summary: 'R208: Edit Profile Form'
+      description: 'Provide form to edit user profile. Access: USR'
+      tags:
+        - 'M02: Authentication and Profile Management'
+      responses:
+        '200':
+          description: 'Ok. Show edit profile UI'
+
+    post:
+      operationId: R209
+      summary: 'R209: Update Profile'
+      description: 'Save updated profile information. Access: USR'
+      tags:
+        - 'M02: Authentication and Profile Management'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                picture:
+                  type: string
+                  format: binary
+      responses:
+        '302':
+          description: 'Redirect back to profile after update'
+          headers:
+            Location:
+              schema:
+                type: string
+              example: '/profile'
+
+  /profile/{id}:
+    get:
+      operationId: R210
+      summary: 'R210: View Another User Profile'
+      description: 'Displays another user profile. Access: USR'
+      tags:
+        - 'M02: Authentication and Profile Management'
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Ok. Show other user profile UI'
+
+  # ==================== M03: Posts, Comments and Reactions ====================
+  /posts/create:
+    get:
+      operationId: R301
+      summary: 'R301: Create Post Form'
+      description: 'Show form to create a new post. Access: USR'
+      tags:
+        - 'M03: Posts, Comments and Reactions'
+      responses:
+        '200':
+          description: 'Ok. Show create post form'
+
+  /posts:
+    post:
+      operationId: R302
+      summary: 'R302: Create Post'
+      description: 'Create a new post (text, image, song, or cover). Access: USR'
+      tags:
+        - 'M03: Posts, Comments and Reactions'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                img:
+                  type: string
+                  format: binary
+              required:
+                - title
+      responses:
+        '302':
+          description: 'Redirect to newly created post or timeline'
+          headers:
+            Location:
+              schema:
+                type: string
+              example: '/posts/{post_id}'
+
+  /posts/{post}:
+    get:
+      operationId: R303
+      summary: 'R303: View Post'
+      description: 'Display a single post details. Access: PUB/USR'
+      tags:
+        - 'M03: Posts, Comments and Reactions'
+      parameters:
+        - in: path
+          name: post
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Ok. Show post details'
+
+    put:
+      operationId: R304
+      summary: 'R304: Edit Post'
+      description: 'Update a post by its author. Access: USR'
+      tags:
+        - 'M03: Posts, Comments and Reactions'
+      parameters:
+        - in: path
+          name: post
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                img:
+                  type: string
+                  format: binary
+      responses:
+        '302':
+          description: 'Redirect back to post after update'
+          headers:
+            Location:
+              schema:
+                type: string
+              example: '/posts/{post}'
+
+    delete:
+      operationId: R305
+      summary: 'R305: Delete Post'
+      description: 'Delete a post by its author or admin. Access: USR, ADM'
+      tags:
+        - 'M03: Posts, Comments and Reactions'
+      parameters:
+        - in: path
+          name: post
+          required: true
+          schema:
+            type: integer
+      responses:
+        '302':
+          description: 'Redirect back to timeline after deletion'
+          headers:
+            Location:
+              schema:
+                type: string
+              example: '/timeline/public'
+
+  /posts/{post}/react:
+    post:
+      operationId: R306
+      summary: 'R306: React to Post'
+      description: 'Toggle like or predefined reaction on a post. Access: USR'
+      tags:
+        - 'M03: Posts, Comments and Reactions'
+      parameters:
+        - in: path
+          name: post
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                reaction:
+                  type: string
+                  enum: [like, confetti, heart, star]
+      responses:
+        '200':
+          description: 'Updated reaction counts'
+
+  /posts/{post}/reactions:
+    get:
+      operationId: R307
+      summary: 'R307: Get Post Reactions'
+      description: 'Retrieve the count of reactions for a post. Access: PUB/USR'
+      tags:
+        - 'M03: Posts, Comments and Reactions'
+      parameters:
+        - in: path
+          name: post
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Reaction counts as JSON'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  like:
+                    type: integer
+                  confetti:
+                    type: integer
+                  heart:
+                    type: integer
+                  star:
+                    type: integer
+
+  /posts/{post}/comments:
+    get:
+      operationId: R308
+      summary: 'R308: List Comments for a Post'
+      description: 'Retrieve all comments for a given post. Access: PUB/USR'
+      tags:
+        - 'M03: Posts, Comments and Reactions'
+      parameters:
+        - in: path
+          name: post
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Return list of comments'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    user_id:
+                      type: integer
+                    content:
+                      type: string
+                    created_at:
+                      type: string
+                      format: date-time
+                    reactions:
+                      type: object
+                      additionalProperties:
+                        type: integer
+
+    post:
+      operationId: R309
+      summary: 'R309: Comment on Post'
+      description: 'Add a comment to a post. Access: USR'
+      tags:
+        - 'M03: Posts, Comments and Reactions'
+      parameters:
+        - in: path
+          name: post
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+              required:
+                - content
+      responses:
+        '302':
+          description: 'Redirect back to post after adding comment'
+          headers:
+            Location:
+              schema:
+                type: string
+              example: '/posts/{post}'
+
+  /comments/{comment}:
+    put:
+      operationId: R310
+      summary: 'R310: Edit Comment'
+      description: 'Edit a comment by its author. Access: USR'
+      tags:
+        - 'M03: Posts, Comments and Reactions'
+      parameters:
+        - in: path
+          name: comment
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+              required:
+                - content
+      responses:
+        '302':
+          description: 'Redirect back to post after editing comment'
+          headers:
+            Location:
+              schema:
+                type: string
+              example: '/posts/{post}'
+
+    delete:
+      operationId: R311
+      summary: 'R311: Delete Comment'
+      description: 'Delete a comment by its author or admin. Access: USR, ADM'
+      tags:
+        - 'M03: Posts, Comments and Reactions'
+      parameters:
+        - in: path
+          name: comment
+          required: true
+          schema:
+            type: integer
+      responses:
+        '302':
+          description: 'Redirect back to post after deleting comment'
+          headers:
+            Location:
+              schema:
+                type: string
+              example: '/posts/{post}'
+
+  /comments/{comment}/react:
+    post:
+      operationId: R312
+      summary: 'R312: React to Comment'
+      description: 'Toggle like or predefined reaction on a comment. Access: USR'
+      tags:
+        - 'M03: Posts, Comments and Reactions'
+      parameters:
+        - in: path
+          name: comment
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                reaction:
+                  type: string
+                  enum: [like, confetti, heart, star]
+      responses:
+        '200':
+          description: 'Updated comment reaction counts'
+
+  /comments/{comment}/reactions:
+    get:
+      operationId: R313
+      summary: 'R313: Get Comment Reactions'
+      description: 'Get counts of reactions for a comment. Access: PUB'
+      tags:
+        - 'M03: Posts, Comments and Reactions'
+      parameters:
+        - in: path
+          name: comment
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Return reaction counts'
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+              example:
+                like: 3
+                heart: 1
+                confetti: 0
+
+  # ==================== M04: Search and Discovery ====================
+  /search:
+    get:
+      operationId: R401
+      summary: 'R401: Search Page'
+      description: 'Show the search interface to enter queries. Access: PUB'
+      tags:
+        - 'M04: Search and Discovery'
+      responses:
+        '200':
+          description: 'Ok. Show search form'
+
+  /search/results:
+    get:
+      operationId: R402
+      summary: 'R402: Search Results'
+      description: 'Perform search over users, posts, groups, and comments. Access: PUB/USR'
+      tags:
+        - 'M04: Search and Discovery'
+      parameters:
+        - in: query
+          name: query
+          description: 'Search keyword'
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: type
+          description: 'Filter results by type: user, post, group, comment'
+          schema:
+            type: string
+            enum: [user, post, group, comment]
+          required: false
+      responses:
+        '200':
+          description: 'Search results returned as JSON'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    type:
+                      type: string
+                      enum: [user, post, group, comment]
+                    name:
+                      type: string
+                    description:
+                      type: string
+                    owner:
+                      type: string
+                    created_at:
+                      type: string
+                      format: date-time
+
+  /search/users:
+    get:
+      operationId: R403
+      summary: 'R403: Search Users API'
+      description: 'Search users by name or username. Access: PUB/USR'
+      tags:
+        - 'M04: Search and Discovery'
+      parameters:
+        - in: query
+          name: query
+          description: 'Name or username search string'
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: 'User search results as JSON'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    username:
+                      type: string
+                    name:
+                      type: string
+                    img:
+                      type: string
+                      format: uri
+
+  /search/posts:
+    get:
+      operationId: R404
+      summary: 'R404: Search Posts API'
+      description: 'Search posts by title or description. Access: PUB/USR'
+      tags:
+        - 'M04: Search and Discovery'
+      parameters:
+        - in: query
+          name: query
+          description: 'Search keyword'
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: 'Post search results as JSON'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    title:
+                      type: string
+                    description:
+                      type: string
+                    img:
+                      type: string
+                      format: uri
+
+  /search/groups:
+    get:
+      operationId: R405
+      summary: 'R405: Search Groups API'
+      description: 'Search groups by name or description. Access: PUB/USR'
+      tags:
+        - 'M04: Search and Discovery'
+      parameters:
+        - in: query
+          name: query
+          description: 'Search keyword'
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: 'Group search results as JSON'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    description:
+                      type: string
+                    owner:
+                      type: string
+
+  # ==================== M06: Groups and Membership ====================
+  /groups:
+    get:
+      operationId: R601
+      summary: 'R601: Show User Groups'
+      description: 'List all groups the authenticated user belongs to. Access: USR'
+      tags:
+        - 'M06: Groups and Membership'
+      responses:
+        '200':
+          description: 'List of groups'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    description:
+                      type: string
+                    member_count:
+                      type: integer
+                    is_public:
+                      type: boolean
+
+  /groups/create:
+    get:
+      operationId: R602
+      summary: 'R602: Create Group Form'
+      description: 'Show form to create a new group. Access: USR'
+      tags:
+        - 'M06: Groups and Membership'
+      responses:
+        '200':
+          description: 'Ok. Show create group form'
+
+    post:
+      operationId: R603
+      summary: 'R603: Create Group'
+      description: 'Create a new group with name, description, and privacy. Access: USR'
+      tags:
+        - 'M06: Groups and Membership'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                is_public:
+                  type: boolean
+              required:
+                - name
+                - is_public
+      responses:
+        '302':
+          description: 'Redirect to newly created group page'
+          headers:
+            Location:
+              schema:
+                type: string
+              example: '/groups/{group_id}'
+
+  /groups/{group}:
+    get:
+      operationId: R604
+      summary: 'R604: Show Group'
+      description: 'Show group page, posts, and member list. Access: PUB/USR depending on privacy'
+      tags:
+        - 'M06: Groups and Membership'
+      parameters:
+        - in: path
+          name: group
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: 'Ok. Show group details'
+
+  /groups/{group}/edit:
+    get:
+      operationId: R605
+      summary: 'R605: Edit Group Form'
+      description: 'Show form to edit group details. Access: Owner only'
+      tags:
+        - 'M06: Groups and Membership'
+      parameters:
+        - in: path
+          name: group
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: 'Ok. Show edit group form'
+
+    post:
+      operationId: R606
+      summary: 'R606: Update Group'
+      description: 'Update group information (name, description, privacy). Access: Owner only'
+      tags:
+        - 'M06: Groups and Membership'
+      parameters:
+        - in: path
+          name: group
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                is_public:
+                  type: boolean
+              required:
+                - name
+      responses:
+        '302':
+          description: 'Redirect after updating group'
+          headers:
+            Location:
+              schema:
+                type: string
+              example: '/groups/{group}'
+
+  /groups/{group}/join:
+    post:
+      operationId: R607
+      summary: 'R607: Join Group'
+      description: 'Join public group directly or send request for private group. Access: USR'
+      tags:
+        - 'M06: Groups and Membership'
+      parameters:
+        - in: path
+          name: group
+          schema:
+            type: integer
+          required: true
+      responses:
+        '302':
+          description: 'Redirect after joining or requesting to join'
+          headers:
+            Location:
+              schema:
+                type: string
+              example: '/groups/{group}'
+
+  /groups/{group}/leave:
+    post:
+      operationId: R608
+      summary: 'R608: Leave Group'
+      description: 'Leave a group. Access: Member only'
+      tags:
+        - 'M06: Groups and Membership'
+      parameters:
+        - in: path
+          name: group
+          schema:
+            type: integer
+          required: true
+      responses:
+        '302':
+          description: 'Redirect after leaving group'
+          headers:
+            Location:
+              schema:
+                type: string
+              example: '/groups'
+
+  /groups/{group}/members/{user}:
+    delete:
+      operationId: R609
+      summary: 'R609: Remove Group Member'
+      description: 'Remove a member from a group. Access: Owner only'
+      tags:
+        - 'M06: Groups and Membership'
+      parameters:
+        - in: path
+          name: group
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: user
+          schema:
+            type: integer
+          required: true
+      responses:
+        '302':
+          description: 'Redirect after removing member'
+          headers:
+            Location:
+              schema:
+                type: string
+              example: '/groups/{group}'
+
+  /groups/{group}/requests:
+    get:
+      operationId: R610
+      summary: 'R610: Show Join Requests'
+      description: 'Show pending join requests for the group. Access: Owner only'
+      tags:
+        - 'M06: Groups and Membership'
+      parameters:
+        - in: path
+          name: group
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: 'List of pending requests'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    requester:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        username:
+                          type: string
+                        name:
+                          type: string
+
+  /join-requests/{request}/accept:
+    post:
+      operationId: R611
+      summary: 'R611: Accept Join Request'
+      description: 'Accept a pending join request. Access: Owner only'
+      tags:
+        - 'M06: Groups and Membership'
+      parameters:
+        - in: path
+          name: request
+          schema:
+            type: integer
+          required: true
+      responses:
+        '302':
+          description: 'Redirect after accepting request'
+          headers:
+            Location:
+              schema:
+                type: string
+              example: '/groups/{group}/requests'
+
+  /join-requests/{request}/decline:
+    post:
+      operationId: R612
+      summary: 'R612: Decline Join Request'
+      description: 'Decline a pending join request. Access: Owner only'
+      tags:
+        - 'M06: Groups and Membership'
+      parameters:
+        - in: path
+          name: request
+          schema:
+            type: integer
+          required: true
+      responses:
+        '302':
+          description: 'Redirect after declining request'
+          headers:
+            Location:
+              schema:
+                type: string
+              example: '/groups/{group}/requests'
+
+  # ==================== M05: Administration and Moderation ====================
+  /admin:
+    get:
+      operationId: R501
+      summary: 'R501: Admin Dashboard'
+      description: 'Access the admin dashboard to manage users, content, and system settings. Access: ADM'
+      tags:
+        - 'M05: Administration and Moderation'
+      responses:
+        '200':
+          description: 'Ok. Show admin dashboard'
+          content:
+            text/html:
+              schema:
+                type: string
+        '403':
+          description: 'Forbidden. User is not an administrator'
+
+  /admin/users:
+    get:
+      operationId: R502
+      summary: 'R502: List All Users'
+      description: 'Search and view all user accounts for administration. Access: ADM'
+      tags:
+        - 'M05: Administration and Moderation'
+      parameters:
+        - in: query
+          name: search
+          description: 'Search by username, name, or email'
+          schema:
+            type: string
+          required: false
+        - in: query
+          name: page
+          description: 'Page number for pagination'
+          schema:
+            type: integer
+            default: 1
+          required: false
+        - in: query
+          name: limit
+          description: 'Number of results per page'
+          schema:
+            type: integer
+            default: 20
+          required: false
+      responses:
+        '200':
+          description: 'List of users'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        username:
+                          type: string
+                        name:
+                          type: string
+                        email:
+                          type: string
+                        created_at:
+                          type: string
+                          format: date-time
+                        is_private:
+                          type: boolean
+                        is_banned:
+                          type: boolean
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  total_pages:
+                    type: integer
+
+  /admin/users/{id}/delete:
+    delete:
+      operationId: R508
+      summary: 'R508: Delete User Account (Admin)'
+      description: 'Permanently delete a user account and associated data. Access: ADM'
+      tags:
+        - 'M05: Administration and Moderation'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '302':
+          description: 'Redirect to user list after deletion'
+          headers:
+            Location:
+              schema:
+                type: string
+              example: '/admin/users'
+        '403':
+          description: 'Forbidden. Cannot delete own admin account'
+
+  /admin/posts:
+    get:
+      operationId: R509
+      summary: 'R509: List All Posts (Admin)'
+      description: 'View and search all posts for moderation purposes. Access: ADM'
+      tags:
+        - 'M05: Administration and Moderation'
+      parameters:
+        - in: query
+          name: search
+          description: 'Search by title or content'
+          schema:
+            type: string
+          required: false
+        - in: query
+          name: reported
+          description: 'Filter only reported posts'
+          schema:
+            type: boolean
+          required: false
+        - in: query
+          name: page
+          description: 'Page number for pagination'
+          schema:
+            type: integer
+            default: 1
+          required: false
+      responses:
+        '200':
+          description: 'List of posts'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  posts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        title:
+                          type: string
+                        author:
+                          type: string
+                        created_at:
+                          type: string
+                          format: date-time
+                        report_count:
+                          type: integer
+                        is_deleted:
+                          type: boolean
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+
+  /admin/posts/{post}/delete:
+    delete:
+      operationId: R510
+      summary: 'R510: Delete Post (Admin)'
+      description: 'Remove a post reported by users or violating community guidelines. Access: ADM'
+      tags:
+        - 'M05: Administration and Moderation'
+      parameters:
+        - in: path
+          name: post
+          schema:
+            type: integer
+          required: true
+        - in: query
+          name: reason
+          description: 'Reason for deletion'
+          schema:
+            type: string
+          required: false
+      responses:
+        '302':
+          description: 'Redirect after deleting post'
+          headers:
+            Location:
+              schema:
+                type: string
+              example: '/admin/posts'
+
+  /admin/groups:
+    get:
+      operationId: R511
+      summary: 'R511: List All Groups (Admin)'
+      description: 'View and search all groups for moderation. Access: ADM'
+      tags:
+        - 'M05: Administration and Moderation'
+      parameters:
+        - in: query
+          name: search
+          description: 'Search by group name'
+          schema:
+            type: string
+          required: false
+        - in: query
+          name: reported
+          description: 'Filter only reported groups'
+          schema:
+            type: boolean
+          required: false
+        - in: query
+          name: page
+          description: 'Page number for pagination'
+          schema:
+            type: integer
+            default: 1
+          required: false
+      responses:
+        '200':
+          description: 'List of groups'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  groups:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        owner:
+                          type: string
+                        member_count:
+                          type: integer
+                        is_public:
+                          type: boolean
+                        created_at:
+                          type: string
+                          format: date-time
+                        report_count:
+                          type: integer
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+
+  /admin/groups/{group}/delete:
+    delete:
+      operationId: R512
+      summary: 'R512: Delete Group (Admin)'
+      description: 'Delete or deactivate inappropriate groups. Access: ADM'
+      tags:
+        - 'M05: Administration and Moderation'
+      parameters:
+        - in: path
+          name: group
+          schema:
+            type: integer
+          required: true
+        - in: query
+          name: reason
+          description: 'Reason for deletion'
+          schema:
+            type: string
+          required: false
+      responses:
+        '302':
+          description: 'Redirect after deleting group'
+          headers:
+            Location:
+              schema:
+                type: string
+              example: '/admin/groups'
+
+
+cation:
+              schema:
+                type: string
+              example: '/admin/reports'

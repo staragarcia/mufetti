@@ -59,12 +59,15 @@ class UserController extends Controller
             'password' => 'nullable|string|min:6',
             'is_public' => 'sometimes|boolean',
             'is_admin' => 'sometimes|boolean',
+            'profile_picture' => 'nullable|url',
+            'description' => 'nullable|string',
+            'birth_date' => 'nullable|date',
         ]);
 
-        $data['password'] = isset($data['password']) ? Hash::make($data['password']) : Hash::make('password');
-        $data['is_public'] = $request->has('is_public') ? boolval($request->input('is_public')) : true;
-        $data['is_admin'] = $request->has('is_admin') ? boolval($request->input('is_admin')) : false;
-        $data['birth_date'] = $request->input('birth_date') ?? now()->subYears(20)->toDateString();
+        $data['birth_date'] = $data['birth_date'] ?? now()->subYears(20)->toDateString();
+        $data['password'] = !empty($data['password']) ? Hash::make($data['password']) : Hash::make('password');
+        $data['is_public'] = $request->has('is_public') ? true : true; // default public
+        $data['is_admin'] = $request->has('is_admin') ? true : false;
 
         $user = User::create($data);
 

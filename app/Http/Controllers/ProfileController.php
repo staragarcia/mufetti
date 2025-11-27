@@ -66,11 +66,23 @@ class ProfileController extends Controller
     public function myProfile(): View
     {
         $user = Auth::user();
-    
+
+        $canView = true; // o dono pode sempre ver
+
+        $posts = Content::posts()
+            ->where('owner', $user->id)
+            ->where('title', '!=', '[Deleted Post]')
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
+            ->get();
+
         return view('pages.profile.show', [
             'user' => $user,
+            'canView' => $canView,
+            'posts' => $posts,
         ]);
     }
+
     
 
     /**

@@ -97,9 +97,37 @@
                 </div>
             </div>
 
+            <div class="border-b border-border mb-6">
+
+
+        @if($posts->isEmpty())
             <p class="text-muted-foreground">
                 No posts yet.
             </p>
+        @else
+            <div class="space-y-6">
+                @foreach($posts as $post)
+                    <a href="{{ route('posts.show', $post->id) }}"
+                    class="block bg-card border border-border rounded-lg p-4 hover:bg-muted transition">
+
+                        <h3 class="text-lg font-semibold text-foreground">{{ $post->title }}</h3>
+
+                        @if($post->img)
+                            <img src="{{ $post->img }}" 
+                                class="w-full h-48 object-cover rounded-md mt-3" />
+                        @endif
+
+                        <p class="text-muted-foreground mt-2">
+                            {{ Str::limit($post->description, 150) }}
+                        </p>
+
+                        <p class="text-xs text-muted-foreground mt-2">
+                            {{ $post->created_at->diffForHumans() }}
+                        </p>
+                    </a>
+                @endforeach
+            </div>
+        @endif
 
         </div>
     </main>

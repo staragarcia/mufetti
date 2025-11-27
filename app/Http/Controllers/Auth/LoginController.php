@@ -36,7 +36,7 @@ class LoginController extends Controller
     public function showLoginForm()
     {
         if (Auth::check()) {
-            return redirect()->route('profile.show');
+            return redirect()->route('pages.profile.show');
         } else {
             return view('auth.login');
         }
@@ -80,9 +80,9 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $request->filled('remember'))) {
             // Regenerate the session ID to prevent session fixation attacks.
             $request->session()->regenerate();
-
-            // Redirect the user to their intended destination (default: profile.show).
-            return redirect()->intended(route('profile.show'));
+ 
+            // Redirect the user to their intended destination (default: /cards).
+            return redirect()->intended(route('pages.profile.show'));
         }
 
         // Authentication failed: return back with an error message.

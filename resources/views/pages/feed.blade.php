@@ -10,7 +10,7 @@
             <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm transition-all duration-200 hover:shadow-xl hover:-translate-y-1 group">
                 
                 {{-- Clickable Upper Part (Header + Content) --}}
-                <a href="{{ route('profile.show') }}" class="block cursor-pointer">
+                <a href="{{ route('pages.profile.show') }}" class="block cursor-pointer">
                     
                     <div class="flex flex-col sm:flex-row items-start sm:items-end gap-4 mb-4">
 

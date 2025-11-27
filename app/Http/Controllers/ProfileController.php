@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Content;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-use App\Models\User;
 
 /**
  * @OA\Tag(
@@ -16,36 +16,62 @@ use App\Models\User;
  */
 class ProfileController extends Controller
 {
-    /**
-     * Show the authenticated user's profile.
-     *
-     * @OA\Get(
-     *     path="/profile",
-     *     summary="Show authenticated user's profile",
-     *     description="Returns the profile view for the logged-in user including their posts.",
-     *     tags={"M08: Profile"},
-     *     @OA\Response(
-     *         response=200,
-     *         description="Profile view with user's posts"
-     *     )
-     * )
-     */
+    public function edit(Request $request)
+    {
+        return view('pages.profile.edit', [
+            'user' => $request->user()
+        ]);
+    }
+
+    public function update(Request $request)
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => "required|string|max:255|unique:users,username,$user->id",
+            'email' => "required|email|max:255|unique:users,email,$user->id",
+            'birth_date' => 'required|date',
+            'description' => 'nullable|string',
+            'is_private' => 'nullable|boolean',
+            'password' => 'nullable|confirmed|min:6',
+            'profile_picture' => 'nullable|image|max:2048',
+        ]);
+
+        // ⚡ FOTO NOVA → guardamos e substituímos
+        if ($request->hasFile('profile_picture')) {
+            $path = $request->file('profile_picture')->store('profiles', 'public');
+            $validated['profile_picture'] = '/storage/' . $path;
+        } else {
+            // SEM FOTO NOVA → manter antiga
+            $validated['profile_picture'] = $user->profile_picture;
+        }
+
+        // checkbox invertido
+        $validated['is_public'] = !$request->has('is_private');
+
+        // Atualizar password só se enviada
+        if (!empty($validated['password'])) {
+            $validated['password'] = bcrypt($validated['password']);
+        } else {
+            unset($validated['password']);
+        }
+
+        $user->update($validated);
+
+        return redirect()
+            ->route('pages.profile.edit')
+            ->with('success', 'Profile updated successfully');
+    }
     public function myProfile(): View
     {
         $user = Auth::user();
-
-        $posts = Content::posts()
-            ->where('owner', $user->id)
-            ->where('title', '!=', '[Deleted Post]')
-            ->orderBy('created_at', 'desc') // sorts posts by date, but if date is the same
-            ->orderBy('id', 'desc') // then it sorts by id in descending order since newer posts have higher ids
-            ->get();
-
-        return view('pages.profile.profile', [
+    
+        return view('pages.profile.show', [
             'user' => $user,
-            'posts' => $posts
         ]);
     }
+    
 
     /**
      * Show a specific user's profile.
@@ -82,6 +108,4 @@ class ProfileController extends Controller
 
         return view('pages.profile.show', compact('user', 'canView', 'posts'));
     }
-
 }
-

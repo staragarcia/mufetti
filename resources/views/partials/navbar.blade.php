@@ -37,7 +37,7 @@
                     </a>
 
 
-                    <a href="{{ route('profile.show') }}"
+                    <a href="{{ route('pages.profile.show') }}"
                        class="text-sm font-medium transition-colors
                             {{ request()->is('profile') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
                         Profile

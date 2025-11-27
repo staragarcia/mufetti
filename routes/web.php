@@ -12,65 +12,92 @@ use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Feed\FeedController;
+use App\Http\Controllers\DeleteAccountController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 
 
+// -----------------------------------------------------
+// HOME
+// -----------------------------------------------------
 Route::get('/', function () {
     return auth()->check()
-        ? redirect()->route('profile.show')
+        ? redirect()->route('pages.profile.show')
         : redirect()->route('login');
 })->name('home');
 
 
-//search
+// -----------------------------------------------------
+// SEARCH
+// -----------------------------------------------------
 Route::get('/search', [SearchController::class, 'show'])->name('search.show');
 Route::get('/search/results', [SearchController::class, 'results'])->name('search.results');
 
-// View another user's profile
-Route::get('/profile/{user:id}', [ProfileController::class, 'show'])->name('profile.showOther');
 
-// Public feed
-Route::get('feed', [FeedController::class, 'showFeed'])->name('feed.show');
+// -----------------------------------------------------
+// PUBLIC FEED
+// -----------------------------------------------------
+Route::get('/feed', [FeedController::class, 'showFeed'])->name('feed.show');
 
 
+// -----------------------------------------------------
+// GUEST ROUTES
+// -----------------------------------------------------
 Route::middleware('guest')->group(function () {
 
     // Login
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'authenticate']);
 
-
     // Register
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
-    Route::get('/forgot-password', [ForgotPasswordController::class, 'showForm']) ->name('password.request');
 
+    // Forgot password
+    Route::get('/forgot-password', [ForgotPasswordController::class, 'showForm'])
+        ->name('password.request');
 });
 
 
-
+// -----------------------------------------------------
+// AUTH ROUTES
+// -----------------------------------------------------
 Route::middleware('auth')->group(function () {
 
-    // Logout
+    // -------------------------------------------------
+    // LOGOUT
+    // -------------------------------------------------
     Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
 
-    // Profile
+
+    // -------------------------------------------------
+    // PROFILE (OWN)
+    // -------------------------------------------------
     Route::get('/profile', [ProfileController::class, 'myProfile'])
-        ->name('profile.show');
+        ->name('pages.profile.show');
 
-    Route::post('/profile/privacy', [ProfileController::class, 'togglePrivacy'])
-        ->name('profile.togglePrivacy');
-
-        Route::get('/profile/edit', [ProfileController::class, 'edit'])
-        ->name('profile.edit');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])
+        ->name('pages.profile.edit');
 
     Route::post('/profile/edit', [ProfileController::class, 'update'])
         ->name('profile.update');
 
+    Route::post('/profile/privacy', [ProfileController::class, 'togglePrivacy'])
+        ->name('profile.togglePrivacy');
+
     Route::delete('/profile/{id}', [ProfileController::class, 'destroy'])
         ->name('profile.delete');
 
-    // posts
+
+    // -------------------------------------------------
+    // PROFILE (OTHER USERS)
+    // -------------------------------------------------
+    Route::get('/users/{user}', [ProfileController::class, 'show'])
+        ->name('profile.showOther');
+
+
+    // -------------------------------------------------
+    // POSTS
+    // -------------------------------------------------
     Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
     Route::get('/posts/{post}/edit', [PostController::class, 'edit'])->name('posts.edit');
@@ -78,36 +105,31 @@ Route::middleware('auth')->group(function () {
     Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
     Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
 
-    // reactions
+
+    // -------------------------------------------------
+    // REACTIONS
+    // -------------------------------------------------
     Route::post('/posts/{post}/react', [ReactionController::class, 'toggle'])->name('posts.react');
     Route::get('/posts/{post}/reactions', [ReactionController::class, 'getCounts'])->name('posts.reactions.counts');
 
-    //GROUPS
-    // pagina que mostra todos os grupos que o user está associado
+
+    // -------------------------------------------------
+    // GROUPS
+    // -------------------------------------------------
     Route::get('/groups', [GroupController::class, 'showUserGroups'])->name('groups.showUserGroups');
-    // pagina para criar novo grupo
     Route::get('/groups/create', [GroupController::class, 'create'])->name('groups.create');
-    //guardar na base de dados o novo grupo
     Route::post('/groups', [GroupController::class, 'store'])->name('groups.store');
-    //pedir para entrar num grupo
     Route::post('/groups/{group}/join', [GroupController::class, 'joinRequest'])->name('groups.join');
-    // sair de um grupo
     Route::post('/groups/{group}/leave', [GroupController::class, 'leaveGroup'])->name('groups.leave');
-    // remover membro
     Route::delete('/groups/{group}/members/{user}', [GroupController::class, 'removeMember'])->name('groups.members.remove');
-    // pagina para editar grupo
     Route::get('/groups/{group}/edit', [GroupController::class, 'edit'])->name('groups.edit');
-    // guardar base de dados nova informaçao do grupo
     Route::post('/groups/{group}/update', [GroupController::class, 'update'])->name('groups.update');
-    // entrar em grupo publico
     Route::post('/groups/{group}/join/public', [GroupController::class, 'joinPublicGroup'])->name('groups.join.public');
 
-
-    //joinRequest
+    // Join Requests
     Route::post('/join-requests/{request}/accept', [GroupController::class, 'acceptJoinRequest'])->name('joinRequests.accept');
     Route::post('/join-requests/{request}/decline', [GroupController::class, 'declineJoinRequest'])->name('joinRequests.decline');
     Route::get('/groups/{group}/requests', [GroupController::class, 'showJoinRequests'])->name('groups.requests');
-
     // feed
     Route::get('feed', [FeedController::class, 'showFeed'])->name('feed.show');
 
@@ -124,5 +146,8 @@ Route::middleware('auth')->group(function () {
 
 });
 
-//group
+
+// -----------------------------------------------------
+// PUBLIC GROUP PAGE
+// -----------------------------------------------------
 Route::get('/groups/{group}', [GroupController::class, 'showGroup'])->name('groups.show');

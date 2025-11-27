@@ -7,29 +7,29 @@ use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Runs database/thingy-seed.sql as-is.
-     * The SQL reads current_setting('app.schema', true) and defaults to 'thingy'.
-     */
     public function run(): void
     {
-        // Get schema name from environment (e.g., .env or .env.testing)
         $schema = env('DB_SCHEMA');
 
-        // Load the raw SQL file
-        $path = base_path('database/mufetti-seed.sql');
-        $sql = file_get_contents($path);
+        // Disable all triggers, constraints, and transactional restrictions
+        // so DROP SCHEMA CASCADE doesn't kill Postgres inside a transaction.
+        DB::statement('SET session_replication_role = replica');
 
-        // If DB_SCHEMA is set, expose it to the SQL script
-        // (the script reads it via current_setting('app.schema', true))
+        // Inject schema name into seed
         if ($schema !== null) {
             DB::statement("SELECT set_config('app.schema', ?, false)", [$schema]);
         }
 
-        // Run the SQL script
+        // Load SQL file
+        $path = base_path('database/mufetti-seed.sql');
+        $sql = file_get_contents($path);
+
+        // Run SQL file
         DB::unprepared($sql);
 
-        // Show a message in the Artisan console
+        // Restore safe defaults
+        DB::statement('SET session_replication_role = DEFAULT');
+
         $this->command?->info('Database seeded using schema: ' . ($schema ?? 'thingy (default)'));
     }
 }

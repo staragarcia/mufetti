@@ -301,7 +301,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function createUserCard(user) {
         return `
             <div class="bg-card border border-border rounded-lg p-4 hover:shadow-md transition">
-                <a href="/profile/${user.id}" class="flex items-center gap-4">
+                <a href="/users/${user.id}" class="flex items-center gap-4">
+
                     <img
                         src="${user.profile_picture || '/images/default-avatar.png'}"
                         alt="${user.name}"

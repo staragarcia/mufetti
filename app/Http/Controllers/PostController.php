@@ -81,7 +81,7 @@ class PostController extends Controller
             'id_group' => $validated['id_group'] ?? null,
         ]);
 
-        return redirect()->route('profile.show') // mudar para timeline ig ??
+        return redirect()->route('pages.profile.show') // mudar para timeline ig ??
             ->with('success', 'Post created successfully!');
     }
 
@@ -240,7 +240,7 @@ class PostController extends Controller
             return response()->json(['message' => 'Post deleted successfully']);
         }
 
-        return redirect()->route('profile.show')
+        return redirect()->route('pages.profile.show')
             ->with('success', 'Post deleted successfully!');
     }
 

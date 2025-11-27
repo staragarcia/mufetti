@@ -96,7 +96,7 @@ class RegisterController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->route('profile.show')
+        return redirect()->route('pages.profile.show')
             ->with('success', 'Account created successfully!');
     }
 }

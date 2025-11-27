@@ -41,6 +41,15 @@
                         Profile
                     </a>
 
+                    {{-- Admin link for admins only --}}
+                    @if(auth()->check() && auth()->user()->is_admin)
+                        <a href="{{ route('admin.users.index') }}"
+                           class="text-sm font-medium transition-colors
+                               {{ request()->is('admin*') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
+                            Admin
+                        </a>
+                    @endif
+
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
                         <button

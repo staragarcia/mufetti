@@ -12,6 +12,7 @@ use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Feed\FeedController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 
 
 Route::get('/', function () {
@@ -106,6 +107,17 @@ Route::middleware('auth')->group(function () {
 
     // feed
     Route::get('feed', [FeedController::class, 'showFeed'])->name('feed.show');
+
+    // Admin - simple user management panel (search, view, edit, create, delete)
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::get('/users/create', [AdminUserController::class, 'create'])->name('users.create');
+        Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
+        Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('users.show');
+        Route::get('/users/{user}/edit', [AdminUserController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+    });
 
 });
 

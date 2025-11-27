@@ -96,17 +96,6 @@
                 </button>
             </form>
 
-            {{-- Delete Account --}}
-            <form action="{{ route('account.delete') }}" method="POST" class="mt-6">
-                @csrf
-                @method('DELETE')
-
-                <button type="submit"
-                    class="w-full text-primary-foreground py-2 rounded-md hover:bg-primary/90 font-semibold">
-                    Delete Account
-                </button> 
-
-            </form>
 
         </div>
     </div>

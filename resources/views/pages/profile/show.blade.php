@@ -75,9 +75,15 @@
                     </div>
                 </div>
 
+                @php
+                    $postsCount = isset($posts)
+                        ? (method_exists($posts, 'total') ? $posts->total() : $posts->count())
+                        : \App\Models\Content::where('user_id', $user->id)->orWhere('author_id', $user->id)->count();
+                @endphp
+
                 <div class="flex gap-6 text-sm">
                     <div class="hover:underline cursor-pointer">
-                        <span class="font-semibold text-foreground">0</span>
+                        <span class="font-semibold text-foreground">{{ $postsCount }}</span>
                         <span class="text-muted-foreground">Posts</span>
                     </div>
                     <div class="hover:underline cursor-pointer">

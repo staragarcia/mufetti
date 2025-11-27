@@ -6,6 +6,7 @@
         {{-- LEFT COLUMN: Profile Card --}}
         <div class="col-span-12 lg:col-span-3 md:col-span-4">
             {{-- Profile Card Container --}}
+            @if($user)
             <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm transition-all duration-200 hover:shadow-xl hover:-translate-y-1 group">
                 
                 {{-- Clickable Upper Part (Header + Content) --}}
@@ -35,6 +36,7 @@
                     </div>
                 </a>
             </div>
+            @endif
         </div>
 
         {{-- MIDDLE COLUMN: Posts --}}

@@ -30,9 +30,34 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('register') }}" class="space-y-4">
+            <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data" class="space-y-4">
                 @csrf
 
+                {{-- Profile Picture Preview --}}
+                <div class="flex flex-col items-center gap-3">
+                    <img 
+                        id="preview-image"
+                        src="/placeholder.jpg"
+                        class="h-24 w-24 rounded-full object-cover border border-border"
+                    />
+
+                    <input 
+                        type="file" 
+                        name="profile_picture" 
+                        accept="image/*"
+                        class="text-sm"
+                        onchange="loadPreview(event)"
+                    >
+                </div>
+
+                <script>
+                    function loadPreview(e) {
+                        const file = e.target.files[0];
+                        if (file) {
+                            document.getElementById('preview-image').src = URL.createObjectURL(file);
+                        }
+                    }
+                </script>
 
                 <div class="space-y-2">
                     <label for="name" class="text-sm font-medium">Full Name</label>
@@ -93,6 +118,7 @@
                     Sign Up
                 </button>
             </form>
+
 
             <p class="text-xs text-muted-foreground text-center mt-4">
                 By signing up, you agree to our Terms of Service and Privacy Policy

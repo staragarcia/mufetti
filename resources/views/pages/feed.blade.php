@@ -10,11 +10,28 @@
                 
                 {{-- Clickable Upper Part (Header + Content) --}}
                 <a href="{{ route('profile.show') }}" class="block cursor-pointer">
-                    {{-- Profile Header --}}
-                    <div class="flex justify-between items-start mb-4">
-                        <h3 class="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                            profile
-                        </h3>
+                    
+                    <div class="flex flex-col sm:flex-row items-start sm:items-end gap-4 mb-4">
+
+                        <img
+                            src="{{ $user->profile_picture ?? '/placeholder.jpg' }}"
+                            alt="Avatar"
+                            class="h-32 w-32 rounded-full border-4 border-background object-cover bg-muted"
+                        />
+
+                        <div class="flex-1 min-w-0">
+
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+                                <div>
+                                    <h1 class="text-2xl sm:text-3xl font-bold text-foreground">
+                                        {{ $user->name }}
+                                    </h1>
+                                    <p class="text-muted-foreground">{{ "@" . $user->username }}</p>
+                                </div>
+
+                            </div>
+                        </div>
                     </div>
                 </a>
             </div>
@@ -34,7 +51,9 @@
                                 <h3 class="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
                                     {{ $post->title }}
                                 </h3>
-                                <span class="text-sm text-gray-500">by {{ $post->ownerUser->username}} - {{ $post->created_at->format('M j, Y') }}</span>
+                                <span class="text-sm text-gray-500">
+                                    by {{ $post->ownerUser->username }} - {{ $post->created_at->format('M j, Y') }}
+                                </span>
                             </div>
 
                             {{-- Post Content --}}

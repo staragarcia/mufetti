@@ -30,7 +30,7 @@
                     </a>
                     <a href="/posts/create"
                        class="text-sm font-medium transition-colors
-                            {{ request()->is('create') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
+                            {{ request()->is('posts/create') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
                         Create
                     </a>
 

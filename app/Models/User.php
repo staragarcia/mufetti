@@ -11,7 +11,7 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    // Laravel timestamps are NOT present in your SQL table
+    // Laravel timestamps are NOT present in our SQL table
     public $timestamps = false;
 
     protected $table = 'users';
@@ -40,11 +40,4 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    /**
-     * A user has many cards.
-     */
-    public function cards(): HasMany
-    {
-        return $this->hasMany(Card::class, 'user_id');
-    }
 }

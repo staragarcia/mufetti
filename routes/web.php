@@ -28,8 +28,6 @@ Route::get('/search/results', [SearchController::class, 'results'])->name('searc
 // View another user's profile
 Route::get('/profile/{user:id}', [ProfileController::class, 'show'])->name('profile.showOther');
 
-//group
-Route::get('/groups/{group}', [GroupController::class, 'showGroup'])->name('groups.show');
 
 Route::middleware('guest')->group(function () {
 
@@ -110,3 +108,6 @@ Route::middleware('auth')->group(function () {
     Route::get('feed', [FeedController::class, 'showFeed'])->name('feed.show');
 
 });
+
+//group
+Route::get('/groups/{group}', [GroupController::class, 'showGroup'])->name('groups.show');

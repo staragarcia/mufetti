@@ -28,6 +28,9 @@ Route::get('/search/results', [SearchController::class, 'results'])->name('searc
 // View another user's profile
 Route::get('/profile/{user:id}', [ProfileController::class, 'show'])->name('profile.showOther');
 
+// Public feed
+Route::get('feed', [FeedController::class, 'showFeed'])->name('feed.show');
+
 
 Route::middleware('guest')->group(function () {
 
@@ -103,9 +106,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/join-requests/{request}/accept', [GroupController::class, 'acceptJoinRequest'])->name('joinRequests.accept');
     Route::post('/join-requests/{request}/decline', [GroupController::class, 'declineJoinRequest'])->name('joinRequests.decline');
     Route::get('/groups/{group}/requests', [GroupController::class, 'showJoinRequests'])->name('groups.requests');
-
-    // feed
-    Route::get('feed', [FeedController::class, 'showFeed'])->name('feed.show');
 
 });
 

@@ -9,19 +9,21 @@
             {{-- Navigation Links --}}
             <div class="flex items-center gap-6">
 
+                {{-- any user/visitor --}}
+
+                <a href="{{ route('feed.show') }}"
+                class="text-sm font-medium transition-colors
+                {{ request()->is('feed') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
+                    Public Feed
+                </a>
+
+                <a href="/search"
+                class="text-sm font-medium transition-colors
+                    {{ request()->is('search') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
+                    Search
+                </a>
+
                 @auth
-
-                    <a href="/feed"
-                    class="text-sm font-medium transition-colors
-                        {{ request()->is('feed') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
-                        Feed
-                    </a>
-
-                    <a href="/search"
-                    class="text-sm font-medium transition-colors
-                        {{ request()->is('search') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
-                        Search
-                    </a>
 
                     <a href="/groups"
                         class="text-sm font-medium transition-colors

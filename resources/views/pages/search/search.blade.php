@@ -108,8 +108,8 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        if (query.length < 2) {
-            return; // Wait for at least 2 characters
+        if (query.length < 1) {
+            return; // Wait for at least 1 characters
         }
 
         // Cancel previous request
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     searchType.addEventListener('change', function() {
-        if (searchInput.value.trim().length >= 2) {
+        if (searchInput.value.trim().length >= 1) {
             performSearch();
         }
     });

@@ -131,7 +131,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/join-requests/{request}/decline', [GroupController::class, 'declineJoinRequest'])->name('joinRequests.decline');
     Route::get('/groups/{group}/requests', [GroupController::class, 'showJoinRequests'])->name('groups.requests');
     // feed
-    Route::get('feed', [FeedController::class, 'showFeed'])->name('feed.show');
 
     // Admin - simple user management panel (search, view, edit, create, delete)
     Route::prefix('admin')->name('admin.')->group(function () {
@@ -151,3 +150,5 @@ Route::middleware('auth')->group(function () {
 // PUBLIC GROUP PAGE
 // -----------------------------------------------------
 Route::get('/groups/{group}', [GroupController::class, 'showGroup'])->name('groups.show');
+
+Route::get('feed', [FeedController::class, 'showFeed'])->name('feed.show');

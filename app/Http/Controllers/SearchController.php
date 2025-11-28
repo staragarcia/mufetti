@@ -38,7 +38,7 @@ class SearchController extends Controller
         switch ($type) {
             case 'posts':
                 $results = Content::posts()
-                    ->with('owner:id,username,name,profile_picture')
+                    ->with('ownerUser:id,username,name,profile_picture')
                     ->where(function($q) use ($query) {
                         $q->where('title', 'ILIKE', "%{$query}%")
                           ->orWhere('description', 'ILIKE', "%{$query}%");
@@ -53,7 +53,7 @@ class SearchController extends Controller
                             'title' => $post->title,
                             'description' => $post->description,
                             'img' => $post->img,
-                            'owner_username' => $post->owner->username ?? null,
+                            'owner_username' => $post->ownerUser->username ?? null,
                             'likes' => $post->likes,
                             'comments' => $post->comments,
                             'created_at' => $post->created_at

@@ -4,6 +4,7 @@
 -- Config
 -----------------------------------------
 
+DROP SCHEMA IF EXISTS lbaw2585 CASCADE;
 CREATE SCHEMA IF NOT EXISTS lbaw2585;
 SET search_path TO lbaw2585;
 

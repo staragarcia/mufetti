@@ -6,18 +6,16 @@ SET search_path TO lbaw2585;
 -- Anonymous User (system account)
 -----------------------------------------
 
-INSERT INTO users (id, name, username, email, password, birth_date, is_public, is_admin)
+INSERT INTO users (name, username, email, password, birth_date, is_public, is_admin)
 VALUES (
-    1,
     'Anonymous',
     'anonymous',
     'anonymous@example.com',
-    crypt('thisisnotused', gen_salt('bf')),
-    CURRENT_DATE,
+    '$2y$12$PrQOmJPndLG6ZkafsZKIw.FyiBrVXmYKjsQfXXA8RYhZzDiX0/Mcq',
+    '1900-01-01',
     true,
     false
-)
-ON CONFLICT (id) DO NOTHING;
+);
 
 
 -----------------------------------------
@@ -27,7 +25,7 @@ INSERT INTO users (name, username, email, password, birth_date, profile_picture,
 VALUES ('Alice Martins', 'alice_m', 'alice@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1998-04-21', 'pic1.jpg', 'Music lover and vinyl collector.', TRUE, FALSE);
 
 INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
-VALUES ('Bruno Costa', 'brunoc', 'bruno@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1995-08-10', 'pic2.jpg', 'Into indie and rock.', TRUE, FALSE);
+VALUES ('Bruno Costa', 'brunoc', 'bruno@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1995-08-10', 'pic2.jpg', 'Into indie and rock.', TRUE, TRUE);
 
 INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
 VALUES ('Carla Silva', 'carla_s', 'carla@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '2000-02-15', NULL, 'Pop and dance enthusiast.', TRUE, FALSE);

@@ -14,6 +14,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Feed\FeedController;
 use App\Http\Controllers\DeleteAccountController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\CommentController;
 
 
 // -----------------------------------------------------
@@ -104,6 +105,15 @@ Route::middleware('auth')->group(function () {
     Route::put('/posts/{post}', [PostController::class, 'update'])->name('posts.update');
     Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
     Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
+
+
+    // -------------------------------------------------
+    // COMMENTS
+    // -------------------------------------------------
+    Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::post('/comments/{comment}/reply', [CommentController::class, 'reply'])->name('comments.reply');
+    Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
 
 
     // -------------------------------------------------

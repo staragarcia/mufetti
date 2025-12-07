@@ -134,18 +134,61 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                         </svg>
-                        <span>0</span>
+                        <span>{{ $post->replies->count() }}</span>
                     </div>
                 </div>
             </div>
 
         </div>
 
-        {{-- Comments Section (tba) --}}
+        {{-- Comments Section --}}
         <div class="mt-8">
             <div class="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Comments</h3>
-                <p class="text-gray-500 text-center py-8">Comments feature coming soon!</p>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Comments ({{ $post->replies->count() }})</h3>
+                
+                {{-- Comment Form --}}
+                @auth
+                <form action="{{ route('comments.store', $post) }}" method="POST" class="mb-6">
+                    @csrf
+                    <div class="mb-3">
+                        <textarea 
+                            name="description" 
+                            rows="3" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                            placeholder="Write a comment..."
+                            required
+                        ></textarea>
+                        @error('description')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="flex justify-end">
+                        <button 
+                            type="submit" 
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                            Post Comment
+                        </button>
+                    </div>
+                </form>
+                @else
+                <div class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg text-center">
+                    <p class="text-gray-600">
+                        <a href="{{ route('login') }}" class="text-blue-600 hover:underline">Login</a> to post a comment
+                    </p>
+                </div>
+                @endauth
+
+                {{-- Comments List --}}
+                @if($post->replies->count() > 0)
+                    <div class="space-y-4">
+                        @foreach($post->replies->sortByDesc('created_at') as $comment)
+                            @include('partials.comment-card', ['comment' => $comment])
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-gray-500 text-center py-4">No comments yet. Be the first to comment!</p>
+                @endif
             </div>
         </div>
 

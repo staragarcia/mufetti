@@ -170,7 +170,7 @@ CREATE TABLE contents (
     img TEXT,
     owner INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
     id_group INTEGER REFERENCES groups (id) ON UPDATE CASCADE,
-    reply_to INTEGER REFERENCES contents (id) ON UPDATE CASCADE,
+    reply_to INTEGER REFERENCES contents (id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT content_type_ck CHECK (
         (type <> 'comment') OR (reply_to IS NOT NULL)
     )

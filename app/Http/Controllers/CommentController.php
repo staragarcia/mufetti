@@ -244,10 +244,15 @@ class CommentController extends Controller
         // Authorization - user can only delete their own comments
         Gate::authorize('delete', $comment);
 
-        // Soft delete by updating the description
-        $comment->update([
-            'description' => '[This comment has been deleted]',
-        ]);
+        // Get the parent post before deletion (for redirect)
+        $originalPost = $comment->parent;
+        while ($originalPost && $originalPost->isComment()) {
+            $originalPost = $originalPost->parent;
+        }
+        $postId = $originalPost ? $originalPost->id : $comment->reply_to;
+
+        // Actually delete the comment (this will trigger update_comment_count)
+        $comment->delete();
 
         if (request()->expectsJson()) {
             return response()->json([
@@ -256,13 +261,7 @@ class CommentController extends Controller
             ]);
         }
 
-        // Redirect back to the original post
-        $originalPost = $comment->parent;
-        while ($originalPost && $originalPost->isComment()) {
-            $originalPost = $originalPost->parent;
-        }
-
-        return redirect()->route('posts.show', $originalPost ?? $comment->reply_to)
+        return redirect()->route('posts.show', $postId)
             ->with('success', 'Comment deleted successfully!');
     }
 }

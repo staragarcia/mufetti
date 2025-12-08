@@ -31,7 +31,7 @@ class Content extends Model
      *
      */
     protected $casts = [
-        'created_at' => 'date',
+        'created_at' => 'datetime', 
     ];
 
     /**

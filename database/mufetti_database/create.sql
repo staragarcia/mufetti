@@ -162,7 +162,7 @@ CREATE TABLE follow_requests (
 CREATE TABLE contents (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     type ContentTypes NOT NULL,
-    created_at DATE NOT NULL DEFAULT CURRENT_DATE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- changed from date to timestamp to have time not just day
     likes INTEGER DEFAULT 0,
     comments INTEGER DEFAULT 0,
     title TEXT,

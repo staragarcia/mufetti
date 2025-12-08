@@ -121,6 +121,8 @@ Route::middleware('auth')->group(function () {
     // -------------------------------------------------
     Route::post('/posts/{post}/react', [ReactionController::class, 'toggle'])->name('posts.react');
     Route::get('/posts/{post}/reactions', [ReactionController::class, 'getCounts'])->name('posts.reactions.counts');
+    Route::post('/comments/{comment}/react', [ReactionController::class, 'toggleComment'])->name('comments.react');
+    Route::get('/comments/{comment}/reactions', [ReactionController::class, 'getCommentCounts'])->name('comments.reactions.counts');
 
 
     // -------------------------------------------------

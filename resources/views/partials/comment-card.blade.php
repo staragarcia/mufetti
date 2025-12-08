@@ -78,18 +78,44 @@
             <div x-show="!editing">
                 <p class="text-gray-700 text-sm whitespace-pre-line mb-2">{{ $comment->description }}</p>
                 
-                {{-- Reply Button --}}
-                @auth
-                    <button 
-                        @click="replying = !replying"
-                        class="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
-                    >
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                {{-- Reaction and Reply Buttons --}}
+                <div class="flex items-center gap-3 mt-2">
+                    {{-- Like Button --}}
+                    <button class="comment-reaction-btn flex items-center gap-1 hover:text-blue-600 transition-colors"
+                            data-comment-id="{{ $comment->id }}"
+                            data-type="like"
+                            title="Like">
+                        <svg class="w-4 h-4 comment-like-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                         </svg>
-                        <span x-text="replying ? 'Cancel' : 'Reply'"></span>
+                        <span class="text-xs comment-likes-count">{{ $comment->reactions()->where('type', 'like')->count() }}</span>
                     </button>
-                @endauth
+
+                    {{-- Confetti Button --}}
+                    <button class="comment-reaction-btn flex items-center gap-1 hover:text-yellow-600 transition-colors"
+                            data-comment-id="{{ $comment->id }}"
+                            data-type="confetti"
+                            title="Celebrate">
+                        <svg class="w-4 h-4 comment-confetti-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2v4M12 22v-4M2 12h4M22 12h-4"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5l3 3M19 5l-3 3M5 19l3-3M19 19l-3-3"/>
+                        </svg>
+                        <span class="text-xs comment-confetti-count">{{ $comment->reactions()->where('type', 'confetti')->count() }}</span>
+                    </button>
+
+                    {{-- Reply Button --}}
+                    @auth
+                        <button 
+                            @click="replying = !replying"
+                            class="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                            </svg>
+                            <span x-text="replying ? 'Cancel' : 'Reply'"></span>
+                        </button>
+                    @endauth
+                </div>
             </div>
 
             {{-- Comment Edit Form --}}

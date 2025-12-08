@@ -142,5 +142,77 @@ class ReactionController extends Controller
             'user_reaction' => $userReaction ? $userReaction->type : null,
         ]);
     }
+
+    /**
+     * Toggle reaction on a comment (AJAX)
+     */
+    public function toggleComment(Request $request, Content $comment)
+    {
+        // only comments
+        if (!$comment->isComment()) {
+            return response()->json(['error' => 'Can only react to comments'], 422);
+        }
+
+        $reactionType = $request->input('type');
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        // find any existing reaction by this user for this comment
+        $existing = Reaction::where('id_user', $user->id)
+            ->where('id_content', $comment->id)
+            ->first();
+
+        // If the user already reacted with the same type => remove (toggle off)
+        if ($existing && $existing->type === $reactionType) {
+            $existing->delete();
+            $action = 'removed';
+            $userReactionType = null;
+        } else {
+            // If exists but different type -> update it
+            if ($existing) {
+                $existing->update(['type' => $reactionType]);
+            } else {
+                Reaction::create([
+                    'type' => $reactionType,
+                    'id_user' => $user->id,
+                    'id_content' => $comment->id,
+                ]);
+            }
+            $action = 'added_or_switched';
+            $userReactionType = $reactionType;
+        }
+
+        // fresh counts
+        $likesCount = $comment->reactions()->where('type', 'like')->count();
+        $confettiCount = $comment->reactions()->where('type', 'confetti')->count();
+
+        return response()->json([
+            'action' => $action,
+            'likes_count' => $likesCount,
+            'confetti_count' => $confettiCount,
+            'user_reaction' => $userReactionType,
+        ]);
+    }
+
+    /**
+     * Get reaction counts for a comment (AJAX)
+     */
+    public function getCommentCounts(Content $comment)
+    {
+        $likesCount = $comment->reactions()->where('type', 'like')->count();
+        $confettiCount = $comment->reactions()->where('type', 'confetti')->count();
+        $userReaction = Auth::check()
+            ? $comment->reactions()->where('id_user', Auth::id())->first()
+            : null;
+
+        return response()->json([
+            'likes_count' => $likesCount,
+            'confetti_count' => $confettiCount,
+            'user_reaction' => $userReaction ? $userReaction->type : null,
+        ]);
+    }
 }
 

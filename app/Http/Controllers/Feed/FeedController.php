@@ -15,7 +15,11 @@ class FeedController extends Controller
      */
     public function showFeed() : View 
     {
-        $posts = Content::posts()->with('ownerUser')->orderBy('created_at', 'desc')->get();
+        $posts = Content::posts()
+            ->with('ownerUser')
+            ->where('title', '!=', '[Deleted Post]')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         $user = Auth::user();
 

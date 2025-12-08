@@ -31,7 +31,7 @@
                 </div>
                 
                 {{-- Post actions dropdown --}}
-                @if(auth()->id() === $post->ownerUser->id)
+                @if(auth()->id() === $post->ownerUser->id && !$post->isDeleted())
                 <div class="relative" x-data="{ open: false }">
                     <button 
                         @click="open = !open"
@@ -106,36 +106,63 @@
             {{-- Footer with Reaction Buttons --}}
             <div class="flex justify-between items-center text-sm text-gray-500 pt-6 border-t border-gray-200">
                 <div class="flex gap-6">
-                    {{-- Like Button --}}
-                    <button class="reaction-btn flex items-center gap-1 hover:text-blue-600 transition-colors" 
-                            data-post-id="{{ $post->id }}" 
-                            data-type="like"
-                            data-likes-count="{{ $post->likes }}">
-                        <svg class="w-5 h-5 like-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                        </svg>
-                        <span class="likes-count">{{ $post->likes }}</span>
-                    </button>
+                    @if($post->isDeleted())
+                        {{-- Greyed out Like Button --}}
+                        <div class="flex items-center gap-1 text-gray-300 cursor-not-allowed">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                            </svg>
+                            <span>0</span>
+                        </div>
 
-                    {{-- Confetti Button --}}
-                    <button class="reaction-btn flex items-center gap-1 hover:text-yellow-600 transition-colors" 
-                            data-post-id="{{ $post->id }}" 
-                            data-type="confetti"
-                            data-confetti-count="{{ $post->comments }}">
-                        <svg class="w-5 h-5 confetti-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2v4M12 22v-4M2 12h4M22 12h-4"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5l3 3M19 5l-3 3M5 19l3-3M19 19l-3-3"/>
-                        </svg>
-                        <span class="confetti-count">{{ $post->comments }}</span>
-                    </button>
+                        {{-- Greyed out Confetti Button --}}
+                        <div class="flex items-center gap-1 text-gray-300 cursor-not-allowed">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2v4M12 22v-4M2 12h4M22 12h-4"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5l3 3M19 5l-3 3M5 19l3-3M19 19l-3-3"/>
+                            </svg>
+                            <span>0</span>
+                        </div>
 
-                    {{-- Comment Button --}}
-                    <div class="flex items-center gap-1 text-gray-500">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                        </svg>
-                        <span>{{ $post->replies->count() }}</span>
-                    </div>
+                        {{-- Comment Button --}}
+                        <div class="flex items-center gap-1 text-gray-300 cursor-not-allowed">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                            </svg>
+                            <span>0</span>
+                        </div>
+                    @else
+                        {{-- Like Button --}}
+                        <button class="reaction-btn flex items-center gap-1 hover:text-blue-600 transition-colors" 
+                                data-post-id="{{ $post->id }}" 
+                                data-type="like"
+                                data-likes-count="{{ $post->likes }}">
+                            <svg class="w-5 h-5 like-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                            </svg>
+                            <span class="likes-count">{{ $post->likes }}</span>
+                        </button>
+
+                        {{-- Confetti Button --}}
+                        <button class="reaction-btn flex items-center gap-1 hover:text-yellow-600 transition-colors" 
+                                data-post-id="{{ $post->id }}" 
+                                data-type="confetti"
+                                data-confetti-count="{{ $post->comments }}">
+                            <svg class="w-5 h-5 confetti-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2v4M12 22v-4M2 12h4M22 12h-4"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5l3 3M19 5l-3 3M5 19l3-3M19 19l-3-3"/>
+                            </svg>
+                            <span class="confetti-count">{{ $post->comments }}</span>
+                        </button>
+
+                        {{-- Comment Button --}}
+                        <div class="flex items-center gap-1 text-gray-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                            </svg>
+                            <span>{{ $post->replies->count() }}</span>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -144,52 +171,76 @@
         {{-- Comments Section --}}
         <div class="mt-8">
             <div class="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Comments ({{ $post->replies->count() }})</h3>
-                
-                {{-- Comment Form --}}
-                @auth
-                <form action="{{ route('comments.store', $post) }}" method="POST" class="mb-6">
-                    @csrf
-                    <div class="mb-3">
-                        <textarea 
-                            name="description" 
-                            rows="3" 
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                            placeholder="Write a comment..."
-                            required
-                        ></textarea>
-                        @error('description')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <div class="flex justify-end">
-                        <button 
-                            type="submit" 
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                        >
-                            Post Comment
-                        </button>
-                    </div>
-                </form>
-                @else
-                <div class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg text-center">
-                    <p class="text-gray-600">
-                        <a href="{{ route('login') }}" class="text-blue-600 hover:underline">Login</a> to post a comment
-                    </p>
-                </div>
-                @endauth
-
-                {{-- Comments List --}}
-                @if($post->replies->count() > 0)
+                @if($post->isDeleted())
                     <div class="space-y-4">
-                        @foreach($post->replies->sortByDesc('created_at') as $comment)
-                            @if(!$comment->isDeleted())
-                                @include('partials.comment-card', ['comment' => $comment])
-                            @endif
-                        @endforeach
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Comments</h3>
+                        <div class="mb-6 p-4 bg-gray-100 border border-gray-300 rounded-lg opacity-50">
+                            <textarea 
+                                name="description" 
+                                rows="3" 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-200 text-gray-400 resize-none cursor-not-allowed"
+                                placeholder="This post has been deleted"
+                                disabled
+                            ></textarea>
+                            <div class="flex justify-end mt-3">
+                                <button 
+                                    type="submit" 
+                                    class="px-4 py-2 bg-gray-400 text-gray-600 rounded-lg cursor-not-allowed"
+                                    disabled
+                                >
+                                    Post Comment
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 @else
-                    <p class="text-gray-500 text-center py-4">No comments yet. Be the first to comment!</p>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Comments ({{ $post->replies->count() }})</h3>
+                    
+                    {{-- Comment Form --}}
+                    @auth
+                    <form action="{{ route('comments.store', $post) }}" method="POST" class="mb-6">
+                        @csrf
+                        <div class="mb-3">
+                            <textarea 
+                                name="description" 
+                                rows="3" 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                placeholder="Write a comment..."
+                                required
+                            ></textarea>
+                            @error('description')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div class="flex justify-end">
+                            <button 
+                                type="submit" 
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                Post Comment
+                            </button>
+                        </div>
+                    </form>
+                    @else
+                    <div class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg text-center">
+                        <p class="text-gray-600">
+                            <a href="{{ route('login') }}" class="text-blue-600 hover:underline">Login</a> to post a comment
+                        </p>
+                    </div>
+                    @endauth
+
+                    {{-- Comments List --}}
+                    @if($post->replies->count() > 0)
+                        <div class="space-y-4">
+                            @foreach($post->replies->sortByDesc('created_at') as $comment)
+                                @if(!$comment->isDeleted())
+                                    @include('partials.comment-card', ['comment' => $comment])
+                                @endif
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-gray-500 text-center py-4">No comments yet. Be the first to comment!</p>
+                    @endif
                 @endif
             </div>
         </div>

@@ -111,6 +111,7 @@ class Content extends Model
      */
     public function isDeleted(): bool
     {
-        return $this->title === '[Deleted Post]';
+        return $this->description === '[This comment has been deleted]' || 
+               $this->title === '[Deleted Post]';
     }
 }

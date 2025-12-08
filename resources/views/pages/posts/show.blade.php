@@ -183,7 +183,9 @@
                 @if($post->replies->count() > 0)
                     <div class="space-y-4">
                         @foreach($post->replies->sortByDesc('created_at') as $comment)
-                            @include('partials.comment-card', ['comment' => $comment])
+                            @if(!$comment->isDeleted())
+                                @include('partials.comment-card', ['comment' => $comment])
+                            @endif
                         @endforeach
                     </div>
                 @else

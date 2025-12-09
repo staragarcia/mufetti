@@ -53,4 +53,15 @@ class FollowController extends Controller
             'following_count' => $user->following()->count(),
         ]);
     }
+
+    /**
+     * Show all users that the current user is following
+     */
+    public function showFollowing()
+    {
+        $user = Auth::user();
+        $following = $user->following()->paginate(12);
+
+        return view('pages.profile.following', compact('following', 'user'));
+    }
 }

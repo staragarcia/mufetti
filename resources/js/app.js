@@ -103,6 +103,103 @@ function initializeReactions() {
             console.error('Error loading reactions:', error);
         }
     });
+
+    // Comment reactions
+    document.querySelectorAll('.comment-reaction-btn').forEach(button => {
+        button.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const commentId = this.dataset.commentId;
+            const reactionType = this.dataset.type;
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            try {
+                const response = await fetch(`/comments/${commentId}/react`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        type: reactionType
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const commentCard = this.closest('.bg-gray-50');
+                    
+                    if (commentCard) {
+                        const likesCountElement = commentCard.querySelector('.comment-likes-count');
+                        const confettiCountElement = commentCard.querySelector('.comment-confetti-count');
+                        
+                        if (likesCountElement) {
+                            likesCountElement.textContent = data.likes_count;
+                        }
+                        if (confettiCountElement) {
+                            confettiCountElement.textContent = data.confetti_count;
+                        }
+
+                        const allReactionBtns = commentCard.querySelectorAll('.comment-reaction-btn');
+                        allReactionBtns.forEach(btn => {
+                            btn.classList.remove('text-blue-600', 'text-yellow-600', 'scale-110');
+                        });
+
+                        if (data.user_reaction === reactionType) {
+                            this.classList.add(
+                                reactionType === 'like' ? 'text-blue-600' : 'text-yellow-600',
+                                'scale-110'
+                            );
+                        }
+                    }
+
+                    this.style.transform = 'scale(1.2)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 200);
+
+                } else {
+                    console.error('Error:', data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    });
+
+    // Load initial comment reaction states
+    document.querySelectorAll('[data-comment-id]').forEach(async (element) => {
+        const commentId = element.dataset.commentId;
+        const commentCard = element.closest('.bg-gray-50');
+        
+        if (!commentCard) return;
+        
+        try {
+            const response = await fetch(`/comments/${commentId}/reactions`);
+            const data = await response.json();
+            
+            if (response.ok) {
+                const likesCountElement = commentCard.querySelector('.comment-likes-count');
+                const confettiCountElement = commentCard.querySelector('.comment-confetti-count');
+                
+                if (likesCountElement) likesCountElement.textContent = data.likes_count;
+                if (confettiCountElement) confettiCountElement.textContent = data.confetti_count;
+
+                if (data.user_reaction) {
+                    const activeBtn = commentCard.querySelector(`[data-comment-id="${commentId}"][data-type="${data.user_reaction}"]`);
+                    if (activeBtn) {
+                        activeBtn.classList.add(
+                            data.user_reaction === 'like' ? 'text-blue-600' : 'text-yellow-600',
+                            'scale-110'
+                        );
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error loading comment reactions:', error);
+        }
+    });
 }
 
 // Initialize when DOM is loaded

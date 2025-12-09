@@ -1,4 +1,4 @@
-            @if(isset($posts) && $posts->count() > 0)
+@if(isset($posts) && $posts->count() > 0)
                 <div class="space-y-6">
                     @foreach($posts as $post)
                         {{-- Post Card Container --}}
@@ -74,12 +74,12 @@
                                         <span class="confetti-count">{{ $post->comments }}</span>
                                     </button>
 
-                                    {{-- Comment Button (static for now) --}}
+                                    {{-- Comment Button --}}
                                     <div class="flex items-center gap-1 text-gray-500">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                                         </svg>
-                                        <span>0</span>
+                                        <span>{{ $post->comments ?? 0 }}</span>
                                     </div>
                                 </div>
                             </div>

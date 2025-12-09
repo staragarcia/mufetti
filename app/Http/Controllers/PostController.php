@@ -110,7 +110,7 @@ class PostController extends Controller
             abort(404, 'Post not found.');
         }
 
-        $post->load('ownerUser', 'reactions.user');
+        $post->load('ownerUser', 'reactions.user', 'replies.ownerUser', 'replies.replies.ownerUser');
 
         return view('pages.posts.show', [
             'post' => $post

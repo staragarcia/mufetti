@@ -162,7 +162,7 @@ CREATE TABLE follow_requests (
 CREATE TABLE contents (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     type ContentTypes NOT NULL,
-    created_at DATE NOT NULL DEFAULT CURRENT_DATE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- changed from date to timestamp to have time not just day
     likes INTEGER DEFAULT 0,
     comments INTEGER DEFAULT 0,
     title TEXT,
@@ -170,7 +170,7 @@ CREATE TABLE contents (
     img TEXT,
     owner INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
     id_group INTEGER REFERENCES groups (id) ON UPDATE CASCADE,
-    reply_to INTEGER REFERENCES contents (id) ON UPDATE CASCADE,
+    reply_to INTEGER REFERENCES contents (id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT content_type_ck CHECK (
         (type <> 'comment') OR (reply_to IS NOT NULL)
     )

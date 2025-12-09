@@ -14,6 +14,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Feed\FeedController;
 use App\Http\Controllers\DeleteAccountController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\CommentController;
 
 
 // -----------------------------------------------------
@@ -107,10 +108,21 @@ Route::middleware('auth')->group(function () {
 
 
     // -------------------------------------------------
+    // COMMENTS
+    // -------------------------------------------------
+    Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::post('/comments/{comment}/reply', [CommentController::class, 'reply'])->name('comments.reply');
+    Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+
+
+    // -------------------------------------------------
     // REACTIONS
     // -------------------------------------------------
     Route::post('/posts/{post}/react', [ReactionController::class, 'toggle'])->name('posts.react');
     Route::get('/posts/{post}/reactions', [ReactionController::class, 'getCounts'])->name('posts.reactions.counts');
+    Route::post('/comments/{comment}/react', [ReactionController::class, 'toggleComment'])->name('comments.react');
+    Route::get('/comments/{comment}/reactions', [ReactionController::class, 'getCommentCounts'])->name('comments.reactions.counts');
 
 
     // -------------------------------------------------

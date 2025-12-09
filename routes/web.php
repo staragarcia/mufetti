@@ -97,6 +97,13 @@ Route::middleware('auth')->group(function () {
 
 
     // -------------------------------------------------
+    // FOLLOWERS
+    // -------------------------------------------------
+    Route::post('/users/{user}/follow', [FollowController::class, 'follow'])->name('users.follow');
+    Route::post('/users/{user}/unfollow', [FollowController::class, 'unfollow'])->name('users.unfollow');
+    Route::get('/users/{user}/followers', [FollowController::class, 'getFollowersCount'])->name('users.followers.count');
+
+    // -------------------------------------------------
     // POSTS
     // -------------------------------------------------
     Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');

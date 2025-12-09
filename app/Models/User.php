@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -41,4 +42,45 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    /**
+     * Get users that this user is following
+     */
+    public function following(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'followings',
+            'id_user',
+            'id_following'
+        )->withTimestamps();
+    }
+
+    /**
+     * Get users that are following this user
+     */
+    public function followers(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'followings',
+            'id_following',
+            'id_user'
+        )->withTimestamps();
+    }
+
+    /**
+     * Check if user is following another user
+     */
+    public function isFollowing(User $user): bool
+    {
+        return $this->following()->where('id_following', $user->id)->exists();
+    }
+
+    /**
+     * Check if user is followed by another user
+     */
+    public function isFollowedBy(User $user): bool
+    {
+        return $this->followers()->where('id_user', $user->id)->exists();
+    }
 }

@@ -15,6 +15,7 @@ use App\Http\Controllers\Feed\FeedController;
 use App\Http\Controllers\DeleteAccountController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\FollowController;
 
 
 // -----------------------------------------------------

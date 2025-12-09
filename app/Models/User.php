@@ -52,7 +52,7 @@ class User extends Authenticatable
             'followings',
             'id_user',
             'id_following'
-        )->withTimestamps();
+        );
     }
 
     /**
@@ -65,7 +65,7 @@ class User extends Authenticatable
             'followings',
             'id_following',
             'id_user'
-        )->withTimestamps();
+        );
     }
 
     /**

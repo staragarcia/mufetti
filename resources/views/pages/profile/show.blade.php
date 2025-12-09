@@ -40,6 +40,23 @@
                                 class="px-4 py-2 rounded-md border border-border text-sm font-medium hover:bg-muted transition">
                                     Edit Profile
                                 </a>
+                            @elseif(auth()->check())
+                                {{-- Follow/Unfollow Button --}}
+                                @if(auth()->user()->isFollowing($user))
+                                    <form action="{{ route('users.unfollow', $user) }}" method="POST" class="inline">
+                                        @csrf
+                                        <button type="submit" class="px-4 py-2 rounded-md bg-gray-200 text-gray-800 text-sm font-medium hover:bg-gray-300 transition">
+                                            Following
+                                        </button>
+                                    </form>
+                                @else
+                                    <form action="{{ route('users.follow', $user) }}" method="POST" class="inline">
+                                        @csrf
+                                        <button type="submit" class="px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition">
+                                            Follow
+                                        </button>
+                                    </form>
+                                @endif
                             @endif
                         </div>
 
@@ -78,7 +95,7 @@
                 @php
                     $postsCount = isset($posts)
                         ? (method_exists($posts, 'total') ? $posts->total() : $posts->count())
-                        : \App\Models\Content::where('user_id', $user->id)->orWhere('author_id', $user->id)->count();
+                        : \App\Models\Content::where('owner', $user->id)->count();
                 @endphp
 
                 <div class="flex gap-6 text-sm">
@@ -87,11 +104,11 @@
                         <span class="text-muted-foreground">Posts</span>
                     </div>
                     <div class="hover:underline cursor-pointer">
-                        <span class="font-semibold text-foreground">0</span>
+                        <span class="font-semibold text-foreground">{{ $user->followers()->count() }}</span>
                         <span class="text-muted-foreground">Followers</span>
                     </div>
                     <div class="hover:underline cursor-pointer">
-                        <span class="font-semibold text-foreground">0</span>
+                        <span class="font-semibold text-foreground">{{ $user->following()->count() }}</span>
                         <span class="text-muted-foreground">Following</span>
                     </div>
                 </div>

@@ -18,12 +18,21 @@ class FeedController extends Controller
         $posts = Content::posts()
             ->with('ownerUser')
             ->where('title', '!=', '[Deleted Post]')
+            ->whereNull('id_group')
             ->orderBy('created_at', 'desc')
             ->get();
 
         $user = Auth::user();
 
         return view('pages.feed', compact('posts', 'user'));
+    }
+
+    /**
+     * Show Personalized Feed
+     */
+    public function showPersonalizedFeed() //: View
+    {
+        // TODO
     }
 
 }

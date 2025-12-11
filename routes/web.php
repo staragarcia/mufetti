@@ -142,7 +142,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/join-requests/{request}/accept', [GroupController::class, 'acceptJoinRequest'])->name('joinRequests.accept');
     Route::post('/join-requests/{request}/decline', [GroupController::class, 'declineJoinRequest'])->name('joinRequests.decline');
     Route::get('/groups/{group}/requests', [GroupController::class, 'showJoinRequests'])->name('groups.requests');
+    
     // feed
+    
 
     // Admin - simple user management panel (search, view, edit, create, delete)
     Route::prefix('admin')->name('admin.')->group(function () {

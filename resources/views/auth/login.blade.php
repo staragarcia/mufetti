@@ -64,6 +64,8 @@
                 </button>
             </form>
 
+            <br>
+
             <!-- need to make it prettier -->
             <a href="{{ route('google-auth') }}">
                 <div class="px-6 sm:px-0 max-w-sm">

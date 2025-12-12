@@ -13,6 +13,7 @@ use App\Http\Controllers\GroupController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Feed\FeedController;
 use App\Http\Controllers\DeleteAccountController;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\CommentController;
 
@@ -56,6 +57,13 @@ Route::middleware('guest')->group(function () {
     // Forgot password
     Route::get('/forgot-password', [ForgotPasswordController::class, 'showForm'])
         ->name('password.request');
+
+    // google auth
+    Route::controller(GoogleController::class)->group(function () {
+        Route::get('auth/google', 'redirect')->name('google-auth');
+        Route::get('auth/google/call-back', 'callbackGoogle')->name('google-call-back');
+    });
+
 });
 
 
@@ -144,7 +152,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/groups/{group}/requests', [GroupController::class, 'showJoinRequests'])->name('groups.requests');
     
     // feed
-    
+
 
     // Admin - simple user management panel (search, view, edit, create, delete)
     Route::prefix('admin')->name('admin.')->group(function () {

@@ -25,6 +25,7 @@ class User extends Authenticatable
         'birth_date',
         'profile_picture',
         'description',
+        'google_id',
         'is_public',
         'is_admin',
     ];

@@ -30,10 +30,10 @@ class PostController extends Controller
      *     )
      * )
      */
-    public function create()
+    public function create(?Group $group = null)
     {
-        $groups = Group::where('owner', Auth::id())->get();
-        return view('pages.posts.create', compact('groups'));
+
+        return view('pages.posts.create', compact('group'));
     }
 
     /**

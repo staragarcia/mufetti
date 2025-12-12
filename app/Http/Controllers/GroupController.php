@@ -463,4 +463,11 @@ class GroupController extends Controller
         return view('pages.groups.requests', compact('group', 'requests'));
     }
 
+
+    public function deleteGroup()
+    {
+
+
+
+    }
 }

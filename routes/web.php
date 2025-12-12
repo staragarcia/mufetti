@@ -137,6 +137,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/groups/{group}/edit', [GroupController::class, 'edit'])->name('groups.edit');
     Route::post('/groups/{group}/update', [GroupController::class, 'update'])->name('groups.update');
     Route::post('/groups/{group}/join/public', [GroupController::class, 'joinPublicGroup'])->name('groups.join.public');
+    // Create post for a specific group
+    Route::get('/groups/{group}/posts/create', [PostController::class, 'create'])->name('posts.create.withGroup');
 
     // Join Requests
     Route::post('/join-requests/{request}/accept', [GroupController::class, 'acceptJoinRequest'])->name('joinRequests.accept');

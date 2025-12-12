@@ -55,13 +55,22 @@ class FollowController extends Controller
     }
 
     /**
-     * Show all users that the current user is following
+     * Show all users that a specific user is following
      */
-    public function showFollowing()
+    public function showFollowing(User $user)
     {
-        $user = Auth::user();
         $following = $user->following()->paginate(12);
 
         return view('pages.profile.following', compact('following', 'user'));
+    }
+
+    /**
+     * Show all users that follow a specific user
+     */
+    public function showFollowers(User $user)
+    {
+        $followers = $user->followers()->paginate(12);
+
+        return view('pages.profile.followers', compact('followers', 'user'));
     }
 }

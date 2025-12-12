@@ -103,11 +103,11 @@
                         <span class="font-semibold text-foreground">{{ $postsCount }}</span>
                         <span class="text-muted-foreground">Posts</span>
                     </div>
-                    <a href="{{ route('following.show') }}" class="hover:underline cursor-pointer">
+                    <a href="{{ route('followers.show', $user) }}" class="hover:underline cursor-pointer">
                         <span class="font-semibold text-foreground">{{ $user->followers()->count() }}</span>
                         <span class="text-muted-foreground">Followers</span>
                     </a>
-                    <a href="{{ route('following.show') }}" class="hover:underline cursor-pointer">
+                    <a href="{{ route('following.show', $user) }}" class="hover:underline cursor-pointer">
                         <span class="font-semibold text-foreground">{{ $user->following()->count() }}</span>
                         <span class="text-muted-foreground">Following</span>
                     </a>

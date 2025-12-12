@@ -6,15 +6,17 @@
         
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-foreground mb-2">Following</h1>
-            <p class="text-muted-foreground">Users you are following ({{ $following->total() }})</p>
+            <p class="text-muted-foreground">Users {{ $user->username }} is following ({{ $following->total() }})</p>
         </div>
 
         @if($following->isEmpty())
             <div class="text-center py-12">
-                <p class="text-muted-foreground text-lg">You are not following anyone yet.</p>
-                <a href="{{ route('feed.show') }}" class="text-blue-600 hover:text-blue-700 mt-2 inline-block">
-                    Browse the feed to find users to follow
-                </a>
+                <p class="text-muted-foreground text-lg">{{ $user->username }} is not following anyone yet.</p>
+                @if(auth()->id() === $user->id)
+                    <a href="{{ route('feed.show') }}" class="text-blue-600 hover:text-blue-700 mt-2 inline-block">
+                        Browse the feed to find users to follow
+                    </a>
+                @endif
             </div>
         @else
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -40,14 +42,27 @@
                                 </div>
                             </div>
 
-                            <div class="flex flex-col gap-2">
-                                <form action="{{ route('users.unfollow', $followedUser) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 text-xs font-medium whitespace-nowrap">
-                                        Unfollow
-                                    </button>
-                                </form>
-                            </div>
+                            @auth
+                                @if(auth()->id() !== $followedUser->id)
+                                    <div class="flex flex-col gap-2">
+                                        @if(auth()->user()->isFollowing($followedUser))
+                                            <form action="{{ route('users.unfollow', $followedUser) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 text-xs font-medium whitespace-nowrap">
+                                                    Unfollow
+                                                </button>
+                                            </form>
+                                        @else
+                                            <form action="{{ route('users.follow', $followedUser) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-xs font-medium whitespace-nowrap">
+                                                    Follow
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                @endif
+                            @endauth
                         </div>
                     </div>
                 @endforeach

@@ -157,8 +157,14 @@ class GroupController extends Controller
             $members = $group->members()->get();
         }
 
+
+        $requests = $group->joinRequests()
+                          ->where('status', 'pending')
+                          ->with('user')
+                          ->get();
+
         return view('pages.groups.show', compact(
-            'group', 'posts', 'canView', 'isMember', 'hasPendingRequest', 'members'
+            'group', 'posts', 'canView', 'isMember', 'hasPendingRequest', 'members', 'requests'
         ));
     }
 
@@ -464,10 +470,20 @@ class GroupController extends Controller
     }
 
 
-    public function deleteGroup()
+    public function destroy(Group $group)
     {
+        Gate::authorize('delete', $group);
 
+        $group->update([
+            'title' => '[Deleted Group]',
+            'description' => 'This group has been deleted by the user.',
+        ]);
 
+        if (request()->expectsJson()) {
+            return response()->json(['message' => 'Group deleted successfully']);
+        }
 
+        return redirect()->route('pages.groups.showAll')
+            ->with('success', 'Group deleted successfully!');
     }
 }

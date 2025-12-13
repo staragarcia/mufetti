@@ -40,6 +40,12 @@ Route::get('/search/results', [SearchController::class, 'results'])->name('searc
 // -----------------------------------------------------
 Route::get('/feed', [FeedController::class, 'showFeed'])->name('feed.show');
 
+// Personalized Feed (Following only) - Auth required
+Route::middleware('auth')->group(function () {
+    Route::get('/feed/following', [FeedController::class, 'showPersonalizedFeed'])->name('feed.following');
+});
+
+
 
 // -----------------------------------------------------
 // GUEST ROUTES

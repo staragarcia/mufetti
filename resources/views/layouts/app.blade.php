@@ -20,7 +20,7 @@
         @stack('styles')
     </head>
 
-    <body class="bg-background text-foreground">
+    <body class="bg-background text-foreground" style="overflow-y: scroll;">
 
         {{-- NAVBAR --}}
         @include('partials.navbar')

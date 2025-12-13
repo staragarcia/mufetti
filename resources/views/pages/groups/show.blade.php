@@ -12,23 +12,17 @@
                         View Join Requests
                     </a>
                 @endif
-                <a href="{{ route('groups.edit', $group->id) }}" class="text-primary underline text-sm">
-                    Edit Group
-                </a>
             </div>
         @endif
 
-        {{-- Group Card --}}
-        <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-
-            {{-- Group Header --}}
+        {{-- Group Header --}}
+        <div class="bg-card border border-border p-6 rounded-lg shadow-sm space-y-4">
             <div class="flex justify-between items-start mb-6">
                 <div>
-                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                        {{ $group->name }}
-                    </h1>
+                    <h1 class="text-3xl font-bold text-foreground">{{ $group->name }}</h1>
+                    <p class="text-muted-foreground">{{ $group->description }}</p>
                     <div class="flex items-center gap-2 text-sm text-gray-500">
-                        <span class="font-medium">{{ $group->ownerUser->name }}</span>
+                        <span class="font-medium"> Owner {{ $group->ownerUser->name }}</span>
                     </div>
                 </div>
 
@@ -82,53 +76,20 @@
                     </div>
                 </div>
                 @endif
-
             </div>
-        {{-- Group Header --}}
-        <div class="bg-card border border-border p-6 rounded-lg shadow-sm space-y-4">
-
-            <h1 class="text-3xl font-bold text-foreground">{{ $group->name }}</h1>
-            <p class="text-muted-foreground">{{ $group->description }}</p>
 
             <div class="text-sm text-muted-foreground flex gap-4 items-center">
 
-                {{-- Show members toggle --}}
-                <button onclick="toggleMembers()" class="underline hover:text-foreground">
-                    {{ $group->member_count }} members
-                </button>
+                {{-- Show members --}}
+                <a href="{{ route('groups.members', $group) }}">
+                    <div class="hover:underline cursor-pointer">
+                        <span class="font-semibold text-foreground">{{ $group->member_count }}</span>
+                        <span class="text-muted-foreground">Members</span>
+                    </div>
+                </a>
 
                 <span>{{ $group->is_public ? 'Public Group' : 'Private Group' }}</span>
             </div>
-
-            {{-- Lista de membros --}}
-            <div id="membersList" class="hidden mt-4">
-                <h2 class="font-semibold text-foreground text-lg mb-2">Members</h2>
-
-                <div class="flex flex-wrap gap-3">
-                    @foreach($members as $member)
-                        <div class="bg-secondary px-3 py-1 rounded text-sm flex items-center gap-2">
-                            {{ $member->username }}
-
-                            {{-- Owner can remove members --}}
-                            @if(auth()->id() === $group->owner && $member->id !== $group->owner)
-                                <form action="{{ route('groups.members.remove', [$group->id, $member->id]) }}"
-                                      method="POST"
-                                      onsubmit="return confirm('Remove this member?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="text-red-500 text-xs hover:text-red-700">Remove</button>
-                                </form>
-                            @endif
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-            <script>
-                function toggleMembers() {
-                    const div = document.getElementById('membersList');
-                    div.classList.toggle('hidden');
-                }
-            </script>
 
             {{-- Member leave group --}}
             @if($isMember && auth()->id() !== $group->owner)

@@ -44,7 +44,7 @@
 
                             @auth
                                 @if(auth()->id() !== $follower->id)
-                                    <div class="flex flex-col gap-2">
+                                    <div class="flex gap-2">
                                         @if(auth()->user()->isFollowing($follower))
                                             <form action="{{ route('users.unfollow', $follower) }}" method="POST">
                                                 @csrf
@@ -57,6 +57,16 @@
                                                 @csrf
                                                 <button type="submit" class="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-xs font-medium whitespace-nowrap">
                                                     Follow
+                                                </button>
+                                            </form>
+                                        @endif
+
+                                        {{-- Remove follower button (only shows for yoru own followers!) --}}
+                                        @if(auth()->id() === $user->id)
+                                            <form action="{{ route('users.removeFollower', $follower) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="px-3 py-1.5 bg-red-100 text-red-700 rounded-md hover:bg-red-200 text-xs font-medium whitespace-nowrap">
+                                                    Remove
                                                 </button>
                                             </form>
                                         @endif

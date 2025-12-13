@@ -73,4 +73,11 @@ class FollowController extends Controller
 
         return view('pages.profile.followers', compact('followers', 'user'));
     }
+
+    public function removeFollower(User $follower)
+    {
+        $currentUser = Auth::user();
+        $follower->following()->detach($currentUser->id);
+        return back()->with('success', 'Removed ' . $follower->name . ' from your followers.');
+    }
 }

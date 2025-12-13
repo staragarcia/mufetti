@@ -24,15 +24,33 @@ class FeedController extends Controller
 
         $user = Auth::user();
 
-        return view('pages.feed', compact('posts', 'user'));
+        return view('pages.feed', compact('posts', 'user'))->with('feedType', 'all');
     }
 
     /**
-     * Show Personalized Feed
+     * Show Personalized Feed (Following users only)
      */
-    public function showPersonalizedFeed() //: View
+    public function showPersonalizedFeed() : View
     {
-        // TODO
+        $user = Auth::user();
+        
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        // Get IDs of users that the current user is following
+        $followingIds = $user->following()->pluck('id')->toArray();
+
+        // Get posts from followed users
+        $posts = Content::posts()
+            ->with('ownerUser')
+            ->whereIn('owner', $followingIds)
+            ->where('title', '!=', '[Deleted Post]')
+            ->whereNull('id_group')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('pages.feed', compact('posts', 'user'))->with('feedType', 'following');
     }
 
 }

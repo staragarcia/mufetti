@@ -30,7 +30,7 @@ class PostController extends Controller
      *     )
      * )
      */
-    public function create(Group $group)
+    public function create(?Group $group = null)
     {
         return view('pages.posts.create', compact('group'));
     }

@@ -29,9 +29,17 @@
             {{-- Post Header --}}
             <div class="flex justify-between items-start mb-6">
                 <div>
-                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                        {{ $post->title }}
-                    </h1>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                            {{ $post->title }}
+                        </h1>
+
+                        @if ($post->group)
+                            <a href="{{ route('groups.show', $post->group->id) }}" class="text-sm px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-700 transition">
+                                {{ $post->group->name }}
+                            </a>
+                        @endif
+                    </div>
                     <div class="flex items-center gap-2 text-sm text-gray-500">
                         <span class="font-medium">{{ $post->ownerUser->name }}</span>
                         <span>•</span>

@@ -8,10 +8,21 @@
                             <a href="{{ route('posts.show', $post) }}" class="block cursor-pointer">
                                 {{-- Post Header --}}
                                 <div class="flex justify-between items-start mb-4">
-                                    <h3 class="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                                        {{ $post->title }}
-                                    </h3>
-                                    <span class="text-sm text-gray-500">{{ $post->created_at->format('M j, Y') }}</span>
+                                    <div class="flex items-center gap-3 flex-wrap">
+                                        <h3 class="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                                            {{ $post->title }}
+                                        </h3>
+
+                                        @if ($post->group)
+                                            <span class="text-sm px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                                                {{ $post->group->name }}
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <span class="text-sm text-gray-500 whitespace-nowrap">
+                                        {{ $post->created_at->format('M j, Y') }}
+                                    </span>
                                 </div>
 
                                 {{-- Post Content --}}

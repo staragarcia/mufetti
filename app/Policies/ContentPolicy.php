@@ -37,8 +37,8 @@ class ContentPolicy
      */
     public function update(User $user, Content $content): bool
     {
-        // User can only update their own content AND it must not be deleted
-        return $user->id === $content->owner && !$content->isDeleted();
+        // (User can only update their own content OR group owner) AND it must not be deleted
+        return !$content->isDeleted() && ($user->id === $content->owner || ($content->group && $user->id === $content->group->owner)) ;
     }
 
     /**
@@ -46,8 +46,8 @@ class ContentPolicy
      */
     public function delete(User $user, Content $content): bool
     {
-        // User can only delete their own content AND it must not already be deleted
-        return $user->id === $content->owner && !$content->isDeleted();
+        // (User can only delete their own content OR group owner )AND it must not already be deleted
+        return !$content->isDeleted() && ($user->id === $content->owner || ($content->group && $user->id === $content->group->owner))  ;
     }
 
     /**

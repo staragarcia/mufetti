@@ -140,6 +140,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/groups/{group}/join/public', [GroupController::class, 'joinPublicGroup'])->name('groups.join.public');
     Route::get('/groups/{group}/posts/create', [PostController::class, 'create'])->name('posts.create.withGroup');
     Route::delete('/groups/{group}', [GroupController::class, 'destroy'])->name('groups.destroy');
+    Route::put('/groups/{group}/transfer-owner/{user}', [GroupController::class, 'transferOwner'])->name('groups.transferOwner');
 
     // Join Requests
     Route::post('/join-requests/{request}/accept', [GroupController::class, 'acceptJoinRequest'])->name('joinRequests.accept');

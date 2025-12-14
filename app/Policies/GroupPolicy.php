@@ -44,10 +44,10 @@ class GroupPolicy
     /**
      * Determine whether the user can delete the group.
      */
-    public function delete(User $user, Content $content): bool
+    public function delete(User $user, Group $group): bool
     {
         // User can only delete their own content AND it must not already be deleted
-        return $user->id === $content->owner && !$content->isDeleted();
+        return $user->id === $group->owner;
     }
 
     /**

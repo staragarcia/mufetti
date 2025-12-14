@@ -35,8 +35,9 @@ class GroupController extends Controller
     {
         $user = auth()->id();
 
-        $groupsOwned = Group::ownedBy($user)->get();
-        $groupsNotOwned = Group::memberOnly($user)->get();
+        $groupsOwned = Group::ownedBy($user)
+            ->where('name', '!=', '[Deleted Group]')->get();
+        $groupsNotOwned = Group::memberOnly($user)->where('name', '!=', '[Deleted Group]')->get();
 
         return view('pages.groups.showAll', compact('groupsOwned', 'groupsNotOwned'));
     }
@@ -141,7 +142,7 @@ class GroupController extends Controller
             || ($userId && $group->owner == $userId)
             || $isMember;
 
-        $posts = $group->posts()->latest()->get();
+        $posts = $group->posts()->where('title', '!=', '[Deleted Post]')->latest()->get();
 
         // Verificar se existe join request pendente
         $hasPendingRequest = false;
@@ -475,7 +476,7 @@ class GroupController extends Controller
         Gate::authorize('delete', $group);
 
         $group->update([
-            'title' => '[Deleted Group]',
+            'name' => '[Deleted Group]',
             'description' => 'This group has been deleted by the user.',
         ]);
 
@@ -483,7 +484,42 @@ class GroupController extends Controller
             return response()->json(['message' => 'Group deleted successfully']);
         }
 
-        return redirect()->route('pages.groups.showAll')
+        return redirect()->route('groups.showUserGroups')
             ->with('success', 'Group deleted successfully!');
+    }
+
+
+    public function showMembers(Group $group)
+    {
+        // Pega os membros do grupo com paginação
+        $members = $group->members()->paginate(12);
+
+        return view('pages.groups.members', [
+            'group' => $group,
+            'members' => $members,
+        ]);
+    }
+
+    public function transferOwner(Group $group, User $user)
+    {
+        // Garantir que o utilizador autenticado é o owner atual
+        if (auth()->id() !== $group->owner) {
+            abort(403);
+        }
+
+        // Garantir que o novo owner é membro do grupo
+        $isMember = $group->members()
+            ->where('id_user', $user->id)
+            ->exists();
+
+        if (!$isMember) {
+            return back()->with('error', 'User is not a member of this group.');
+        }
+
+        // Transferir ownership
+        $group->owner = $user->id;
+        $group->save();
+
+        return back()->with('success', 'Group ownership transferred successfully.');
     }
 }

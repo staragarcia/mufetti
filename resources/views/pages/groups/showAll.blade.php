@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="min-h-screen bg-background px-4 py-10">
-    <div class="max-w-5xl mx-auto space-y-10">
+    <div class="max-w-5xl mx-auto space-y-6">
 
         {{-- Header --}}
         <div class="flex items-center justify-between">
@@ -17,63 +17,77 @@
             </a>
         </div>
 
-        {{-- Groups List Owned --}}
-        <div class="border-b border-border mb-6">
-            <div class="px-4 py-3">
-                <h2 class="font-semibold text-foreground">Groups I own</h2>
+        {{-- Tabs --}}
+        <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden mb-6">
+            <div class="flex">
+                {{-- Owned Tab --}}
+                <a href="{{ route('groups.showUserGroups', ['tab' => 'owned']) }}"
+                   class="flex-1 px-6 py-3 text-center font-medium transition-all duration-200 border-b-2
+                          {{ ($activeTab ?? 'owned') === 'owned'
+                              ? 'border-blue-500 text-blue-600 bg-blue-50'
+                              : 'border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                    My Groups
+                </a>
+
+                {{-- Member Tab --}}
+                <a href="{{ route('groups.showUserGroups', ['tab' => 'member']) }}"
+                   class="flex-1 px-6 py-3 text-center font-medium transition-all duration-200 border-b-2
+                          {{ ($activeTab ?? 'owned') === 'member'
+                              ? 'border-blue-500 text-blue-600 bg-blue-50'
+                              : 'border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                    Groups I am member
+                </a>
             </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            @forelse($groupsOwned as $group)
-                <a href="{{ route('groups.show', $group->id) }}"
-                   class="bg-card border border-border rounded-lg p-6 shadow-sm space-y-3 block hover:bg-muted/40 transition">
 
-                    <h2 class="text-xl font-semibold text-foreground">
-                        {{ $group->name }}
-                    </h2>
+        {{-- Groups List --}}
+        @if(($activeTab ?? 'owned') === 'owned')
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @forelse($groupsOwned as $group)
+                    <a href="{{ route('groups.show', $group->id) }}"
+                       class="bg-card border border-border rounded-lg p-6 shadow-sm space-y-3 block hover:bg-muted/40 transition">
 
-                    <p class="text-muted-foreground text-sm">
-                        {{ $group->description ?? 'No description available.' }}
-                    </p>
+                        <h2 class="text-xl font-semibold text-foreground">
+                            {{ $group->name }}
+                        </h2>
 
-                    <div class="flex justify-between items-center text-sm text-muted-foreground pt-2">
-                        <span>{{ $group->member_count }} members</span>
-                        <span>{{ $group->is_public ? 'Public Group' : 'Private Group' }}</span>
-                    </div>
-                </a>
-            @empty
-                <p class="text-muted-foreground">You are not a owner of any group yet. Create one!</p>
-            @endforelse
-        </div>
+                        <p class="text-muted-foreground text-sm">
+                            {{ $group->description ?? 'No description available.' }}
+                        </p>
 
-        {{-- Groups List Member --}}
-        <div class="border-b border-border mb-6">
-            <div class="px-4 py-3">
-                <h2 class="font-semibold text-foreground">Groups I am member</h2>
+                        <div class="flex justify-between items-center text-sm text-muted-foreground pt-2">
+                            <span>{{ $group->member_count }} members</span>
+                            <span>{{ $group->is_public ? 'Public Group' : 'Private Group' }}</span>
+                        </div>
+                    </a>
+                @empty
+                    <p class="text-muted-foreground">You do not own any groups yet. Create one!</p>
+                @endforelse
             </div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            @forelse($groupsNotOwned as $group)
-                <a href="{{ route('groups.show', $group->id) }}"
-                   class="bg-card border border-border rounded-lg p-6 shadow-sm space-y-3 block hover:bg-muted/40 transition">
+        @else
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @forelse($groupsNotOwned as $group)
+                    <a href="{{ route('groups.show', $group->id) }}"
+                       class="bg-card border border-border rounded-lg p-6 shadow-sm space-y-3 block hover:bg-muted/40 transition">
 
-                    <h2 class="text-xl font-semibold text-foreground">
-                        {{ $group->name }}
-                    </h2>
+                        <h2 class="text-xl font-semibold text-foreground">
+                            {{ $group->name }}
+                        </h2>
 
-                    <p class="text-muted-foreground text-sm">
-                        {{ $group->description ?? 'No description available.' }}
-                    </p>
+                        <p class="text-muted-foreground text-sm">
+                            {{ $group->description ?? 'No description available.' }}
+                        </p>
 
-                    <div class="flex justify-between items-center text-sm text-muted-foreground pt-2">
-                        <span>{{ $group->member_count }} members</span>
-                        <span>{{ $group->is_public ? 'Public Group' : 'Private Group' }}</span>
-                    </div>
-                </a>
-            @empty
-                <p class="text-muted-foreground">You are not a member of any group yet. Join one!</p>
-            @endforelse
-        </div>
+                        <div class="flex justify-between items-center text-sm text-muted-foreground pt-2">
+                            <span>{{ $group->member_count }} members</span>
+                            <span>{{ $group->is_public ? 'Public Group' : 'Private Group' }}</span>
+                        </div>
+                    </a>
+                @empty
+                    <p class="text-muted-foreground">You are not a member of any group yet. Join one!</p>
+                @endforelse
+            </div>
+        @endif
 
     </div>
 </div>

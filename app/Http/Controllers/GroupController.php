@@ -31,15 +31,17 @@ class GroupController extends Controller
      *     )
      * )
      */
-    public function showUserGroups()
+    public function showUserGroups(Request $request)
     {
+        $activeTab = $request->query('tab', 'member'); // default 'owned'
+
         $user = auth()->id();
 
         $groupsOwned = Group::ownedBy($user)
             ->where('name', '!=', '[Deleted Group]')->get();
         $groupsNotOwned = Group::memberOnly($user)->where('name', '!=', '[Deleted Group]')->get();
 
-        return view('pages.groups.showAll', compact('groupsOwned', 'groupsNotOwned'));
+        return view('pages.groups.showAll', compact('groupsOwned', 'groupsNotOwned', 'activeTab'));
     }
 
     /**

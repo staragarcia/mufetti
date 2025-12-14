@@ -35,8 +35,9 @@ class GroupController extends Controller
     {
         $user = auth()->id();
 
-        $groupsOwned = Group::ownedBy($user)->get();
-        $groupsNotOwned = Group::memberOnly($user)->get();
+        $groupsOwned = Group::ownedBy($user)
+            ->where('name', '!=', '[Deleted Group]')->get();
+        $groupsNotOwned = Group::memberOnly($user)->where('name', '!=', '[Deleted Group]')->get();
 
         return view('pages.groups.showAll', compact('groupsOwned', 'groupsNotOwned'));
     }
@@ -141,7 +142,7 @@ class GroupController extends Controller
             || ($userId && $group->owner == $userId)
             || $isMember;
 
-        $posts = $group->posts()->latest()->get();
+        $posts = $group->posts()->where('title', '!=', '[Deleted Post]')->latest()->get();
 
         // Verificar se existe join request pendente
         $hasPendingRequest = false;
@@ -157,8 +158,14 @@ class GroupController extends Controller
             $members = $group->members()->get();
         }
 
+
+        $requests = $group->joinRequests()
+                          ->where('status', 'pending')
+                          ->with('user')
+                          ->get();
+
         return view('pages.groups.show', compact(
-            'group', 'posts', 'canView', 'isMember', 'hasPendingRequest', 'members'
+            'group', 'posts', 'canView', 'isMember', 'hasPendingRequest', 'members', 'requests'
         ));
     }
 
@@ -463,4 +470,56 @@ class GroupController extends Controller
         return view('pages.groups.requests', compact('group', 'requests'));
     }
 
+
+    public function destroy(Group $group)
+    {
+        Gate::authorize('delete', $group);
+
+        $group->update([
+            'name' => '[Deleted Group]',
+            'description' => 'This group has been deleted by the user.',
+        ]);
+
+        if (request()->expectsJson()) {
+            return response()->json(['message' => 'Group deleted successfully']);
+        }
+
+        return redirect()->route('groups.showUserGroups')
+            ->with('success', 'Group deleted successfully!');
+    }
+
+
+    public function showMembers(Group $group)
+    {
+        // Pega os membros do grupo com paginação
+        $members = $group->members()->paginate(12);
+
+        return view('pages.groups.members', [
+            'group' => $group,
+            'members' => $members,
+        ]);
+    }
+
+    public function transferOwner(Group $group, User $user)
+    {
+        // Garantir que o utilizador autenticado é o owner atual
+        if (auth()->id() !== $group->owner) {
+            abort(403);
+        }
+
+        // Garantir que o novo owner é membro do grupo
+        $isMember = $group->members()
+            ->where('id_user', $user->id)
+            ->exists();
+
+        if (!$isMember) {
+            return back()->with('error', 'User is not a member of this group.');
+        }
+
+        // Transferir ownership
+        $group->owner = $user->id;
+        $group->save();
+
+        return back()->with('success', 'Group ownership transferred successfully.');
+    }
 }

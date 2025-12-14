@@ -151,10 +151,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/groups', [GroupController::class, 'store'])->name('groups.store');
     Route::post('/groups/{group}/join', [GroupController::class, 'joinRequest'])->name('groups.join');
     Route::post('/groups/{group}/leave', [GroupController::class, 'leaveGroup'])->name('groups.leave');
+    Route::get('/groups/{group}/members', [GroupController::class, 'showMembers'])->name('groups.members');
     Route::delete('/groups/{group}/members/{user}', [GroupController::class, 'removeMember'])->name('groups.members.remove');
     Route::get('/groups/{group}/edit', [GroupController::class, 'edit'])->name('groups.edit');
     Route::post('/groups/{group}/update', [GroupController::class, 'update'])->name('groups.update');
     Route::post('/groups/{group}/join/public', [GroupController::class, 'joinPublicGroup'])->name('groups.join.public');
+    Route::get('/groups/{group}/posts/create', [PostController::class, 'create'])->name('posts.create.withGroup');
+    Route::delete('/groups/{group}', [GroupController::class, 'destroy'])->name('groups.destroy');
+    Route::put('/groups/{group}/transfer-owner/{user}', [GroupController::class, 'transferOwner'])->name('groups.transferOwner');
 
     // Join Requests
     Route::post('/join-requests/{request}/accept', [GroupController::class, 'acceptJoinRequest'])->name('joinRequests.accept');

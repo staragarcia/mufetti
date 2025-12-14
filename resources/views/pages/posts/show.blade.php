@@ -3,7 +3,7 @@
 @section('content')
 <div class="min-h-screen bg-background">
     <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-12">
-        
+
         {{-- Back Button --}}
         <div class="mb-6">
             @if (auth()->id() === $post->ownerUser->id)
@@ -25,7 +25,7 @@
 
         {{-- Post Card --}}
         <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-            
+
             {{-- Post Header --}}
             <div class="flex justify-between items-start mb-6">
                 <div>
@@ -38,11 +38,14 @@
                         <span>{{ $post->created_at->format('M j, Y') }}</span>
                     </div>
                 </div>
-                
+
                 {{-- Post actions dropdown --}}
-                @if(auth()->id() === $post->ownerUser->id && !$post->isDeleted())
+                @if(!$post->isDeleted() &&
+                    (auth()->id() === $post->ownerUser->id ||
+                    ($post->group && auth()->id() === $post->group->owner)))
+
                 <div class="relative" x-data="{ open: false }">
-                    <button 
+                    <button
                         @click="open = !open"
                         class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded hover:bg-gray-100"
                     >
@@ -50,18 +53,18 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
                         </svg>
                     </button>
-                    
+
                     {{-- Dropdown menu --}}
-                    <div 
-                        x-show="open" 
+                    <div
+                        x-show="open"
                         @click.away="open = false"
                         class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-10"
                         x-cloak
                     >
                         <div class="py-1">
                             {{-- Edit option --}}
-                            <a 
-                                href="{{ route('posts.edit', $post) }}" 
+                            <a
+                                href="{{ route('posts.edit', $post) }}"
                                 class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                             >
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,13 +72,13 @@
                                 </svg>
                                 Edit Post
                             </a>
-                            
+
                             {{-- Delete option --}}
                             <form action="{{ route('posts.destroy', $post) }}" method="POST" class="hover:bg-gray-100">
                                 @csrf
                                 @method('DELETE')
-                                <button 
-                                    type="submit" 
+                                <button
+                                    type="submit"
                                     class="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:text-red-800 transition-colors"
                                     onclick="return confirm('Are you sure you want to delete this post?')"
                                 >
@@ -95,10 +98,10 @@
             @if($post->img)
             <div class="mb-6 flex justify-center">
                 <div class="w-full max-w-2xl">
-                    <img 
-                        src="{{ $post->img }}" 
-                        alt="Post image" 
-                        class="w-full h-auto max-h-[400px] min-h-[200px] object-contain rounded-lg bg-white" 
+                    <img
+                        src="{{ $post->img }}"
+                        alt="Post image"
+                        class="w-full h-auto max-h-[400px] min-h-[200px] object-contain rounded-lg bg-white"
                         onerror="this.style.display='none'"
                     >
                 </div>
@@ -142,8 +145,8 @@
                         </div>
                     @else
                         {{-- Like Button --}}
-                        <button class="reaction-btn flex items-center gap-1 hover:text-blue-600 transition-colors" 
-                                data-post-id="{{ $post->id }}" 
+                        <button class="reaction-btn flex items-center gap-1 hover:text-blue-600 transition-colors"
+                                data-post-id="{{ $post->id }}"
                                 data-type="like"
                                 data-likes-count="{{ $post->likes }}">
                             <svg class="w-5 h-5 like-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,8 +156,8 @@
                         </button>
 
                         {{-- Confetti Button --}}
-                        <button class="reaction-btn flex items-center gap-1 hover:text-yellow-600 transition-colors" 
-                                data-post-id="{{ $post->id }}" 
+                        <button class="reaction-btn flex items-center gap-1 hover:text-yellow-600 transition-colors"
+                                data-post-id="{{ $post->id }}"
                                 data-type="confetti"
                                 data-confetti-count="{{ $post->comments }}">
                             <svg class="w-5 h-5 confetti-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -184,16 +187,16 @@
                     <div class="space-y-4">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Comments</h3>
                         <div class="mb-6 p-4 bg-gray-100 border border-gray-300 rounded-lg opacity-50">
-                            <textarea 
-                                name="description" 
-                                rows="3" 
+                            <textarea
+                                name="description"
+                                rows="3"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-200 text-gray-400 resize-none cursor-not-allowed"
                                 placeholder="This post has been deleted"
                                 disabled
                             ></textarea>
                             <div class="flex justify-end mt-3">
-                                <button 
-                                    type="submit" 
+                                <button
+                                    type="submit"
                                     class="px-4 py-2 bg-gray-400 text-gray-600 rounded-lg cursor-not-allowed"
                                     disabled
                                 >
@@ -204,15 +207,15 @@
                     </div>
                 @else
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Comments ({{ $post->replies->count() }})</h3>
-                    
+
                     {{-- Comment Form --}}
                     @auth
                     <form action="{{ route('comments.store', $post) }}" method="POST" class="mb-6">
                         @csrf
                         <div class="mb-3">
-                            <textarea 
-                                name="description" 
-                                rows="3" 
+                            <textarea
+                                name="description"
+                                rows="3"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                                 placeholder="Write a comment..."
                                 required
@@ -222,8 +225,8 @@
                             @enderror
                         </div>
                         <div class="flex justify-end">
-                            <button 
-                                type="submit" 
+                            <button
+                                type="submit"
                                 class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                             >
                                 Post Comment

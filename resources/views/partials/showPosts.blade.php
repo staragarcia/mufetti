@@ -87,10 +87,19 @@
                     @endforeach
                 </div>
             @else
-                <div class="text-center py-8">
-                    <p class="text-gray-500 mb-4">You haven't created any posts yet.</p>
-                    <a href="{{ route('posts.create') }}" class="text-blue-600 hover:underline font-semibold">
-                        Create your first post!
-                    </a>
-                </div>
+                @if ($group)
+                    <div class="text-center py-8">
+                        <p class="text-gray-500 mb-4">This group doesn't have any posts yet.</p>
+                        <a href="{{ route('posts.create.withGroup', $group) }}" class="text-blue-600 hover:underline font-semibold">
+                            Create the first post!
+                        </a>
+                    </div>
+                @else
+                    <div class="text-center py-8">
+                        <p class="text-gray-500 mb-4">You haven't created any posts yet.</p>
+                        <a href="{{ route('posts.create') }}" class="text-blue-600 hover:underline font-semibold">
+                            Create your first post!
+                        </a>
+                    </div>
+                @endif
             @endif

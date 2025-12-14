@@ -41,7 +41,7 @@
                         @endif
                     </div>
                     <div class="flex items-center gap-2 text-sm text-gray-500">
-                        <span class="font-medium">{{ $post->ownerUser->name }}</span>
+                        <a href="{{ route('pages.profile.show', $post->ownerUser) }}" class="font-medium hover:text-blue-700 transition">{{ $post->ownerUser->name }}</a>
                         <span>•</span>
                         <span>{{ $post->created_at->format('M j, Y') }}</span>
                     </div>

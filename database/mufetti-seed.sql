@@ -74,18 +74,17 @@ CREATE TABLE genres (
 CREATE TABLE albums (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     title TEXT NOT NULL,
-    artist TEXT NOT NULL,
-    release_date DATE NOT NULL,
-    songlist TEXT NOT NULL,
-    id_music_brainz INTEGER NOT NULL CONSTRAINT album_idBrainz_uk UNIQUE,
+    release_date DATE,
+    musicbrainz_id UUID NOT NULL UNIQUE,
     CONSTRAINT album_release_date_ck CHECK (release_date < CURRENT_DATE)
 );
+
 
 CREATE TABLE favourite_genres (
     id_user INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
     id_genre INTEGER NOT NULL REFERENCES genres (id) ON UPDATE CASCADE,
     PRIMARY KEY (id_user, id_genre)
-);
+};
 
 CREATE TABLE album_genres (
     id_album INTEGER NOT NULL REFERENCES albums (id) ON UPDATE CASCADE,
@@ -99,13 +98,42 @@ CREATE TABLE favourite_albums (
     PRIMARY KEY (id_user, id_album)
 );
 
+
 CREATE TABLE album_reviews (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     rating INTEGER NOT NULL CHECK (rating >= 0 AND rating <= 5),
-    review_date DATE NOT NULL DEFAULT CURRENT_DATE,
-    id_album INTEGER NOT NULL REFERENCES albums (id) ON UPDATE CASCADE,
-    id_user INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
-    PRIMARY KEY (id_user, id_album)
+    review_text TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    id_album INTEGER NOT NULL REFERENCES albums(id) ON DELETE CASCADE,
+    id_user INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT unique_album_review_per_user UNIQUE (id_album, id_user)
 );
+
+
+CREATE TABLE artists (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name TEXT NOT NULL,
+    musicbrainz_id UUID NOT NULL UNIQUE,
+    country TEXT,
+    description TEXT
+);
+
+CREATE TABLE album_artists (
+    id_album INTEGER NOT NULL REFERENCES albums(id) ON DELETE CASCADE,
+    id_artist INTEGER NOT NULL REFERENCES artists(id) ON DELETE CASCADE,
+    PRIMARY KEY (id_album, id_artist)
+);
+
+CREATE TABLE songs (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    title TEXT NOT NULL,
+    track_number INTEGER NOT NULL CHECK (track_number > 0),
+    duration INTEGER CHECK (duration >= 0), -- segundos
+    musicbrainz_id UUID UNIQUE,
+    id_album INTEGER NOT NULL REFERENCES albums(id) ON DELETE CASCADE
+);
+
+
 
 CREATE TABLE groups (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -188,12 +216,16 @@ CREATE TABLE notifications (
 -- Indexes
 -----------------------------------------
 
+CREATE INDEX album_title_idx ON albums USING btree (title);
+CREATE INDEX artist_name_idx ON artists USING btree (name);
+CREATE INDEX song_album_idx ON songs USING btree (id_album);
+CREATE INDEX review_album_idx ON album_reviews USING btree (id_album);
+
 CREATE INDEX content_owner_idx ON contents USING btree (owner);
 CLUSTER contents USING content_owner_idx;
 
 CREATE INDEX reaction_content_idx ON reactions USING hash (id_content);
 
-CREATE INDEX album_review_album_idx ON album_reviews USING btree (id_album);
 
 ALTER TABLE contents
 ADD COLUMN tsvectors TSVECTOR;

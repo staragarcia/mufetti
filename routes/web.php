@@ -29,6 +29,18 @@ Route::get('/', function () {
 
 
 // -----------------------------------------------------
+// ABOUT & CONTACT
+// -----------------------------------------------------
+Route::get('/about', function () {
+    return view('pages.about');
+})->name('about');
+
+Route::get('/contact', function () {
+    return view('pages.contact');
+})->name('contact');
+
+
+// -----------------------------------------------------
 // SEARCH
 // -----------------------------------------------------
 Route::get('/search', [SearchController::class, 'show'])->name('search.show');

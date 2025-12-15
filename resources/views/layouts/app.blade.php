@@ -25,11 +25,14 @@
         {{-- NAVBAR --}}
         @include('partials.navbar')
 
-        <main class="pt-20"> {{-- padding to avoid overlapping navbar --}}
+        <main class="pt-20 pb-12">
             <section id="content">
                 @yield('content')
             </section>
         </main>
+
+        {{-- FOOTER --}}
+        @include('partials.footer')
 
         @stack('scripts')
     </body>

@@ -29,7 +29,7 @@ Route::get('/', function () {
 
 
 // -----------------------------------------------------
-// ABOUT & CONTACT
+// ABOUT, CONTACT & MAIN FEATURES
 // -----------------------------------------------------
 Route::get('/about', function () {
     return view('pages.about');
@@ -38,6 +38,10 @@ Route::get('/about', function () {
 Route::get('/contact', function () {
     return view('pages.contact');
 })->name('contact');
+
+Route::get('/features', function () {
+    return view('pages.features');
+})->name('features');
 
 
 // -----------------------------------------------------

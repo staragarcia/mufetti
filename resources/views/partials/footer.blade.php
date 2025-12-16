@@ -23,7 +23,7 @@
                 <a href="{{ route('features') }}"
                    class="text-xs font-medium transition-colors
                        {{ request()->is('features') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
-                    Main Features
+                    Features
                 </a>
             </div>
         </div>

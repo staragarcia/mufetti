@@ -36,7 +36,7 @@
             </div>
             <p class="text-muted-foreground leading-relaxed mb-3">
                 This platform was developed as part of the <strong>LBAW</strong> (Laboratório de Bases de Dados e Aplicações Web) 
-                course in the Informatics Engineering course at <strong>FEUP</strong>.
+                class in the Informatics Engineering course at <strong>FEUP</strong>.
             </p>
             <p class="text-muted-foreground leading-relaxed">
                 Built using modern web technologies, demonstrating practical application of database design and web development principles.

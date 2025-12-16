@@ -84,7 +84,7 @@ CREATE TABLE favourite_genres (
     id_user INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
     id_genre INTEGER NOT NULL REFERENCES genres (id) ON UPDATE CASCADE,
     PRIMARY KEY (id_user, id_genre)
-};
+);
 
 CREATE TABLE album_genres (
     id_album INTEGER NOT NULL REFERENCES albums (id) ON UPDATE CASCADE,

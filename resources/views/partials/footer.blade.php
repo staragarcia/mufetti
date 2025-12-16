@@ -20,6 +20,11 @@
                        {{ request()->is('contact') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
                     Contact
                 </a>
+                <a href="{{ route('features') }}"
+                   class="text-xs font-medium transition-colors
+                       {{ request()->is('features') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
+                    Features
+                </a>
             </div>
         </div>
     </div>

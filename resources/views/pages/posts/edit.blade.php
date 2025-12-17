@@ -13,7 +13,7 @@
 
         {{-- Post Edit Card --}}
         <div class="bg-card border border-border rounded-lg p-8 shadow-sm">
-            <form method="POST" action="{{ route('posts.update', $post) }}" class="space-y-6">
+            <form method="POST" action="{{ route('posts.update', $post) }}" enctype="multipart/form-data" class="space-y-6">
                 @csrf
                 @method('PUT')
 
@@ -51,47 +51,105 @@
                     @enderror
                 </div>
 
-                {{-- Image URL (optional) --}}
-                <div class="space-y-2">
-                    <label for="img" class="block text-sm font-medium text-foreground">Image URL (optional)</label>
+                {{-- Image Upload (optional) --}}
+                <div class="space-y-3">
+                    <label for="edit-post-img" class="block text-sm font-medium text-foreground">Upload New Image (optional)</label>
+                    
+                    {{-- Current Image Preview --}}
+                    @if($post->img)
+                    <div id="current-image-container">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-sm font-medium text-muted-foreground">Current Image:</p>
+                            <label class="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer">
+                                <input type="checkbox" name="remove_img" value="1" class="rounded border-border" onchange="toggleCurrentImage(this)">
+                                Remove image
+                            </label>
+                        </div>
+                        <div class="relative rounded-lg overflow-hidden border-2 border-border max-w-md">
+                            <img 
+                                id="current-post-image"
+                                src="{{ asset('storage/' . $post->img) }}" 
+                                alt="Current post image" 
+                                class="w-full h-auto max-h-64 object-cover"
+                                onerror="this.style.display='none'"
+                            >
+                        </div>
+                    </div>
+                    @endif
+                    
+                    {{-- New Image Preview --}}
+                    <div id="edit-post-preview-container" class="hidden">
+                        <p class="text-sm font-medium text-muted-foreground mb-2">New Image:</p>
+                        <div class="relative rounded-lg overflow-hidden border-2 border-primary max-w-md">
+                            <img 
+                                id="edit-post-preview-image" 
+                                src="" 
+                                alt="New post preview" 
+                                class="w-full h-auto max-h-64 object-cover"
+                            />
+                            <button 
+                                type="button" 
+                                onclick="clearEditPostImage()" 
+                                class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-lg transition"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    {{-- Upload Button --}}
+                    <label for="edit-post-img" class="cursor-pointer">
+                        <div class="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 border-2 border-dashed border-border hover:border-primary rounded-lg transition text-sm font-medium @error('img') border-red-500 @enderror">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <span>Choose a new image for your post</span>
+                        </div>
+                    </label>
                     <input
-                        id="img"
+                        id="edit-post-img"
                         name="img"
-                        type="url"
-                        value="{{ old('img', $post->img) }}"
-                        class="w-full rounded-md border border-border bg-background px-3 py-2 focus:outline-none focus:ring focus:ring-primary/50 @error('img') border-red-500 @enderror"
-                        placeholder="https://example.com/image.jpg"
+                        type="file"
+                        accept="image/*"
+                        class="hidden"
+                        onchange="loadEditPostPreview(event)"
                     >
                     @error('img')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
-                    
-                    {{-- Show current image preview if exists --}}
-                    @if($post->img)
-                    <div class="mt-2">
-                        <p class="text-sm text-muted-foreground mb-2">Current Image:</p>
-                        <img 
-                            src="{{ $post->img }}" 
-                            alt="Current post image" 
-                            class="max-w-xs max-h-32 object-cover rounded-md border border-border"
-                            onerror="this.style.display='none'"
-                        >
-                    </div>
-                    @endif
+                    <p class="text-xs text-muted-foreground">Supported formats: JPG, PNG, GIF (max 2MB)</p>
                 </div>
 
-                {{-- Group Selection (read-only) --}}
-                <div class="space-y-2">
-                    <label for="posted_to" class="block text-sm font-medium text-foreground">Posted to:</label>
-                    <input
-                        id="posted_to"
-                        type="text"
-                        value="{{ $post->id_group ? optional($post->group)->name : 'No Group' }}"
-                        disabled
-                        class="w-full rounded-md border border-border bg-background/50 px-3 py-2 cursor-not-allowed text-muted-foreground"
-                    >
-                    <p class="text-sm text-muted-foreground mt-1">Groups cannot be changed after posting.</p>
-                </div>
+                <script>
+                    function loadEditPostPreview(e) {
+                        const file = e.target.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                document.getElementById('edit-post-preview-image').src = e.target.result;
+                                document.getElementById('edit-post-preview-container').classList.remove('hidden');
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    }
+                    
+                    function clearEditPostImage() {
+                        document.getElementById('edit-post-img').value = '';
+                        document.getElementById('edit-post-preview-container').classList.add('hidden');
+                        document.getElementById('edit-post-preview-image').src = '';
+                    }
+                    
+                    function toggleCurrentImage(checkbox) {
+                        const currentImage = document.getElementById('current-post-image');
+                        if (checkbox.checked) {
+                            currentImage.style.opacity = '0.3';
+                        } else {
+                            currentImage.style.opacity = '1';
+                        }
+                    }
+                </script>
 
                 {{-- Buttons --}}
                 <div class="flex gap-4 pt-4">

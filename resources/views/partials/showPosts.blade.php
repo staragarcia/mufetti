@@ -32,7 +32,7 @@
                                     @if($post->img)
                                     <div class="flex-shrink-0 w-48 overflow-hidden rounded-md">
                                         <img
-                                            src="{{ $post->img }}"
+                                            src="{{ asset('storage/' . $post->img) }}"
                                             alt="Post image"
                                             class="w-full h-48 object-cover transition-all duration-200 group-hover:scale-105"
                                         >

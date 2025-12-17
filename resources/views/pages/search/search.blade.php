@@ -304,7 +304,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <a href="/users/${user.id}" class="flex items-center gap-4">
 
                     <img
-                        src="${user.profile_picture || '/images/default-avatar.png'}"
+                        src="${user.profile_picture || '/images/avatar.jpg'}"
                         alt="${user.name}"
                         class="w-16 h-16 rounded-full object-cover border-2 border-border">
                     <div class="flex-1">

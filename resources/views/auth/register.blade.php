@@ -33,28 +33,53 @@
             <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data" class="space-y-4">
                 @csrf
 
-                {{-- Profile Picture Preview --}}
-                <div class="flex flex-col items-center gap-3">
-                    <img 
-                        id="preview-image"
-                        src="/placeholder.jpg"
-                        class="h-24 w-24 rounded-full object-cover border border-border"
-                    />
-
-                    <input 
-                        type="file" 
-                        name="profile_picture" 
-                        accept="image/*"
-                        class="text-sm"
-                        onchange="loadPreview(event)"
-                    >
+                {{-- Profile Picture Upload --}}
+                <div class="flex flex-col items-center gap-4">
+                    <div class="relative group">
+                        <img 
+                            id="register-preview-image"
+                            src="/images/avatar.jpg"
+                            class="h-32 w-32 rounded-full object-cover border-2 border-border shadow-sm transition-all group-hover:border-primary"
+                            alt="Profile preview"
+                        />
+                        <div class="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <div class="w-full">
+                        <label for="register-profile-picture" class="cursor-pointer">
+                            <div class="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-border rounded-md transition text-sm font-medium">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <span>Choose Profile Picture</span>
+                            </div>
+                        </label>
+                        <input 
+                            id="register-profile-picture"
+                            type="file" 
+                            name="profile_picture" 
+                            accept="image/*"
+                            class="hidden"
+                            onchange="loadRegisterPreview(event)"
+                        >
+                        <p class="text-xs text-muted-foreground text-center mt-2">JPG, PNG or GIF (max 2MB)</p>
+                    </div>
                 </div>
 
                 <script>
-                    function loadPreview(e) {
+                    function loadRegisterPreview(e) {
                         const file = e.target.files[0];
                         if (file) {
-                            document.getElementById('preview-image').src = URL.createObjectURL(file);
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                document.getElementById('register-preview-image').src = e.target.result;
+                            };
+                            reader.readAsDataURL(file);
                         }
                     }
                 </script>

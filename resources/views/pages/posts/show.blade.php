@@ -107,7 +107,7 @@
             <div class="mb-6 flex justify-center">
                 <div class="w-full max-w-2xl">
                     <img
-                        src="{{ $post->img }}"
+                        src="{{ asset('storage/' . $post->img) }}"
                         alt="Post image"
                         class="w-full h-auto max-h-[400px] min-h-[200px] object-contain rounded-lg bg-white"
                         onerror="this.style.display='none'"

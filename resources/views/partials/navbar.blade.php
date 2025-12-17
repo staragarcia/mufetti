@@ -24,6 +24,11 @@
                 </a>
 
                 @auth
+                    <a href="{{ route('albums.index') }}"
+                        class="text-sm font-medium transition-colors
+                        {{ request()->is('albums') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
+                        Albums
+                    </a>
 
                     <a href="/groups"
                         class="text-sm font-medium transition-colors

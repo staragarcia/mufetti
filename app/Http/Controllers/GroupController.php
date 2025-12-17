@@ -33,7 +33,7 @@ class GroupController extends Controller
      */
     public function showUserGroups(Request $request)
     {
-        $activeTab = $request->query('tab', 'member'); // default 'owned'
+        $activeTab = $request->query('tab', 'owned'); // default 'owned'
 
         $user = auth()->id();
 

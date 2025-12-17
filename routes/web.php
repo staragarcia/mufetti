@@ -16,6 +16,8 @@ use App\Http\Controllers\DeleteAccountController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FollowController;
+use App\Http\Controllers\AlbumController;
+use App\Http\Controllers\AlbumReviewController;
 
 
 // -----------------------------------------------------
@@ -183,9 +185,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/join-requests/{request}/accept', [GroupController::class, 'acceptJoinRequest'])->name('joinRequests.accept');
     Route::post('/join-requests/{request}/decline', [GroupController::class, 'declineJoinRequest'])->name('joinRequests.decline');
     Route::get('/groups/{group}/requests', [GroupController::class, 'showJoinRequests'])->name('groups.requests');
-    
+
     // feed
-    
+
 
     // Admin - simple user management panel (search, view, edit, create, delete)
     Route::prefix('admin')->name('admin.')->group(function () {
@@ -198,6 +200,16 @@ Route::middleware('auth')->group(function () {
         Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
     });
 
+
+    //album
+    Route::get('/albums/search', [AlbumController::class, 'search'])->name('albums.search');
+    Route::post('/albums/import', [AlbumController::class, 'import'])->name('albums.import');
+    Route::get('/albums/import', [AlbumController::class, 'showImportForm'])->name('albums.import.form');
+    Route::get('/albums/import/search', [AlbumController::class, 'searchImport'])->name('albums.import.search');
+    Route::get('/albums/{album}', [AlbumController::class, 'show'])->name('albums.show');
+    //albumReview
+    Route::post('/albums/{album}/reviews', [AlbumReviewController::class, 'store'])->name('album-reviews.store');
+    Route::get('/albums', [AlbumController::class, 'index'])->name('albums.index');
 });
 
 

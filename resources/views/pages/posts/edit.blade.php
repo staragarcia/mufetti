@@ -13,7 +13,7 @@
 
         {{-- Post Edit Card --}}
         <div class="bg-card border border-border rounded-lg p-8 shadow-sm">
-            <form method="POST" action="{{ route('posts.update', $post) }}" class="space-y-6">
+            <form method="POST" action="{{ route('posts.update', $post) }}" enctype="multipart/form-data" class="space-y-6">
                 @csrf
                 @method('PUT')
 
@@ -51,27 +51,33 @@
                     @enderror
                 </div>
 
-                {{-- Image URL (optional) --}}
+                {{-- Image Upload (optional) --}}
                 <div class="space-y-2">
-                    <label for="img" class="block text-sm font-medium text-foreground">Image URL (optional)</label>
+                    <label for="img" class="block text-sm font-medium text-foreground">Upload New Image (optional)</label>
                     <input
                         id="img"
                         name="img"
-                        type="url"
-                        value="{{ old('img', $post->img) }}"
-                        class="w-full rounded-md border border-border bg-background px-3 py-2 focus:outline-none focus:ring focus:ring-primary/50 @error('img') border-red-500 @enderror"
-                        placeholder="https://example.com/image.jpg"
+                        type="file"
+                        accept="image/*"
+                        class="w-full rounded-md border border-border bg-background px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 focus:outline-none focus:ring focus:ring-primary/50 @error('img') border-red-500 @enderror"
                     >
                     @error('img')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
+                    <p class="text-xs text-muted-foreground">Supported formats: JPG, PNG, GIF (max 2MB)</p>
                     
                     {{-- Show current image preview if exists --}}
                     @if($post->img)
-                    <div class="mt-2">
-                        <p class="text-sm text-muted-foreground mb-2">Current Image:</p>
+                    <div class="mt-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-sm text-muted-foreground">Current Image:</p>
+                            <label class="flex items-center gap-2 text-sm text-muted-foreground">
+                                <input type="checkbox" name="remove_img" value="1" class="rounded border-border">
+                                Remove image
+                            </label>
+                        </div>
                         <img 
-                            src="{{ $post->img }}" 
+                            src="{{ asset('storage/' . $post->img) }}" 
                             alt="Current post image" 
                             class="max-w-xs max-h-32 object-cover rounded-md border border-border"
                             onerror="this.style.display='none'"

@@ -7,6 +7,7 @@ use App\Models\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * @OA\Tag(
@@ -66,16 +67,22 @@ class PostController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'img' => 'nullable|string', // images with URL
+            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // file upload validation (2MB max)
             'id_group' => 'nullable|exists:groups,id', // group is optional
         ]);
+
+        // Handle image upload
+        $imagePath = null;
+        if ($request->hasFile('img')) {
+            $imagePath = $request->file('img')->store('posts', 'public');
+        }
 
         // Create the post
         $post = Content::create([
             'type' => 'post',
             'title' => $validated['title'],
             'description' => $validated['description'],
-            'img' => $validated['img'] ?? null,
+            'img' => $imagePath,
             'owner' => Auth::id(),
             'id_group' => $validated['id_group'] ?? null,
         ]);
@@ -190,15 +197,34 @@ class PostController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'img' => 'nullable|string',
+            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'id_group' => 'nullable|exists:groups,id',
+            'remove_img' => 'nullable|boolean',
         ]);
+
+        // Handle image upload/removal
+        $imagePath = $post->img; // Keep existing image by default
+        
+        if ($request->has('remove_img') && $request->remove_img) {
+            // Delete old image if it exists
+            if ($post->img && \Storage::disk('public')->exists($post->img)) {
+                \Storage::disk('public')->delete($post->img);
+            }
+            $imagePath = null;
+        } elseif ($request->hasFile('img')) {
+            // Delete old image if it exists
+            if ($post->img && \Storage::disk('public')->exists($post->img)) {
+                \Storage::disk('public')->delete($post->img);
+            }
+            // Store new image
+            $imagePath = $request->file('img')->store('posts', 'public');
+        }
 
         // Update the post
         $post->update([
             'title' => $validated['title'],
             'description' => $validated['description'],
-            'img' => $validated['img'] ?? null,
+            'img' => $imagePath,
             'id_group' => $validated['id_group'] ?? null,
         ]);
 

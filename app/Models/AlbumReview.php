@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class AlbumReview extends Model
 {
-    public $timestamps = false;
-
     protected $fillable = [
         'rating',
         'review_text',

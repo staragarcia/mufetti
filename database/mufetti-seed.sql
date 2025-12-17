@@ -104,6 +104,7 @@ CREATE TABLE album_reviews (
     rating INTEGER NOT NULL CHECK (rating >= 0 AND rating <= 5),
     review_text TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     id_album INTEGER NOT NULL REFERENCES albums(id) ON DELETE CASCADE,
     id_user INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT unique_album_review_per_user UNIQUE (id_album, id_user)
@@ -127,7 +128,7 @@ CREATE TABLE album_artists (
 CREATE TABLE songs (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     title TEXT NOT NULL,
-    track_number INTEGER NOT NULL CHECK (track_number > 0),
+    track_number INTEGER NOT NULL CHECK (track_number >= 0),
     duration INTEGER CHECK (duration >= 0), -- segundos
     musicbrainz_id UUID UNIQUE,
     id_album INTEGER NOT NULL REFERENCES albums(id) ON DELETE CASCADE

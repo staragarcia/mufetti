@@ -91,5 +91,11 @@
 
     </div>
 </div>
+<form action="{{ route('albums.import') }}" method="POST">
+    @csrf
+    <input type="hidden" name="musicbrainz_id" value="6e335887-60ba-38f0-95af-fae7774336bf">
+    <button type="submit">Import Album</button>
+</form>
+
 @endsection
 

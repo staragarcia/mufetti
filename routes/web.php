@@ -195,10 +195,14 @@ Route::middleware('auth')->group(function () {
 
 
     //album
+    Route::get('/albums/search', [AlbumController::class, 'search'])->name('albums.search');
     Route::post('/albums/import', [AlbumController::class, 'import'])->name('albums.import');
+    Route::get('/albums/import', [AlbumController::class, 'showImportForm'])->name('albums.import.form');
+    Route::get('/albums/import/search', [AlbumController::class, 'searchImport'])->name('albums.import.search');
     Route::get('/albums/{album}', [AlbumController::class, 'show'])->name('albums.show');
     //albumReview
     Route::post('/albums/{album}/reviews', [AlbumReviewController::class, 'store'])->name('album-reviews.store');
+    Route::get('/albums', [AlbumController::class, 'index'])->name('albums.index');
 });
 
 

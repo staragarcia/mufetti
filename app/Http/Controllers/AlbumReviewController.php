@@ -15,6 +15,7 @@ class AlbumReviewController extends Controller
             'review_text' => 'nullable|string|max:2000',
         ]);
 
+        // 1️⃣ Criar ou atualizar a review
         AlbumReview::updateOrCreate(
             [
                 'id_album' => $album->id,
@@ -26,6 +27,13 @@ class AlbumReviewController extends Controller
             ]
         );
 
+        // 2️⃣ Recalcular estatísticas do álbum
+        $album->update([
+            'avg_rating' => round($album->reviews()->avg('rating'), 1),
+            'reviews_total' => $album->reviews()->count(),
+        ]);
+
+        // 3️⃣ Redirect
         return redirect()
             ->route('albums.show', $album->id)
             ->with('success', 'Review saved successfully!');

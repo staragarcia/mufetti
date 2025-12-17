@@ -12,6 +12,8 @@ class Album extends Model
         'title',
         'release_date',
         'musicbrainz_id',
+        'avg_rating',
+        'reviews_total',
     ];
 
     protected $casts = [

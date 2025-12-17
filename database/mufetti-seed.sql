@@ -76,6 +76,8 @@ CREATE TABLE albums (
     title TEXT NOT NULL,
     release_date DATE,
     musicbrainz_id UUID NOT NULL UNIQUE,
+    avg_rating NUMERIC(2,1) DEFAULT 0,
+    reviews_total INTEGER DEFAULT 0,
     CONSTRAINT album_release_date_ck CHECK (release_date < CURRENT_DATE)
 );
 
@@ -250,9 +252,24 @@ EXECUTE PROCEDURE content_search_update();
 
 CREATE INDEX search_idx ON contents USING GIN (tsvectors);
 
+ALTER TABLE albums ADD COLUMN search_vector tsvector;
+
 -----------------------------------------
 -- Triggers
 -----------------------------------------
+
+CREATE FUNCTION album_search_update() RETURNS trigger AS $$
+BEGIN
+  NEW.search_vector :=
+    setweight(to_tsvector('english', NEW.title), 'A');
+  RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER album_search_trigger
+BEFORE INSERT OR UPDATE ON albums
+FOR EACH ROW EXECUTE FUNCTION album_search_update();
+
 
 CREATE FUNCTION spam_control() RETURNS TRIGGER AS
 $BODY$

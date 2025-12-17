@@ -117,5 +117,27 @@ class MusicBrainzService
             ];
         });
     }
+
+    public function searchReleases(string $query): array
+    {
+        $response = Http::timeout(10)
+            ->withHeaders([
+                'User-Agent' => 'Mufetti/1.0 (up202303903@up.pt)',
+                'Accept' => 'application/json'
+            ])
+            ->get('https://musicbrainz.org/ws/2/release-group/', [
+                'query' => $query,
+                'fmt' => 'json',
+                'limit' => 5,
+            ]);
+
+        return collect($response->json('release-groups'))->map(fn ($rg) => [
+            'musicbrainz_id' => $rg['id'], // ✅ release-group ID
+            'title' => $rg['title'],
+            'artist' => $rg['artist-credit'][0]['name'] ?? 'Unknown',
+            'first_release_date' => $rg['first-release-date'] ?? null,
+        ])->toArray();
+    }
+
 }
 

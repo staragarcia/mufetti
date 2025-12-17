@@ -65,7 +65,7 @@ class AlbumController extends Controller
             }
 
             return redirect()
-                ->route('groups.showUserGroups')
+                ->route('albums.index')
                 ->with('success', 'Album imported successfully!');
         });
     }
@@ -89,5 +89,74 @@ class AlbumController extends Controller
         return view('pages.albums.show', compact('album', 'averageRating', 'myReview', 'otherReviews'));
     }
 
+    public function index()
+    {
+        return view('pages.albums.index');
+    }
+
+    public function search(Request $request)
+    {
+        $q = $request->query('q');
+        $sort = $request->query('sort'); // rating | reviews
+
+        $albums = Album::query()
+
+            // text search
+            ->when($q, function ($query) use ($q) {
+                $query->where(function ($sub) use ($q) {
+
+                    // Exact + partial
+                    $sub->where('title', 'ILIKE', "%{$q}%")
+
+                        // Full-text
+                        ->orWhereRaw(
+                            "search_vector @@ plainto_tsquery('english', ?)",
+                            [$q]
+                        )
+
+                        // Artist
+                        ->orWhereHas('artists', function ($a) use ($q) {
+                            $a->where('name', 'ILIKE', "%{$q}%");
+                        })
+
+                        // Song
+                        ->orWhereHas('songs', function ($s) use ($q) {
+                            $s->where('title', 'ILIKE', "%{$q}%");
+                        });
+                });
+            })
+
+            // sorting
+            ->when($sort === 'rating', fn ($q) =>
+            $q->orderByDesc('avg_rating')
+            )
+
+            ->when($sort === 'reviews', fn ($q) =>
+            $q->orderByDesc('reviews_total')
+            )
+
+            ->with('artists')
+            ->limit(20)
+            ->get();
+
+        return response()->json($albums);
+    }
+
+    public function searchImport(Request $request)
+    {
+        $request->validate([
+            'q' => 'required|string|min:2'
+        ]);
+
+        return response()->json(
+            $this->musicBrainz->searchReleases($request->q)
+        );
+    }
+
+
+    public function showImportForm()
+    {
+        return view('pages.albums.import');
+    }
 }
 

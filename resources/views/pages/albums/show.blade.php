@@ -38,7 +38,7 @@
         <ol class="space-y-1 text-gray-800">
             @foreach($album->songs as $song)
                 <li class="flex justify-between border-b py-1">
-                    <span>{{ $song->track_number }}. {{ $song->title }}</span>
+                    <span>{{ $song->title }}</span>
                     @if($song->duration)
                         <span class="text-sm text-gray-500">
                             {{ gmdate('i:s', $song->duration) }}
@@ -144,6 +144,7 @@
             </button>
         </form>
     </div>
+
     @endauth
 
 </div>

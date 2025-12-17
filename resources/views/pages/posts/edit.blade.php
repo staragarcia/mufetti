@@ -151,19 +151,6 @@
                     }
                 </script>
 
-                {{-- Group Selection (read-only) --}}
-                <div class="space-y-2">
-                    <label for="posted_to" class="block text-sm font-medium text-foreground">Posted to:</label>
-                    <input
-                        id="posted_to"
-                        type="text"
-                        value="{{ $post->id_group ? optional($post->group)->name : 'No Group' }}"
-                        disabled
-                        class="w-full rounded-md border border-border bg-background/50 px-3 py-2 cursor-not-allowed text-muted-foreground"
-                    >
-                    <p class="text-sm text-muted-foreground mt-1">Groups cannot be changed after posting.</p>
-                </div>
-
                 {{-- Buttons --}}
                 <div class="flex gap-4 pt-4">
                     <a 

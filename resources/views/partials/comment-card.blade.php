@@ -5,10 +5,10 @@
         {{-- Profile Picture --}}
         <a href="{{ route('profile.showOther', $comment->ownerUser) }}" class="flex-shrink-0">
             <img 
-                src="{{ $comment->ownerUser->profile_picture ?? '/placeholder.jpg' }}" 
+                src="{{ $comment->ownerUser->avatar }}" 
                 alt="{{ $comment->ownerUser->username ?? 'Unknown' }}"
                 class="w-8 h-8 rounded-full object-cover border-2 border-gray-300"
-                onerror="this.src='/placeholder.jpg'"
+                onerror="this.src='/images/avatar.jpg'"
             >
         </a>
 
@@ -157,10 +157,10 @@
                         @csrf
                         <div class="flex gap-2 mb-2">
                             <img 
-                                src="{{ auth()->user()->profile_picture ?? '/placeholder.jpg' }}" 
+                                src="{{ auth()->user()->avatar }}" 
                                 alt="{{ auth()->user()->username }}"
                                 class="w-6 h-6 rounded-full object-cover border border-gray-300 flex-shrink-0"
-                                onerror="this.src='/placeholder.jpg'"
+                                onerror="this.src='/images/avatar.jpg'"
                             >
                             <textarea 
                                 name="description" 

@@ -105,10 +105,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/edit', [ProfileController::class, 'update'])
         ->name('profile.update');
 
+    Route::delete('/profile/picture', [ProfileController::class, 'removeProfilePicture'])
+        ->name('profile.removePicture');
+
     Route::post('/profile/privacy', [ProfileController::class, 'togglePrivacy'])
         ->name('profile.togglePrivacy');
 
-    Route::delete('/profile/{id}', [ProfileController::class, 'destroy'])
+    Route::delete('/profile/{id}', [DeleteAccountController::class, 'destroy'])
         ->name('profile.delete');
 
 

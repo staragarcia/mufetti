@@ -22,7 +22,7 @@
                         <div class="flex items-center gap-4">
                             <a href="{{ route('profile.showOther', $member) }}" class="shrink-0">
                                 <img
-                                    src="{{ $member->profile_picture ?? '/placeholder.jpg' }}"
+                                    src="{{ $member->avatar }}"
                                     alt="{{ $member->name }}"
                                     class="h-12 w-12 rounded-full border-2 border-gray-200 object-cover hover:border-blue-600 transition-colors"
                                 />

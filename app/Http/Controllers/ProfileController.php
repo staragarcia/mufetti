@@ -63,6 +63,17 @@ class ProfileController extends Controller
             ->route('pages.profile.edit')
             ->with('success', 'Profile updated successfully');
     }
+
+    public function removeProfilePicture(Request $request)
+    {
+        $user = $request->user();
+        $user->update(['profile_picture' => null]);
+
+        return redirect()
+            ->route('pages.profile.edit')
+            ->with('success', 'Profile picture removed successfully');
+    }
+
     public function myProfile(): View
     {
         $user = Auth::user();

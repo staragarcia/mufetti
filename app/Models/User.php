@@ -83,4 +83,12 @@ class User extends Authenticatable
     {
         return $this->followers()->where('id_user', $user->id)->exists();
     }
+
+    /**
+     * Get the user's profile picture or default avatar
+     */
+    public function getAvatarAttribute(): string
+    {
+        return $this->profile_picture ?? '/images/avatar.jpg';
+    }
 }

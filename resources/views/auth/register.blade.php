@@ -38,7 +38,7 @@
                     <div class="relative group">
                         <img 
                             id="register-preview-image"
-                            src="/placeholder.jpg"
+                            src="/images/avatar.jpg"
                             class="h-32 w-32 rounded-full object-cover border-2 border-border shadow-sm transition-all group-hover:border-primary"
                             alt="Profile preview"
                         />

@@ -105,15 +105,18 @@
 
                     {{-- Reply Button --}}
                     @auth
-                        <button 
-                            @click="replying = !replying"
-                            class="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
-                        >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
-                            </svg>
-                            <span x-text="replying ? 'Cancel' : 'Reply'"></span>
-                        </button>
+                        {{-- Only show reply button if this is a top-level comment (replying to a post, not another comment) --}}
+                        @if($comment->parent && $comment->parent->isPost())
+                            <button 
+                                @click="replying = !replying"
+                                class="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                                </svg>
+                                <span x-text="replying ? 'Cancel' : 'Reply'"></span>
+                            </button>
+                        @endif
                     @endauth
                 </div>
             </div>

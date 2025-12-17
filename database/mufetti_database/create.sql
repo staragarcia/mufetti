@@ -181,7 +181,7 @@ CREATE TABLE reactions (
     type ReactionTypes NOT NULL,
     created_at DATE NOT NULL DEFAULT CURRENT_DATE,
     id_user INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
-    id_content INTEGER NOT NULL REFERENCES contents (id) ON UPDATE CASCADE
+    id_content INTEGER NOT NULL REFERENCES contents (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE notifications (
@@ -191,10 +191,10 @@ CREATE TABLE notifications (
     type NotificationTypes NOT NULL,
     receiver INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
     actor INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
-    id_follow_request INTEGER REFERENCES follow_requests (id) ON UPDATE CASCADE,
-    id_group_join_request INTEGER REFERENCES join_requests (id) ON UPDATE CASCADE,
-    id_comment INTEGER REFERENCES contents (id) ON UPDATE CASCADE,
-    id_reaction INTEGER REFERENCES reactions (id) ON UPDATE CASCADE,
+    id_follow_request INTEGER REFERENCES follow_requests (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    id_group_join_request INTEGER REFERENCES join_requests (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    id_comment INTEGER REFERENCES contents (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    id_reaction INTEGER REFERENCES reactions (id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT notification_type_ck CHECK (
         (type <> 'followRequest' OR id_follow_request IS NOT NULL) AND
         (type <> 'acceptedFollowRequest' OR id_follow_request IS NOT NULL) AND

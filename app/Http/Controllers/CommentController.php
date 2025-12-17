@@ -115,6 +115,19 @@ class CommentController extends Controller
             abort(404, 'Comment not found.');
         }
 
+        // Prevent nested replies - only allow replies to top-level comments
+        if ($comment->parent && $comment->parent->isComment()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cannot reply to a reply. Please reply to the main comment instead.'
+                ], 403);
+            }
+            
+            return redirect()->back()
+                ->with('error', 'Cannot reply to a reply. Please reply to the main comment instead.');
+        }
+
         // Validate the request data
         $validated = $request->validate([
             'description' => 'required|string|max:1000',

@@ -76,6 +76,7 @@ CREATE TABLE users (
     birth_date DATE NOT NULL,
     profile_picture TEXT,
     description TEXT,
+    google_id TEXT,
     is_public BOOLEAN NOT NULL,
     is_admin BOOLEAN NOT NULL,
     CONSTRAINT birth_date CHECK (birth_date < CURRENT_DATE)

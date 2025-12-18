@@ -83,6 +83,12 @@
                     Sign up
                 </a>
             </p>
+            <p class="text-sm text-muted-foreground">
+                Forgot password?
+                <a href="{{ route('recover.show') }}" class="text-primary font-semibold hover:underline">
+                    Recover
+                </a>
+            </p>
         </div>
     </div>
 </div>

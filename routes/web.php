@@ -20,6 +20,8 @@ use App\Http\Controllers\FollowController;
 use App\Http\Controllers\FollowRequestController;
 use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\AlbumReviewController;
+use App\Http\Controllers\RecoverController;
+
 
 
 // -----------------------------------------------------
@@ -89,6 +91,11 @@ Route::middleware('guest')->group(function () {
         Route::get('auth/google', 'redirect')->name('google-auth');
         Route::get('auth/google/call-back', 'callbackGoogle')->name('google-call-back');
     });
+
+    // recover
+    Route::get('/recover', [RecoverController::class, 'show'])->name('recover.show');
+    Route::post('/recover', [RecoverController::class, 'sendNewPassword'])->name('recover.email');
+
 
 });
 

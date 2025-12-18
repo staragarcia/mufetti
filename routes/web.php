@@ -17,6 +17,7 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FollowController;
+use App\Http\Controllers\FollowRequestController;
 use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\AlbumReviewController;
 
@@ -141,6 +142,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/users/{user}/followers', [FollowController::class, 'showFollowers'])->name('followers.show');
     Route::get('/users/{user}/following', [FollowController::class, 'showFollowing'])->name('following.show');
     Route::get('/users/{user}/followers/count', [FollowController::class, 'getFollowersCount'])->name('users.followers.count');
+
+    // -------------------------------------------------
+    // FOLLOW REQUESTS
+    // -------------------------------------------------
+    Route::get('/profile/requests', [FollowRequestController::class, 'index'])->name('followRequests.index');
+    Route::post('/follow-requests/{request}/accept', [FollowRequestController::class, 'accept'])->name('followRequests.accept');
+    Route::post('/follow-requests/{request}/decline', [FollowRequestController::class, 'decline'])->name('followRequests.decline');
 
 
     // -------------------------------------------------

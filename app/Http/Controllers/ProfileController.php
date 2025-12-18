@@ -49,7 +49,20 @@ class ProfileController extends Controller
         }
 
         // checkbox invertido
+        $wasPrivate = !$user->is_public;
         $validated['is_public'] = !$request->has('is_private');
+        $isNowPublic = $validated['is_public'];
+
+        // If changing from private to public, auto-accept all pending follow requests
+        if ($wasPrivate && $isNowPublic) {
+            $pendingRequests = \App\Models\FollowRequest::where('id_followed', $user->id)
+                ->where('status', 'pending')
+                ->get();
+
+            foreach ($pendingRequests as $followRequest) {
+                $followRequest->accept();
+            }
+        }
 
         // Atualizar password só se enviada
         if (!empty($validated['password'])) {
@@ -122,11 +135,21 @@ class ProfileController extends Controller
      */
     public function show(User $user, Request $request): View
     {
-        $canView = $user->is_public;
+        $authUser = Auth::user();
+        
+        // Check if user can view this profile
+        $canView = $authUser && $authUser->can('view', $user);
+        
+        // For guests, check if profile is public
+        if (!$authUser) {
+            $canView = $user->is_public;
+        }
 
         $activeTab = $request->get('tab', 'posts');
 
         $posts = collect();
+        $reviews = collect();
+        
         if ($canView) {
             $posts = Content::posts()
                 ->where('owner', $user->id)
@@ -134,13 +157,19 @@ class ProfileController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->orderBy('id', 'desc')
                 ->get();
+
+            $reviews = AlbumReview::with('album.artists')
+                ->where('id_user', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
         }
 
-        $reviews = AlbumReview::with('album.artists')
-        ->where('id_user', $user->id)
-        ->orderBy('created_at', 'desc')
-        ->get();
+        // Check if there's a pending follow request
+        $hasPendingRequest = false;
+        if ($authUser && !$canView && !$user->is_public) {
+            $hasPendingRequest = $authUser->hasPendingRequestTo($user);
+        }
 
-        return view('pages.profile.show', compact('user', 'canView', 'posts', 'reviews', 'activeTab'));
+        return view('pages.profile.show', compact('user', 'canView', 'posts', 'reviews', 'activeTab', 'hasPendingRequest'));
     }
 }

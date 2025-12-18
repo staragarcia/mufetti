@@ -131,10 +131,45 @@
 
                 {{-- Private Toggle --}}
                 <div class="flex items-center gap-2">
-                    <input type="checkbox" name="is_private" value="1"
+                    <input type="checkbox" id="is_private" name="is_private" value="1"
                         {{ !$user->is_public ? 'checked' : '' }}>
-                    <label class="text-sm">Make my profile private</label>
+                    <label for="is_private" class="text-sm">Make my profile private</label>
                 </div>
+
+                {{-- Warning message for privacy change --}}
+                <div id="privacy-warning" class="hidden p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+                    <div class="flex gap-2">
+                        <svg class="w-5 h-5 text-yellow-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-yellow-800">Changing to Public Profile</p>
+                            <p class="text-sm text-yellow-700 mt-1">
+                                All your posts will become visible to everyone, and all pending follow requests will be automatically accepted.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    (function() {
+                        const privateCheckbox = document.getElementById('is_private');
+                        const warningDiv = document.getElementById('privacy-warning');
+                        const initialState = {{ !$user->is_public ? 'true' : 'false' }};
+
+                        function updateWarning() {
+                            // Show warning if changing from private to public
+                            if (initialState && !privateCheckbox.checked) {
+                                warningDiv.classList.remove('hidden');
+                            } else {
+                                warningDiv.classList.add('hidden');
+                            }
+                        }
+
+                        privateCheckbox.addEventListener('change', updateWarning);
+                        updateWarning();
+                    })();
+                </script>
 
                 {{-- Optional Password Change --}}
                 <div class="space-y-2">

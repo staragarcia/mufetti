@@ -108,8 +108,10 @@ class ProfileController extends Controller
         ->orderBy('created_at', 'desc')
         ->get();
 
+        // Load favorite albums with artists
+        $favouriteAlbums = $user->favouriteAlbums()->with('artists')->get();
 
-        return view('pages.profile.show', compact('user', 'canView', 'posts', 'reviews', 'activeTab'));
+        return view('pages.profile.show', compact('user', 'canView', 'posts', 'reviews', 'activeTab', 'favouriteAlbums'));
     }
 
 
@@ -170,6 +172,9 @@ class ProfileController extends Controller
             $hasPendingRequest = $authUser->hasPendingRequestTo($user);
         }
 
-        return view('pages.profile.show', compact('user', 'canView', 'posts', 'reviews', 'activeTab', 'hasPendingRequest'));
+        // Load favorite albums if viewable
+        $favouriteAlbums = $canView ? $user->favouriteAlbums()->with('artists')->get() : collect();
+
+        return view('pages.profile.show', compact('user', 'canView', 'posts', 'reviews', 'activeTab', 'hasPendingRequest', 'favouriteAlbums'));
     }
 }

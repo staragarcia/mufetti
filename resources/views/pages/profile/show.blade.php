@@ -129,6 +129,37 @@
                 </div>
             </div>
 
+            {{-- Favorite Albums Section --}}
+            @if($canView && $favouriteAlbums->count() > 0)
+                <div class="mt-6 mb-6">
+                    <h3 class="text-lg font-semibold text-foreground mb-3">Favorite Albums</h3>
+                    <div class="flex gap-4 overflow-x-auto pb-2">
+                        @foreach($favouriteAlbums as $album)
+                            <div class="flex-shrink-0 w-32">
+                                <a href="{{ route('albums.show', $album->id) }}" class="block group">
+                                    @if($album->cover_url)
+                                        <img 
+                                            src="{{ $album->cover_url }}" 
+                                            alt="{{ $album->title }}"
+                                            class="w-32 h-32 object-cover rounded-lg shadow-md group-hover:shadow-lg transition mb-2"
+                                            onerror="this.onerror=null; this.src=''; this.parentElement.innerHTML='<div class=\'w-32 h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center mb-2\'><svg class=\'w-12 h-12 text-gray-400\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3\'></path></svg></div>';"
+                                        >
+                                    @else
+                                        <div class="w-32 h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center mb-2">
+                                            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+                                            </svg>
+                                        </div>
+                                    @endif
+                                    <p class="text-sm font-medium text-foreground truncate">{{ $album->title }}</p>
+                                    <p class="text-xs text-muted-foreground truncate">{{ $album->artists->pluck('name')->join(', ') }}</p>
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
 @if($canView)
 {{-- Tabs --}}
 <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden mb-6">
@@ -204,9 +235,16 @@
                                             </p>
                                         </div>
 
-                                        <span class="text-yellow-500 flex-shrink-0">
-                                            {{ str_repeat('★', $review->rating) }}
-                                        </span>
+                                        <div class="flex items-center gap-1 flex-shrink-0">
+                                            <span class="text-yellow-500">
+                                                {{ str_repeat('★', $review->rating) }}
+                                            </span>
+                                            @if($user->hasFavoritedAlbum($review->album->id))
+                                                <svg class="w-4 h-4 text-red-500 fill-current" fill="currentColor" viewBox="0 0 24 24" title="Favorite Album">
+                                                    <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                                </svg>
+                                            @endif
+                                        </div>
                                     </div>
 
                                     @if($review->review_text)

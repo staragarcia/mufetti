@@ -25,13 +25,37 @@
 
         {{-- Album Info --}}
         <div class="flex-1">
-            <h1 class="text-3xl font-bold text-gray-900">{{ $album->title }}</h1>
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <h1 class="text-3xl font-bold text-gray-900">{{ $album->title }}</h1>
 
-            <p class="text-gray-600 mt-1">
-                @foreach($album->artists as $artist)
-                    <span>{{ $artist->name }}</span>@if(!$loop->last), @endif
-                @endforeach
-            </p>
+                    <p class="text-gray-600 mt-1">
+                        @foreach($album->artists as $artist)
+                            <span>{{ $artist->name }}</span>@if(!$loop->last), @endif
+                        @endforeach
+                    </p>
+                </div>
+
+                {{-- Favorite Button --}}
+                @auth
+                    <button 
+                        onclick="toggleFavorite({{ $album->id }})"
+                        id="favorite-btn-{{ $album->id }}"
+                        class="ml-4 p-2 rounded-full hover:bg-gray-100 transition"
+                        title="{{ auth()->user()->hasFavoritedAlbum($album->id) ? 'Remove from favorites' : 'Add to favorites' }}"
+                    >
+                        <svg 
+                            id="favorite-icon-{{ $album->id }}"
+                            class="w-8 h-8 {{ auth()->user()->hasFavoritedAlbum($album->id) ? 'text-red-500 fill-current' : 'text-gray-400' }}" 
+                            fill="{{ auth()->user()->hasFavoritedAlbum($album->id) ? 'currentColor' : 'none' }}"
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
+                    </button>
+                @endauth
+            </div>
 
             @if($album->release_date)
                 <p class="text-sm text-gray-500 mt-1">
@@ -186,6 +210,46 @@
             f.style.display = 'none';
         }
     });
+
+    // Toggle favorite album
+    function toggleFavorite(albumId) {
+        fetch(`/favourites/albums/${albumId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok && response.status === 400) {
+                return response.json().then(data => {
+                    throw new Error(data.message);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            const icon = document.getElementById(`favorite-icon-${albumId}`);
+            const btn = document.getElementById(`favorite-btn-${albumId}`);
+            
+            if (data.status === 'added') {
+                icon.classList.remove('text-gray-400');
+                icon.classList.add('text-red-500', 'fill-current');
+                icon.setAttribute('fill', 'currentColor');
+                btn.setAttribute('title', 'Remove from favorites');
+            } else if (data.status === 'removed') {
+                icon.classList.remove('text-red-500', 'fill-current');
+                icon.classList.add('text-gray-400');
+                icon.setAttribute('fill', 'none');
+                btn.setAttribute('title', 'Add to favorites');
+            }
+        })
+        .catch(error => {
+            alert(error.message || 'Error updating favorites');
+            console.error('Error:', error);
+        });
+    }
 </script>
 
 @endsection

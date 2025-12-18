@@ -25,7 +25,24 @@ class FollowController extends Controller
             return back()->with('info', 'You are already following this user.');
         }
 
-        // Add follow
+        // If user has a private profile, create a follow request instead
+        if (!$user->is_public) {
+            // Check if there's already a pending request
+            if ($currentUser->hasPendingRequestTo($user)) {
+                return back()->with('info', 'You already have a pending request to this user.');
+            }
+
+            // Create follow request
+            \App\Models\FollowRequest::create([
+                'id_follower' => $currentUser->id,
+                'id_followed' => $user->id,
+                'status' => 'pending',
+            ]);
+
+            return back()->with('success', 'Follow request sent to ' . $user->name);
+        }
+
+        // Add follow for public profiles
         $currentUser->following()->attach($user->id);
 
         return back()->with('success', 'You are now following ' . $user->name);

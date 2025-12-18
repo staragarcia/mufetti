@@ -98,4 +98,42 @@ class User extends Authenticatable
         return $this->hasMany(Content::class, 'owner');
     }
 
+    /**
+     * Get follow requests sent to this user (pending approval)
+     */
+    public function followRequestsReceived(): HasMany
+    {
+        return $this->hasMany(FollowRequest::class, 'id_followed');
+    }
+
+    /**
+     * Get follow requests sent by this user
+     */
+    public function followRequestsSent(): HasMany
+    {
+        return $this->hasMany(FollowRequest::class, 'id_follower');
+    }
+
+    /**
+     * Check if user has a pending follow request from another user
+     */
+    public function hasPendingRequestFrom(User $user): bool
+    {
+        return $this->followRequestsReceived()
+            ->where('id_follower', $user->id)
+            ->where('status', 'pending')
+            ->exists();
+    }
+
+    /**
+     * Check if this user sent a pending request to another user
+     */
+    public function hasPendingRequestTo(User $user): bool
+    {
+        return $this->followRequestsSent()
+            ->where('id_followed', $user->id)
+            ->where('status', 'pending')
+            ->exists();
+    }
+
 }

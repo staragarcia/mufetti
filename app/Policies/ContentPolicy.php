@@ -11,16 +11,37 @@ class ContentPolicy
     /**
      * Determine whether the user can view the content.
      */
-    public function view(User $user, Content $content): bool
+    public function view(?User $user, Content $content): bool
     {
         // Users can view content unless it's deleted
         if ($content->isDeleted()) {
             return false;
         }
 
+        // Get the content owner
+        $owner = $content->ownerUser;
+        
+        if (!$owner) {
+            return true; // If no owner, allow viewing
+        }
+
+        // If owner's profile is public, everyone can see
+        if ($owner->is_public) {
+            return true;
+        }
+
+        // If not authenticated, cannot view private user's content
+        if (!$user) {
+            return false;
+        }
+
+        // Owner can always see their own content
+        if ($user->id === $owner->id) {
+            return true;
+        }
+
         // For private profiles, only approved followers can view their content
-        // (We'll implement this later based on your BR02)
-        return true;
+        return $user->isFollowing($owner);
     }
 
     /**

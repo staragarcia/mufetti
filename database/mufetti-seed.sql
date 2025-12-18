@@ -79,6 +79,7 @@ CREATE TABLE albums (
     musicbrainz_id UUID NOT NULL UNIQUE,
     avg_rating NUMERIC(2,1) DEFAULT 0,
     reviews_total INTEGER DEFAULT 0,
+    cover_url TEXT,
     CONSTRAINT album_release_date_ck CHECK (release_date < CURRENT_DATE)
 );
 

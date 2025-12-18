@@ -100,6 +100,7 @@ CREATE TABLE albums (
     release_date DATE NOT NULL,
     songlist TEXT NOT NULL,
     id_music_brainz INTEGER NOT NULL CONSTRAINT album_idBrainz_uk UNIQUE,
+    cover_url TEXT,
     CONSTRAINT album_release_date_ck CHECK (release_date < CURRENT_DATE)
 );
 

@@ -53,19 +53,13 @@
 
                 {{-- Image Upload (optional) --}}
                 <div class="space-y-3">
-                    <label for="edit-post-img" class="block text-sm font-medium text-foreground">Upload New Image (optional)</label>
+                    <label for="edit-post-img" class="block text-sm font-medium text-foreground">Image (optional)</label>
                     
                     {{-- Current Image Preview --}}
                     @if($post->img)
                     <div id="current-image-container">
-                        <div class="flex items-center justify-between mb-2">
-                            <p class="text-sm font-medium text-muted-foreground">Current Image:</p>
-                            <label class="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer">
-                                <input type="checkbox" name="remove_img" value="1" class="rounded border-border" onchange="toggleCurrentImage(this)">
-                                Remove image
-                            </label>
-                        </div>
-                        <div class="relative rounded-lg overflow-hidden border-2 border-border max-w-md">
+                        <p class="text-sm font-medium text-muted-foreground mb-2">Current Image:</p>
+                        <div class="relative rounded-lg overflow-hidden border-2 border-border max-w-md mb-3">
                             <img 
                                 id="current-post-image"
                                 src="{{ asset('storage/' . $post->img) }}" 
@@ -73,6 +67,17 @@
                                 class="w-full h-auto max-h-64 object-cover"
                                 onerror="this.style.display='none'"
                             >
+                        </div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="remove_img" value="1" id="remove-img-checkbox" class="hidden" onchange="toggleRemoveImage(this)">
+                                <button type="button" onclick="document.getElementById('remove-img-checkbox').click()" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 border border-red-200 rounded-md transition text-sm font-medium text-red-600">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                    <span id="remove-img-text">Remove Image</span>
+                                </button>
+                            </label>
                         </div>
                     </div>
                     @endif
@@ -141,12 +146,21 @@
                         document.getElementById('edit-post-preview-image').src = '';
                     }
                     
-                    function toggleCurrentImage(checkbox) {
+                    function toggleRemoveImage(checkbox) {
                         const currentImage = document.getElementById('current-post-image');
+                        const buttonText = document.getElementById('remove-img-text');
+                        const button = buttonText.parentElement;
+                        
                         if (checkbox.checked) {
                             currentImage.style.opacity = '0.3';
+                            buttonText.textContent = 'Image will be removed';
+                            button.classList.remove('bg-red-50', 'hover:bg-red-100', 'border-red-200', 'text-red-600');
+                            button.classList.add('bg-green-50', 'hover:bg-green-100', 'border-green-200', 'text-green-600');
                         } else {
                             currentImage.style.opacity = '1';
+                            buttonText.textContent = 'Remove Image';
+                            button.classList.remove('bg-green-50', 'hover:bg-green-100', 'border-green-200', 'text-green-600');
+                            button.classList.add('bg-red-50', 'hover:bg-red-100', 'border-red-200', 'text-red-600');
                         }
                     }
                 </script>

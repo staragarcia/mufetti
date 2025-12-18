@@ -205,18 +205,16 @@ class PostController extends Controller
         // Handle image upload/removal
         $imagePath = $post->img; // Keep existing image by default
         
-        if ($request->has('remove_img') && $request->remove_img) {
-            // Delete old image if it exists
+        // If removing image OR uploading a new one, delete the old image
+        if (($request->has('remove_img') && $request->remove_img) || $request->hasFile('img')) {
             if ($post->img && \Storage::disk('public')->exists($post->img)) {
                 \Storage::disk('public')->delete($post->img);
             }
             $imagePath = null;
-        } elseif ($request->hasFile('img')) {
-            // Delete old image if it exists
-            if ($post->img && \Storage::disk('public')->exists($post->img)) {
-                \Storage::disk('public')->delete($post->img);
-            }
-            // Store new image
+        }
+        
+        // If uploading a new image, store it
+        if ($request->hasFile('img')) {
             $imagePath = $request->file('img')->store('posts', 'public');
         }
 

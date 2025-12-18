@@ -202,7 +202,24 @@ function initializeReactions() {
     });
 }
 
+function initializePostTruncation() {
+    document.querySelectorAll('[id^="text-"]').forEach(textElement => {
+        const postId = textElement.id.replace('text-', '');
+        const fadeElement = document.getElementById(`fade-${postId}`);
+        
+        if (!fadeElement) return;
+        
+        // Check if text is overflowing
+        const maxHeight = 192; // max-h-48 in pixels (12rem = 192px)
+        
+        if (textElement.scrollHeight > maxHeight) {
+            fadeElement.classList.remove('hidden');
+        }
+    });
+}
+
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     initializeReactions();
+    initializePostTruncation();
 });

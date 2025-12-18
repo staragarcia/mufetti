@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Content;
+use App\Models\AlbumReview;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -74,8 +75,10 @@ class ProfileController extends Controller
             ->with('success', 'Profile picture removed successfully');
     }
 
-    public function myProfile(): View
+    public function myProfile(Request $request): View
     {
+        $activeTab = $request->get('tab', 'posts');
+
         $user = Auth::user();
 
         $canView = true; // o dono pode sempre ver
@@ -87,14 +90,16 @@ class ProfileController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
-        return view('pages.profile.show', [
-            'user' => $user,
-            'canView' => $canView,
-            'posts' => $posts,
-        ]);
+        $reviews = AlbumReview::with('album.artists')
+        ->where('id_user', $user->id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+
+        return view('pages.profile.show', compact('user', 'canView', 'posts', 'reviews', 'activeTab'));
     }
 
-    
+
 
     /**
      * Show a specific user's profile.
@@ -115,9 +120,11 @@ class ProfileController extends Controller
      *     @OA\Response(response=403, description="Profile is private and cannot be viewed")
      * )
      */
-    public function show(User $user): View
+    public function show(User $user, Request $request): View
     {
         $canView = $user->is_public;
+
+        $activeTab = $request->get('tab', 'posts');
 
         $posts = collect();
         if ($canView) {
@@ -129,6 +136,11 @@ class ProfileController extends Controller
                 ->get();
         }
 
-        return view('pages.profile.show', compact('user', 'canView', 'posts'));
+        $reviews = AlbumReview::with('album.artists')
+        ->where('id_user', $user->id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+        return view('pages.profile.show', compact('user', 'canView', 'posts', 'reviews', 'activeTab'));
     }
 }

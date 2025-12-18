@@ -169,30 +169,58 @@
             @else
                 <div class="space-y-4">
                     @foreach($reviews as $review)
-                        <div class="border rounded-lg p-4 bg-white">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <a href="{{ route('albums.show', $review->album->id) }}"
-                                    class="font-semibold text-blue-600 hover:underline">
-                                        {{ $review->album->title }}
+                        <div class="review-card border rounded-lg p-4 bg-white h-28 overflow-hidden">
+                            <div class="flex gap-3 h-full">
+                                {{-- Album Cover --}}
+                                <div class="flex-shrink-0">
+                                    <a href="{{ route('albums.show', $review->album->id) }}">
+                                        @if($review->album->cover_url)
+                                            <img 
+                                                src="{{ $review->album->cover_url }}" 
+                                                alt="{{ $review->album->title }} cover"
+                                                class="w-20 h-20 object-cover rounded"
+                                                onerror="this.onerror=null; this.src=''; this.parentElement.innerHTML='<div class=\'w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded flex items-center justify-center\'><svg class=\'w-8 h-8 text-gray-400\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3\'></path></svg></div>';"
+                                            >
+                                        @else
+                                            <div class="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded flex items-center justify-center">
+                                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+                                                </svg>
+                                            </div>
+                                        @endif
                                     </a>
-                                    <p class="text-sm text-gray-600">
-                                        {{ $review->album->artists->pluck('name')->join(', ') }}
-                                    </p>
                                 </div>
 
+                                {{-- Review Content --}}
+                                <div class="flex-1 min-w-0 flex flex-col">
+                                    <div class="flex justify-between items-start gap-2">
+                                        <div class="flex-1 min-w-0">
+                                            <a href="{{ route('albums.show', $review->album->id) }}"
+                                            class="font-semibold text-blue-600 hover:underline block truncate">
+                                                {{ $review->album->title }}
+                                            </a>
+                                            <p class="text-sm text-gray-600 truncate">
+                                                {{ $review->album->artists->pluck('name')->join(', ') }}
+                                            </p>
+                                        </div>
 
-                                <span class="text-yellow-500">
-                                    {{ str_repeat('★', $review->rating) }}
-                                </span>
+                                        <span class="text-yellow-500 flex-shrink-0">
+                                            {{ str_repeat('★', $review->rating) }}
+                                        </span>
+                                    </div>
+
+                                    @if($review->review_text)
+                                        <div class="flex-1 flex items-start gap-2 mt-2 min-h-0">
+                                            <p class="review-text text-sm text-gray-700 flex-1 overflow-hidden">
+                                                {{ $review->review_text }}
+                                            </p>
+                                            <button class="read-more-btn hidden text-xs text-blue-600 hover:underline flex-shrink-0 self-start mt-0.5 font-medium">
+                                                Read more
+                                            </button>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
-
-                            @if($review->review_text)
-                                <p class="mt-2 text-gray-700">
-                                    {{ $review->review_text }}
-                                </p>
-                            @endif
-
                         </div>
                     @endforeach
                 </div>

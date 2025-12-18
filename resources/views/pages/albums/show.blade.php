@@ -3,32 +3,53 @@
 @section('content')
 <div class="max-w-4xl mx-auto px-4 py-8 space-y-8">
 
-    {{-- Album Header --}}
-    <div>
-        <h1 class="text-3xl font-bold text-gray-900">{{ $album->title }}</h1>
+    {{-- Album Header with Cover Art --}}
+    <div class="flex gap-6 items-start">
+        {{-- Album Cover --}}
+        <div class="flex-shrink-0">
+            @if($album->cover_url)
+                <img 
+                    src="{{ $album->cover_url }}" 
+                    alt="{{ $album->title }} cover"
+                    class="w-64 h-64 object-cover rounded-lg shadow-lg border border-gray-200"
+                    onerror="this.onerror=null; this.src=''; this.parentElement.innerHTML='<div class=\'w-64 h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg shadow-lg border border-gray-200 flex items-center justify-center\'><svg class=\'w-24 h-24 text-gray-400\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3\'></path></svg></div>';"
+                >
+            @else
+                <div class="w-64 h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg shadow-lg border border-gray-200 flex items-center justify-center">
+                    <svg class="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+                    </svg>
+                </div>
+            @endif
+        </div>
 
-        <p class="text-gray-600 mt-1">
-            @foreach($album->artists as $artist)
-                <span>{{ $artist->name }}</span>@if(!$loop->last), @endif
-            @endforeach
-        </p>
+        {{-- Album Info --}}
+        <div class="flex-1">
+            <h1 class="text-3xl font-bold text-gray-900">{{ $album->title }}</h1>
 
-        @if($album->release_date)
-            <p class="text-sm text-gray-500 mt-1">
-                Released {{ $album->release_date->format('Y') }}
+            <p class="text-gray-600 mt-1">
+                @foreach($album->artists as $artist)
+                    <span>{{ $artist->name }}</span>@if(!$loop->last), @endif
+                @endforeach
             </p>
-        @endif
-    </div>
 
-    {{-- Rating --}}
-    <div class="flex items-center gap-2">
-        <span class="text-yellow-500 text-lg">★</span>
-        <span class="font-semibold">
-            {{ number_format($averageRating ?? 0, 1) }}
-        </span>
-        <span class="text-sm text-gray-500">
-            ({{ $album->reviews->count() }} reviews)
-        </span>
+            @if($album->release_date)
+                <p class="text-sm text-gray-500 mt-1">
+                    Released {{ $album->release_date->format('Y') }}
+                </p>
+            @endif
+            
+            {{-- Rating --}}
+            <div class="flex items-center gap-2 mt-4">
+                <span class="text-yellow-500 text-lg">★</span>
+                <span class="font-semibold">
+                    {{ number_format($averageRating ?? 0, 1) }}
+                </span>
+                <span class="text-sm text-gray-500">
+                    ({{ $album->reviews->count() }} reviews)
+                </span>
+            </div>
+        </div>
     </div>
 
     {{-- Tracklist --}}

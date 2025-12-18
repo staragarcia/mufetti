@@ -37,9 +37,15 @@ class AlbumController extends Controller
                 ['musicbrainz_id' => $data['album']['musicbrainz_id']],
                 [
                     'title' => $data['album']['title'],
-                    'release_date' => $data['album']['release_date'],
+                    'release_date' => $data['album']['release_date'] ?: null,
+                    'cover_url' => $data['album']['cover_url'] ?? null,
                 ]
             );
+
+            // Update cover if it was null and we now have one
+            if (!$album->cover_url && isset($data['album']['cover_url'])) {
+                $album->update(['cover_url' => $data['album']['cover_url']]);
+            }
 
             // 3️⃣ Criar artistas e associar
             foreach ($data['artists'] as $artistData) {
@@ -84,7 +90,6 @@ class AlbumController extends Controller
 
         $averageRating = $album->reviews->avg('rating');
         $otherReviews = $album->reviews->where('id_user', '!=', auth()->id());
-
 
         return view('pages.albums.show', compact('album', 'averageRating', 'myReview', 'otherReviews'));
     }
@@ -148,8 +153,15 @@ class AlbumController extends Controller
             'q' => 'required|string|min:2'
         ]);
 
+        $results = $this->musicBrainz->searchAlbums($request->q, 5);
+
         return response()->json(
-            $this->musicBrainz->searchReleases($request->q)
+            collect($results)->map(fn($r) => [
+                'musicbrainz_id' => $r['musicbrainz_id'],
+                'title' => $r['title'],
+                'artist' => collect($r['artists'])->pluck('name')->join(', '),
+                'date' => $r['release_date'],
+            ])->toArray()
         );
     }
 

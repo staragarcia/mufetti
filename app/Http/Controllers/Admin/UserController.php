@@ -59,7 +59,7 @@ class UserController extends Controller
             'password' => 'nullable|string|min:6',
             'is_public' => 'sometimes|boolean',
             'is_admin' => 'sometimes|boolean',
-            'profile_picture' => 'nullable|url',
+            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'description' => 'nullable|string',
             'birth_date' => 'nullable|date',
         ]);
@@ -68,6 +68,14 @@ class UserController extends Controller
         $data['password'] = !empty($data['password']) ? Hash::make($data['password']) : Hash::make('password');
         $data['is_public'] = $request->has('is_public') ? true : true; // default public
         $data['is_admin'] = $request->has('is_admin') ? true : false;
+
+        // Handle profile picture upload
+        if ($request->hasFile('profile_picture')) {
+            $path = $request->file('profile_picture')->store('profile_pictures', 'public');
+            $data['profile_picture'] = '/storage/' . $path;
+        } else {
+            unset($data['profile_picture']);
+        }
 
         $user = User::create($data);
 

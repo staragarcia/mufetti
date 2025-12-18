@@ -218,8 +218,44 @@ function initializePostTruncation() {
     });
 }
 
+function initializeReviewTruncation() {
+    document.querySelectorAll('.review-text').forEach(textElement => {
+        const reviewCard = textElement.closest('.review-card');
+        if (!reviewCard) return;
+        
+        const readMoreBtn = reviewCard.querySelector('.read-more-btn');
+        if (!readMoreBtn) return;
+        
+        const maxHeight = 24;
+        
+        if (textElement.scrollHeight > maxHeight) {
+            readMoreBtn.classList.remove('hidden');
+            textElement.classList.add('line-clamp-1');
+        }
+        
+        // Toggle read more/less
+        readMoreBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (textElement.classList.contains('line-clamp-1')) {
+                textElement.classList.remove('line-clamp-1');
+                reviewCard.classList.remove('h-28', 'overflow-hidden');
+                reviewCard.classList.add('h-auto');
+                readMoreBtn.textContent = 'Read less';
+            } else {
+                textElement.classList.add('line-clamp-1');
+                reviewCard.classList.remove('h-auto');
+                reviewCard.classList.add('h-28', 'overflow-hidden');
+                readMoreBtn.textContent = 'Read more';
+            }
+        });
+    });
+}
+
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     initializeReactions();
     initializePostTruncation();
+    initializeReviewTruncation();
 });

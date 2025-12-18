@@ -4,6 +4,15 @@
 <div class="min-h-screen bg-background">
     <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
         
+        <div class="mb-6">
+            <a href="{{ auth()->id() === $user->id ? route('pages.profile.show') : route('profile.showOther', $user) }}" class="text-blue-600 hover:text-blue-700 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                Back to Profile
+            </a>
+        </div>
+
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-foreground mb-2">Following</h1>
             <p class="text-muted-foreground">Users {{ $user->username }} is following ({{ $following->total() }})</p>

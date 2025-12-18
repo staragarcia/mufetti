@@ -45,7 +45,7 @@
                                        class="px-4 py-2 rounded-md border border-border text-sm font-medium hover:bg-muted transition relative">
                                         Profile Requests
                                         @if($pendingCount > 0)
-                                            <span class="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                                            <span class="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-blue-600 rounded-full animate-pulse">
                                                 {{ $pendingCount }}
                                             </span>
                                         @endif
@@ -211,14 +211,9 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
             <h3 class="text-xl font-bold text-gray-900 mb-2">This Account is Private</h3>
-            <p class="text-gray-600 mb-4">
+            <p class="text-gray-600">
                 Follow {{ $user->name }} to see their posts and reviews.
             </p>
-            @if(isset($hasPendingRequest) && $hasPendingRequest)
-                <p class="text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-md px-4 py-2 inline-block">
-                    Your follow request is pending
-                </p>
-            @endif
         </div>
     </div>
 @endif

@@ -49,7 +49,20 @@ class ProfileController extends Controller
         }
 
         // checkbox invertido
+        $wasPrivate = !$user->is_public;
         $validated['is_public'] = !$request->has('is_private');
+        $isNowPublic = $validated['is_public'];
+
+        // If changing from private to public, auto-accept all pending follow requests
+        if ($wasPrivate && $isNowPublic) {
+            $pendingRequests = \App\Models\FollowRequest::where('id_followed', $user->id)
+                ->where('status', 'pending')
+                ->get();
+
+            foreach ($pendingRequests as $followRequest) {
+                $followRequest->accept();
+            }
+        }
 
         // Atualizar password só se enviada
         if (!empty($validated['password'])) {

@@ -77,7 +77,15 @@ class RegisterController extends Controller
             'password'    => 'required|min:6|confirmed',
             'description' => 'nullable|string',
             'is_public'   => 'nullable|boolean',
+            'profile_picture' => 'nullable|image|max:2048',
         ]);
+
+        // Handle profile picture upload
+        $profilePicturePath = null;
+        if ($request->hasFile('profile_picture')) {
+            $path = $request->file('profile_picture')->store('profiles', 'public');
+            $profilePicturePath = '/storage/' . $path;
+        }
 
         // Create user
         $user = User::create([
@@ -89,6 +97,7 @@ class RegisterController extends Controller
             'description' => $request->description,
             'is_public'   => $request->is_private ? false : true,
             'is_admin'    => false,
+            'profile_picture' => $profilePicturePath,
         ]);
 
         // Login the new user

@@ -92,15 +92,10 @@
                     </div>
                 </div>
 
-                @php
-                    $postsCount = isset($posts)
-                        ? (method_exists($posts, 'total') ? $posts->total() : $posts->count())
-                        : \App\Models\Content::where('owner', $user->id)->count();
-                @endphp
 
                 <div class="flex gap-6 text-sm">
                     <div class="hover:underline cursor-pointer">
-                        <span class="font-semibold text-foreground">{{ $postsCount }}</span>
+                        <span class="font-semibold text-foreground">{{ $user->posts()->count() }}</span>
                         <span class="text-muted-foreground">Posts</span>
                     </div>
                     <a href="{{ route('followers.show', $user) }}" class="hover:underline cursor-pointer">
@@ -113,25 +108,83 @@
                     </a>
                 </div>
             </div>
+@if(auth()->user()->isFollowing($user)|| $user->is_public)
+{{-- Tabs --}}
+<div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden mb-6">
+    <div class="flex">
 
-            <div class="border-b border-border mb-6">
-                <div class="px-4 py-3">
-                    <h2 class="font-semibold text-foreground">Posts</h2>
-                </div>
-            </div>
+        {{-- Posts Tab --}}
+        <a href="{{ $user->id === auth()->id() ?  route('pages.profile.show', ['tab' => 'posts']) : route('profile.showOther', ['user' => $user->id, 'tab' => 'posts']) }}"
+           class="flex-1 px-6 py-3 text-center font-medium transition-all duration-200 border-b-2
+           {{ ($activeTab ?? 'posts') === 'posts'
+                ? 'border-blue-500 text-blue-600 bg-blue-50'
+                : 'border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+            Posts
+        </a>
 
-            <div class="border-b border-border mb-6">
+        {{-- Reviews Tab --}}
+        <a href="{{ $user->id === auth()->id() ? route('pages.profile.show', ['tab' => 'reviews']) : route('profile.showOther', ['user' => $user->id, 'tab' => 'reviews']) }}"
+           class="flex-1 px-6 py-3 text-center font-medium transition-all duration-200 border-b-2
+           {{ ($activeTab ?? 'posts') === 'reviews'
+                ? 'border-blue-500 text-blue-600 bg-blue-50'
+                : 'border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+            Reviews
+        </a>
 
+    </div>
+</div>
 
-        @if($posts->isEmpty())
-            <p class="text-muted-foreground">
-                No posts yet.
-            </p>
+        @if ($activeTab === 'posts')
+            @if($posts->isEmpty())
+                <p class="text-muted-foreground">
+                    No posts yet.
+                </p>
+            @else
+            @include('partials.showPosts')
+            @endif
         @else
-        @include('partials.showPosts')
+            @if($reviews->isEmpty())
+                <p class="text-muted-foreground">No reviews yet.</p>
+            @else
+                <div class="space-y-4">
+                    @foreach($reviews as $review)
+                        <div class="border rounded-lg p-4 bg-white">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <a href="{{ route('albums.show', $review->album->id) }}"
+                                    class="font-semibold text-blue-600 hover:underline">
+                                        {{ $review->album->title }}
+                                    </a>
+                                    <p class="text-sm text-gray-600">
+                                        {{ $review->album->artists->pluck('name')->join(', ') }}
+                                    </p>
+                                </div>
+
+
+                                <span class="text-yellow-500">
+                                    {{ str_repeat('★', $review->rating) }}
+                                </span>
+                            </div>
+
+                            @if($review->review_text)
+                                <p class="mt-2 text-gray-700">
+                                    {{ $review->review_text }}
+                                </p>
+                            @endif
+
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
         @endif
 
         </div>
     </main>
 </div>
+@else
+    <p class="text-muted-foreground">
+        🔒 Follow user to see its content 🔒
+    </p>
+@endif
 @endsection

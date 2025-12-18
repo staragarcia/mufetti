@@ -92,4 +92,10 @@ class User extends Authenticatable
     {
         return $this->profile_picture ?? '/images/avatar.jpg';
     }
+
+    public function posts()
+    {
+        return $this->hasMany(Content::class, 'owner');
+    }
+
 }

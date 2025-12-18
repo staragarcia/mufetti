@@ -32,20 +32,22 @@
 
             {{-- Profile Picture Preview & Remove Button (Outside Main Form) --}}
             <div class="flex flex-col items-center gap-4 mb-6">
-                <div class="relative group">
-                    <img 
-                        id="edit-preview-image"
-                        src="{{ $user->avatar }}" 
-                        class="h-32 w-32 rounded-full object-cover border-2 border-border shadow-sm transition-all group-hover:border-primary"
-                        alt="Profile preview"
-                    />
-                    <div class="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
+                <label for="edit-profile-picture" class="cursor-pointer">
+                    <div class="relative group">
+                        <img 
+                            id="edit-preview-image"
+                            src="{{ $user->avatar }}" 
+                            class="h-32 w-32 rounded-full object-cover border-2 border-border shadow-sm transition-all group-hover:border-primary"
+                            alt="Profile preview"
+                        />
+                        <div class="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                        </div>
                     </div>
-                </div>
+                </label>
                 
                 @if($user->profile_picture)
                 <form action="{{ route('profile.removePicture') }}" method="POST" class="w-full" onsubmit="return confirm('Remove your profile picture?');">

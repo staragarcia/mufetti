@@ -136,4 +136,25 @@ class User extends Authenticatable
             ->exists();
     }
 
+    /**
+     * Get favorite albums
+     */
+    public function favouriteAlbums(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Album::class,
+            'favourite_albums',
+            'id_user',
+            'id_album'
+        );
+    }
+
+    /**
+     * Check if user has favorited an album
+     */
+    public function hasFavoritedAlbum($albumId): bool
+    {
+        return $this->favouriteAlbums()->where('id_album', $albumId)->exists();
+    }
+
 }

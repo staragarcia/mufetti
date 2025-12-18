@@ -234,6 +234,9 @@ Route::middleware('auth')->group(function () {
     //albumReview
     Route::post('/albums/{album}/reviews', [AlbumReviewController::class, 'store'])->name('album-reviews.store');
     Route::get('/albums', [AlbumController::class, 'index'])->name('albums.index');
+
+    //favourites
+    Route::post('/favourites/albums/{album}', [\App\Http\Controllers\FavouriteController::class, 'toggleAlbum'])->name('favourites.albums.toggle');
 });
 
 

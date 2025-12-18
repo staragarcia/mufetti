@@ -109,6 +109,16 @@ class UserController extends Controller
         return redirect()->route('admin.users.show', $user)->with('success', 'User updated.');
     }
 
+    public function removeProfilePicture(User $user)
+    {
+        $this->ensureAdmin();
+        $user->update(['profile_picture' => null]);
+
+        return redirect()
+            ->route('admin.users.edit', $user)
+            ->with('success', 'Profile picture removed successfully');
+    }
+
     public function destroy(User $user)
     {
         $this->ensureAdmin();

@@ -40,6 +40,11 @@
                             {{ request()->is('posts/create') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
                         Create
                     </a>
+                    <a href="/notifications"
+                       class="text-sm font-medium transition-colors
+                            {{ request()->is('profile') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
+                        Notifications
+                    </a>
 
 
                     <a href="{{ route('pages.profile.show') }}"

@@ -15,7 +15,7 @@ class NotificationController extends Controller
     
 
         $notifications = Notification::where('receiver', $userId)
-            ->orderByDesc('created_at') 
+            ->orderByDesc('id') 
             ->get();
     
 

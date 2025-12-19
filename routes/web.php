@@ -22,6 +22,7 @@ use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\AlbumReviewController;
 use App\Http\Controllers\RecoverController;
 
+use App\Http\Controllers\NotificationController;
 
 
 // -----------------------------------------------------
@@ -246,3 +247,18 @@ Route::middleware('auth')->group(function () {
 Route::get('/groups/{group}', [GroupController::class, 'showGroup'])->name('groups.show');
 
 Route::get('feed', [FeedController::class, 'showFeed'])->name('feed.show');
+
+
+
+// -----------------------------------------------------
+// NOTIFICATIONS
+// -----------------------------------------------------
+
+
+Route::get('/notifications', [NotificationController::class, 'index'])
+    ->middleware('auth')
+    ->name('notifications.index');
+
+Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])
+    ->middleware('auth')
+    ->name('notifications.read');

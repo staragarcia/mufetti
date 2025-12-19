@@ -8,7 +8,7 @@ use Carbon\Carbon;
 class Notification extends Model
 {
     protected $table = 'notifications';
-    public $timestamps = true; 
+    public $timestamps = false; 
 
     protected $fillable = [
         'type',

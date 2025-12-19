@@ -5,53 +5,50 @@
     <h1 class="text-xl font-bold mb-4">Notifications</h1>
 
     @forelse ($notifications as $notification)
-        <div class="p-4 mb-2 border rounded
-            {{ $notification->is_read ? 'bg-gray-100' : 'bg-white font-semibold' }}">
-            @php
-            $actorName = $notification->actorUser->username ?? 'Someone';
-            @endphp
+        @php
+            $actor = $notification->actorUser;
+            $isCurrentlyUnread = in_array($notification->id, $unreadIds);
+        @endphp
 
-            <p>
-                @switch($notification->type)
+        <div class="flex items-start p-4 mb-2 border rounded transition-colors
+            {{ $isCurrentlyUnread ? 'bg-blue-50 font-semibold' : 'bg-gray-100' }}">
 
-                    @case('followRequest')
-                        <strong>{{ $actorName }}</strong> sent you a follow request
-                        @break
+            <!-- Foto do autor -->
+            <img src="{{ $actor->profile_photo_url ?? 'https://via.placeholder.com/40' }}" 
+                 alt="{{ $actor->username }}" 
+                 class="h-10 w-10 rounded-full mr-4 object-cover">
 
-                    @case('acceptedFollowRequest')
-                        <strong>{{ $actorName }}</strong> accepted your follow request
-                        @break
+            <div class="flex-1">
+                <p class="text-sm">
+                    @switch($notification->type)
+                        @case('followRequest')
+                            <strong>{{ $actor->username ?? 'Someone' }}</strong> sent you a follow request
+                            @break
+                        @case('acceptedFollowRequest')
+                            <strong>{{ $actor->username ?? 'Someone' }}</strong> accepted your follow request
+                            @break
+                        @case('joinGroupRequest')
+                            <strong>{{ $actor->username ?? 'Someone' }}</strong> requested to join your group
+                            @break
+                        @case('acceptedJoinGroupRequest')
+                            Your request to join the group was accepted
+                            @break
+                        @case('comment')
+                            <strong>{{ $actor->username ?? 'Someone' }}</strong> commented on your post
+                            @break
+                        @case('reaction')
+                            <strong>{{ $actor->username ?? 'Someone' }}</strong> liked your post
+                            @break
+                    @endswitch
+                </p>
 
-                    @case('joinGroupRequest')
-                        <strong>{{ $actorName }}</strong> requested to join your group
-                        @break
-
-                    @case('acceptedJoinGroupRequest')
-                        Your request to join the group was accepted
-                        @break
-
-                    @case('comment')
-                        <strong>{{ $actorName }}</strong> commented on your post
-                        @break
-
-                    @case('reaction')
-                        <strong>{{ $actorName }}</strong> liked your post
-                        @break
-
-                @endswitch
-            </p>
-
-            @if(!$notification->is_read)
-                <form method="POST" action="{{ route('notifications.read', $notification->id) }}">
-                    @csrf
-                    <button class="text-sm text-blue-600 mt-2">
-                        Mark as read
-                    </button>
-                </form>
-            @endif
+                <!-- Timestamp -->
+                <span class="text-xs text-gray-500">{{ $notification->time_ago }}</span>
+            </div>
         </div>
     @empty
         <p>No notifications.</p>
     @endforelse
 </div>
 @endsection
+

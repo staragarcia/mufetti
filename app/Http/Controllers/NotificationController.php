@@ -11,13 +11,27 @@ class NotificationController extends Controller
     // US303 – Notification list
     public function index()
     {
-        $notifications = Notification::where('receiver', Auth::id())
-            ->orderBy('created_at', 'desc')
+        $userId = Auth::id();
+    
+
+        $notifications = Notification::where('receiver', $userId)
+            ->orderByDesc('created_at') 
             ->get();
+    
 
-        return view('pages.notifications.index', compact('notifications'));
+        $unreadIds = $notifications->where('is_read', false)->pluck('id')->toArray();
+
+    
+        if (!empty($unreadIds)) {
+            Notification::whereIn('id', $unreadIds)->update(['is_read' => true]);
+        }
+    
+        return view('pages.notifications.index', [
+            'notifications' => $notifications,
+            'unreadIds' => $unreadIds,
+        ]);
     }
-
+    
     // US304 – Mark notification as read
     public function markAsRead($id)
     {

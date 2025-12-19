@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Notification extends Model
 {
     protected $table = 'notifications';
-    public $timestamps = false; 
+    public $timestamps = true; 
 
     protected $fillable = [
         'type',
@@ -19,9 +20,14 @@ class Notification extends Model
         'id_comment',
         'id_reaction'
     ];
+
     public function actorUser()
     {
         return $this->belongsTo(User::class, 'actor');
     }
-    
+
+    public function getTimeAgoAttribute()
+    {
+        return Carbon::parse($this->created_at)->diffForHumans();
+    }
 }

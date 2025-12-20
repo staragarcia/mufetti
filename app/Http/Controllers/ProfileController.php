@@ -74,8 +74,7 @@ class ProfileController extends Controller
         $user->update($validated);
 
         return redirect()
-            ->route('pages.profile.edit')
-            ->with('success', 'Profile updated successfully');
+            ->route('pages.profile.show');
     }
 
     public function removeProfilePicture(Request $request)

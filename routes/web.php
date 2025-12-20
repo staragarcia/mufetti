@@ -262,3 +262,11 @@ Route::get('/notifications', [NotificationController::class, 'index'])
 Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])
     ->middleware('auth')
     ->name('notifications.read');
+
+// Rotas de Admin
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('users', AdminUserController::class);
+    Route::resource('albums', Admin\AlbumController::class);
+    Route::resource('groups', Admin\GroupController::class);
+    // Nota: Aqui NÃO incluímos rotas de 'create' posts ou 'notifications'
+});

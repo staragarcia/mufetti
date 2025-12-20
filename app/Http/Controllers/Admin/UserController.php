@@ -130,13 +130,48 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $this->ensureAdmin();
-
+    
+        // Impede o admin de se auto-eliminar no painel
         if ($user->id === auth()->id()) {
-            return back()->with('error', 'Cannot delete yourself.');
+            return back()->with('error', 'Não pode apagar a sua própria conta de administrador.');
         }
-
-        $user->delete();
-
-        return redirect()->route('admin.users.index')->with('success', 'User deleted.');
+    
+        \DB::transaction(function () use ($user) {
+            $anonId = User::ANONYMOUS_ID; // Garante que este ID existe na DB (ex: ID 0 ou 1)
+    
+            // 1. MÚSICA E PREFERÊNCIAS (Tabelas Pivot)
+            \DB::table('favourite_albums')->where('id_user', $user->id)->delete();
+            \DB::table('favourite_genres')->where('id_user', $user->id)->delete();
+            \DB::table('album_reviews')->where('id_user', $user->id)->delete();
+    
+            // 2. SEGUIDORES E PEDIDOS
+            \DB::table('followings')->where('id_user', $user->id)->orWhere('id_following', $user->id)->delete();
+            \DB::table('follow_requests')->where('id_follower', $user->id)->orWhere('id_followed', $user->id)->delete();
+    
+            // 3. GRUPOS (Resolve o erro groups_owner_fkey)
+            \DB::table('join_requests')->where('id_user', $user->id)->delete();
+            \DB::table('group_members')->where('id_user', $user->id)->delete();
+            // Transferir grupos do user para o utilizador anónimo
+            \DB::table('groups')->where('owner', $user->id)->update(['owner' => $anonId]);
+    
+            // 4. NOTIFICAÇÕES (Limpeza de referências cruzadas)
+            \DB::table('notifications')->where('receiver', $user->id)->delete();
+            \DB::table('notifications')->where('actor', $user->id)->update(['actor' => $anonId]);
+            
+            // Desvincular Reações de notificações antes de apagar as reações
+            \DB::table('notifications')
+                ->whereIn('id_reaction', function($q) use ($user) {
+                    $q->select('id')->from('reactions')->where('id_user', $user->id);
+                })->update(['id_reaction' => null]);
+    
+            // 5. REAÇÕES E CONTEÚDOS
+            \DB::table('reactions')->where('id_user', $user->id)->delete();
+            \DB::table('contents')->where('owner', $user->id)->update(['owner' => $anonId]);
+    
+            // 6. ELIMINAÇÃO FINAL
+            $user->delete();
+        });
+    
+        return redirect()->route('admin.users.index')->with('success', 'Utilizador e dados associados removidos com sucesso.');
     }
 }

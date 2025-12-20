@@ -431,7 +431,9 @@ AFTER INSERT OR DELETE ON contents
 FOR EACH ROW
 EXECUTE FUNCTION update_comment_count();
 
+-- ID 1 é o utilizador de sistema
+INSERT INTO users (id, name, username, email, password, birth_date, is_public, is_admin)
+VALUES (1, 'Utilizador Anónimo', 'deleted_user', 'deleted@mufetti.com', 'LOCKED', '1900-01-01', false, false);
 
-
-
-
+-- Admin genérico é ID 2
+INSERT INTO users (id, name, username, email, password, birth_date, is_public, is_admin) VALUES (2,'Admin','admin', 'admin@email.com', 'admin','1900-01-01', false, true);

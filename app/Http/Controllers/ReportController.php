@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Report;
+use App\Models\Content;
 use Illuminate\Support\Facades\Auth;
 
 class ReportController extends Controller
@@ -16,6 +17,18 @@ class ReportController extends Controller
             'motive' => 'required|string',
             'description' => 'nullable|string',
         ]);
+
+        // Prevent users from reporting their own content
+        if ($request->reportable_type === 'post' || $request->reportable_type === 'comment') {
+            $content = Content::find($request->reportable_id);
+            
+            if ($content && $content->owner === Auth::id()) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'You cannot report your own content.'
+                ], 403);
+            }
+        }
 
         $report = Report::create([
             'id_user' => Auth::id(),

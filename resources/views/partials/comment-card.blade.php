@@ -103,7 +103,8 @@
                         <span class="text-xs comment-confetti-count">{{ $comment->reactions()->where('type', 'confetti')->count() }}</span>
                     </button>
 
-                    {{-- Report Button --}}
+                    {{-- Report Button - Only show if user is not the comment owner --}}
+                    @if(auth()->check() && auth()->id() !== $comment->owner)
                     <button class="flex items-center gap-1 hover:text-red-600 transition-colors" onclick="openReportModal('report-modal-comment-{{ $comment->id }}')">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-1.414-1.414A9 9 0 003 12v7a2 2 0 002 2h14a2 2 0 002-2v-7a9 9 0 00-2.636-6.364zM12 17a2 2 0 110-4 2 2 0 010 4z"/>
@@ -135,6 +136,7 @@
                             <div class="mt-2 text-green-600 hidden text-center" id="report-success-comment-{{ $comment->id }}">Report submitted!</div>
                         </div>
                     </div>
+                    @endif
 
                     {{-- Reply Button --}}
                     @auth

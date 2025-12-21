@@ -79,7 +79,8 @@
                 <p class="text-gray-700 text-sm whitespace-pre-line mb-2">{{ $comment->description }}</p>
                 
                 {{-- Reaction and Reply Buttons --}}
-                <div class="flex items-center gap-3 mt-2">
+                <div class="flex items-center justify-between mt-2">
+                    <div class="flex items-center gap-3">
                     {{-- Like Button --}}
                     <button class="comment-reaction-btn flex items-center gap-1 hover:text-blue-600 transition-colors"
                             data-comment-id="{{ $comment->id }}"
@@ -103,13 +104,30 @@
                         <span class="text-xs comment-confetti-count">{{ $comment->reactions()->where('type', 'confetti')->count() }}</span>
                     </button>
 
-                    {{-- Report Button - Only show if user is not the comment owner --}}
+                    {{-- Reply Button --}}
+                    @auth
+                        {{-- Only show reply button if this is a top-level comment (replying to a post, not another comment) --}}
+                        @if($comment->parent && $comment->parent->isPost())
+                            <button 
+                                @click="replying = !replying"
+                                class="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                                </svg>
+                                <span>Reply</span>
+                            </button>
+                        @endif
+                    @endauth
+                    </div>
+
+                    {{-- Report Button - Positioned on the right, only show if user is not the comment owner --}}
                     @if(auth()->check() && auth()->id() !== $comment->owner)
-                    <button class="flex items-center gap-1 hover:text-red-600 transition-colors" onclick="openReportModal('report-modal-comment-{{ $comment->id }}')">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-1.414-1.414A9 9 0 003 12v7a2 2 0 002 2h14a2 2 0 002-2v-7a9 9 0 00-2.636-6.364zM12 17a2 2 0 110-4 2 2 0 010 4z"/>
+                    <button class="flex items-center gap-1 text-gray-400 hover:text-red-600 transition-colors text-xs" onclick="openReportModal('report-modal-comment-{{ $comment->id }}')" title="Report this comment">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/>
                         </svg>
-                        <span>Report</span>
+                        <span class="font-medium">Report</span>
                     </button>
                     <!-- Report Modal -->
                     <div id="report-modal-comment-{{ $comment->id }}" class="modal-overlay hidden" onclick="if(event.target === this) closeReportModal('report-modal-comment-{{ $comment->id }}')">
@@ -137,22 +155,6 @@
                         </div>
                     </div>
                     @endif
-
-                    {{-- Reply Button --}}
-                    @auth
-                        {{-- Only show reply button if this is a top-level comment (replying to a post, not another comment) --}}
-                        @if($comment->parent && $comment->parent->isPost())
-                            <button 
-                                @click="replying = !replying"
-                                class="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
-                            >
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
-                                </svg>
-                                <span x-text="replying ? 'Cancel' : 'Reply'"></span>
-                            </button>
-                        @endif
-                    @endauth
                 </div>
             </div>
 

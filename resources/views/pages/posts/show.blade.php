@@ -125,7 +125,7 @@
 
             {{-- Footer with Reaction Buttons --}}
             <div class="flex justify-between items-center text-sm text-gray-500 pt-6 border-t border-gray-200">
-                <div class="flex gap-6">
+                <div class="flex gap-6 flex-1">
                     @if($post->isDeleted())
                         {{-- Greyed out Like Button --}}
                         <div class="flex items-center gap-1 text-gray-300 cursor-not-allowed">
@@ -188,15 +188,16 @@
                             </svg>
                             <span>{{ $post->replies->count() }}</span>
                         </div>
+                    </div>
 
-                        {{-- Report Button - Only show if user is not the post owner --}}
-                        @if(auth()->check() && auth()->id() !== $post->owner)
-                        <button class="flex items-center gap-1 hover:text-red-600 transition-colors" onclick="openReportModal('report-modal-{{ $post->id }}')">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-1.414-1.414A9 9 0 003 12v7a2 2 0 002 2h14a2 2 0 002-2v-7a9 9 0 00-2.636-6.364zM12 17a2 2 0 110-4 2 2 0 010 4z"/>
-                            </svg>
-                            <span>Report</span>
-                        </button>
+                    {{-- Report Button - Positioned on the right, only show if user is not the post owner --}}
+                    @if(auth()->check() && auth()->id() !== $post->owner)
+                    <button class="flex items-center gap-1.5 text-gray-400 hover:text-red-600 transition-colors text-xs" onclick="openReportModal('report-modal-{{ $post->id }}')" title="Report this post">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/>
+                        </svg>
+                        <span class="font-medium">Report</span>
+                    </button>
                         <!-- Report Modal (only rendered once, hidden by default) -->
                         <div id="report-modal-{{ $post->id }}" class="modal-overlay hidden" onclick="if(event.target === this) closeReportModal('report-modal-{{ $post->id }}')">
                             <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative animate-fade-in">
@@ -222,9 +223,8 @@
                                 <div class="mt-2 text-green-600 hidden text-center" id="report-success-{{ $post->id }}">Report submitted!</div>
                             </div>
                         </div>
-                        @endif
                     @endif
-                </div>
+                    @endif
             </div>
 
         </div>

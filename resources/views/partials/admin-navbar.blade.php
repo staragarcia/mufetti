@@ -19,6 +19,15 @@
                     Users
                 </a>
 
+                {{-- Novo link para Groups (US409) --}}
+                <a href="{{ route('admin.groups.index') }}"
+                    class="text-sm font-medium transition-colors
+                    {{ request()->is('admin/groups*') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
+                    Groups
+                </a>
+
+                <div class="h-4 w-px bg-border mx-1"></div>
+
                 {{-- Exit Admin no mesmo estilo dos links da original --}}
                 <a href="{{ route('feed.show') }}" 
                    class="text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">

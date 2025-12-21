@@ -70,7 +70,9 @@
 
                     {{-- Admin link for admins only --}}
                     @if(auth()->check() && auth()->user()->is_admin)
-                        <a href="{{ route('admin.users.index') }}" class="text-blue-600 font-bold hover:underline">
+                        <a href="{{ route('admin.users.index') }}"
+                        class="text-sm font-medium transition-colors
+                                {{ request()->is('admin/users*') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
                             Painel Admin
                         </a>
                     @endif

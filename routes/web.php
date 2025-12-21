@@ -262,11 +262,23 @@ Route::get('/notifications', [NotificationController::class, 'index'])
 Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])
     ->middleware('auth')
     ->name('notifications.read');
-
-// Rotas de Admin
+// Rotas de Admin Unificadas
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    
+    // Users
     Route::resource('users', AdminUserController::class);
+    
+    // Albums
     Route::resource('albums', Admin\AlbumController::class);
-    Route::resource('groups', Admin\GroupController::class);
-    // Nota: Aqui NÃO incluímos rotas de 'create' posts ou 'notifications'
+
+    Route::get('/groups', [App\Http\Controllers\GroupController::class, 'adminIndex'])->name('groups.index');
+    Route::get('/groups/{group}/edit', [App\Http\Controllers\GroupController::class, 'adminEdit'])->name('groups.edit');
+    
+    // Define a rota de update de forma simples sem o sufixo "/update"
+    // Isso fará com que a URL seja /admin/groups/1
+    Route::put('/groups/{group}', [App\Http\Controllers\GroupController::class, 'update'])->name('groups.update');
+    
+    Route::get('/groups/{group}/requests', [App\Http\Controllers\GroupController::class, 'adminRequests'])->name('groups.requests');
+    Route::get('/groups/{group}/members', [App\Http\Controllers\GroupController::class, 'adminMembers'])->name('groups.members');
+    Route::delete('/groups/{group}', [App\Http\Controllers\GroupController::class, 'destroy'])->name('groups.destroy');
 });

@@ -248,33 +248,32 @@ class CommentController extends Controller
      * )
      */
     public function destroy(Content $comment)
-    {
-        // Ensure we're deleting a comment
-        if (!$comment->isComment()) {
-            abort(404, 'Comment not found.');
-        }
-
-        // Authorization - user can only delete their own comments
-        Gate::authorize('delete', $comment);
-
-        // Get the parent post before deletion (for redirect)
-        $originalPost = $comment->parent;
-        while ($originalPost && $originalPost->isComment()) {
-            $originalPost = $originalPost->parent;
-        }
-        $postId = $originalPost ? $originalPost->id : $comment->reply_to;
-
-        // Actually delete the comment (this will trigger update_comment_count)
-        $comment->delete();
-
-        if (request()->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Comment deleted successfully'
-            ]);
-        }
-
-        return redirect()->route('posts.show', $postId)
-            ->with('success', 'Comment deleted successfully!');
+{
+    if (!$comment->isComment()) {
+        abort(404, 'Comment not found.');
     }
+
+    Gate::authorize('delete', $comment);
+
+    // Lógica para encontrar o ID do post original para o redirect (teu código)
+    $originalPost = $comment->parent;
+    while ($originalPost && $originalPost->isComment()) {
+        $originalPost = $originalPost->parent;
+    }
+    $postId = $originalPost ? $originalPost->id : $comment->reply_to;
+
+    // Delete real (US401)
+    $comment->delete();
+
+    if (request()->expectsJson()) {
+        return response()->json(['success' => true, 'message' => 'Comment deleted']);
+    }
+
+    // Se for Admin na página de gestão, mantém-se lá
+    if (auth()->user()->is_admin && url()->previous() == route('admin.content.index')) {
+        return back()->with('success', 'Comment removed by Admin.');
+    }
+
+    return redirect()->route('posts.show', $postId)->with('success', 'Comment deleted!');
+}
 }

@@ -248,23 +248,57 @@ class PostController extends Controller
     *     @OA\Response(response=200, description="Post deleted successfully"),
     *     @OA\Response(response=403, description="Access denied")
     * )
-    */
+        */
+        public function adminIndex(Request $request)
+        {
+            // 1. Pegar os Posts (onde reply_to é null)
+            $posts = Content::whereNull('reply_to')
+                ->with('ownerUser') // Importante para não dar erro no @username
+                ->latest()
+                ->paginate(10, ['*'], 'posts_page');
+        
+            // 2. Pegar os Comentários (onde reply_to NÃO é null)
+            $comments = Content::whereNotNull('reply_to')
+                ->with('ownerUser')
+                ->latest()
+                ->paginate(10, ['*'], 'comments_page');
+        
+            // 3. Definir a tab ativa
+            $activeTab = $request->input('tab', 'posts');
+        
+            return view('admin.content.index', compact('posts', 'comments', 'activeTab'));
+        }
     public function destroy(Content $post)
     {
+        // O Gate vai verificar se é o dono OU se é Admin
         Gate::authorize('delete', $post);
 
-        $post->update([
-            'title' => '[Deleted Post]',
-            'description' => 'This post has been deleted by the user.',
-            'img' => null,
-        ]);
-
-        if (request()->expectsJson()) {
-            return response()->json(['message' => 'Post deleted successfully']);
+        if (auth()->user()->is_admin) {
+            // Lógica para Admin (US403): Remoção por moderação
+            $post->update([
+                'title' => '[Removed by Admin]',
+                'description' => 'This content was removed due to a violation of community guidelines.',
+                'img' => null,
+            ]);
+            
+            // Se preferires apagar mesmo da BD, usa: $post->delete();
+            
+            $msg = 'Post moderated and cleared.';
+        } else {
+            // Lógica normal de utilizador que já tinhas
+            $post->update([
+                'title' => '[Deleted Post]',
+                'description' => 'This post has been deleted by the user.',
+                'img' => null,
+            ]);
+            $msg = 'Post deleted successfully!';
         }
 
-        return redirect()->route('pages.profile.show')
-            ->with('success', 'Post deleted successfully!');
+        if (request()->expectsJson()) {
+            return response()->json(['message' => $msg]);
+        }
+
+        return back()->with('success', $msg);
     }
 
 }

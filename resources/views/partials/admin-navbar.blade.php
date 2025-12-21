@@ -26,6 +26,12 @@
                     Groups
                 </a>
 
+                <a href="{{ route('admin.content.index') }}"
+                    class="text-sm font-medium transition-colors
+                    {{ request()->is('admin/content*') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
+                    Posts
+                </a>
+
                 <div class="h-4 w-px bg-border mx-1"></div>
 
                 {{-- Exit Admin no mesmo estilo dos links da original --}}

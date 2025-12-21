@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
 
 class Album extends Model
 {
+    use Searchable;
+
     public $timestamps = false;
 
     protected $fillable = [

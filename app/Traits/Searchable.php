@@ -8,14 +8,13 @@ trait Searchable {
     /**
      * Scope for Full Text Search
      */
-    public function scopeFullTextSearch(Builder $query, string $term, array $columns = ['search_vector'])
+    public function scopeFullTextSearch(Builder $query, string $term)
     {
-        // TODO
         $search_term = $this->formatSearchTerm($term);
 
         return $query
-            ->whereRaw("TODO", [$search_term])
-            ->selectRaw("TODO as rank", [$search_term])
+            ->whereRaw("search_vector @@ to_tsquery('english', ?)", [$search_term])
+            ->selectRaw("*, ts_rank(search_vector, to_tsquery('english', ?)) as rank", [$search_term])
             ->orderBy('rank', 'desc');
     }
 
@@ -24,6 +23,20 @@ trait Searchable {
      */
     protected function formatSearchTerm(string $term): string 
     {
-        return "TODO";
+        // clean special characters and split by spaces
+        $words = preg_split('/\s+/', trim($term));
+        $words = array_filter($words);
+        
+        // adding :* for prefix matching and better search system
+        $words = array_map(function($word) {
+
+            // remove non-word characters except hyphens
+            $word = preg_replace('/[^\w\s-]/', '', $word);
+
+            return $word . ':*';
+        }, $words);
+        
+        // add AND operator for make search better
+        return implode(' & ', $words);
     }
 }

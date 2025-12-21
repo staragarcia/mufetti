@@ -485,7 +485,6 @@ CREATE INDEX groups_search_idx ON groups USING GIN(search_vector);
 -- artists
 ALTER TABLE artists ADD COLUMN search_vector tsvector;
 
--- Create trigger function
 CREATE FUNCTION artist_search_update() RETURNS TRIGGER AS $$
 BEGIN
   NEW.search_vector = (
@@ -497,11 +496,9 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
--- Create trigger
 CREATE TRIGGER artist_search_update
 BEFORE INSERT OR UPDATE ON artists
 FOR EACH ROW
 EXECUTE PROCEDURE artist_search_update();
 
--- Create GIN index
 CREATE INDEX artists_search_idx ON artists USING GIN(search_vector);

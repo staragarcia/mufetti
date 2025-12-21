@@ -33,9 +33,15 @@ class DatabaseSeeder extends Seeder
 
         DB::unprepared($sql);
 
-        // Restore safe defaults
+        // Restore safe defaults, i.e. triggers will fire!
         DB::statement('SET session_replication_role = DEFAULT');
 
-        $this->command?->info('Database seeded using schema: ' . ($schema ?? 'thingy (default)'));
+        // load initial inserts into search_vectors
+        $path = base_path('database/mufetti_database/populate_search_vectors.sql');
+        $sql = file_get_contents($path);
+
+        DB::unprepared($sql);
+
+        $this->command->info('Database seeded using schema: ' . ($schema ?? 'thingy (default)'));
     }
 }

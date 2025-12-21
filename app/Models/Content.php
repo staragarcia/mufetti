@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Content extends Model
 {
-    // Use timestamps since your schema has created_at
+    use Searchable;
+
+    // Use timestamps since our schema has created_at
     public $timestamps = false; // disabled here, we'll use the default current date
 
     /**

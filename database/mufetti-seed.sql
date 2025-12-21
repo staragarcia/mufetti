@@ -235,19 +235,23 @@ CREATE INDEX reaction_content_idx ON reactions USING hash (id_content);
 ALTER TABLE contents ADD COLUMN search_vector TSVECTOR;
 
 DROP FUNCTION IF EXISTS content_search_update() CASCADE;
-
 CREATE FUNCTION content_search_update() RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
+  IF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') AND NEW.type = 'post' THEN
     NEW.search_vector = (
       setweight(to_tsvector('english', NEW.title), 'A') ||
       setweight(to_tsvector('english', NEW.description), 'B')
+    );
+  ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') AND NEW.type = 'comment' THEN
+    NEW.search_vector = (
+        setweight(to_tsvector('english', NEW.description), 'A')
     );
   END IF;
   RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS content_search_update ON contents;
 CREATE TRIGGER content_search_update
 BEFORE INSERT OR UPDATE ON contents
 FOR EACH ROW

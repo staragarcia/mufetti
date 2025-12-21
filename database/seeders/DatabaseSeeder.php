@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
 
         DB::unprepared($sql);
 
-        // Restore safe defaults, i.e. triggers will fire!
+        // restore safe defaults, i.e. triggers will fire !!!!!
         DB::statement('SET session_replication_role = DEFAULT');
 
         // load initial inserts into search_vectors

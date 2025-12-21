@@ -232,13 +232,14 @@ CLUSTER contents USING content_owner_idx;
 CREATE INDEX reaction_content_idx ON reactions USING hash (id_content);
 
 
-ALTER TABLE contents
-ADD COLUMN tsvectors TSVECTOR;
+ALTER TABLE contents ADD COLUMN search_vector TSVECTOR;
+
+DROP FUNCTION IF EXISTS content_search_update() CASCADE;
 
 CREATE FUNCTION content_search_update() RETURNS TRIGGER AS $$
 BEGIN
   IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
-    NEW.tsvectors = (
+    NEW.search_vector = (
       setweight(to_tsvector('english', NEW.title), 'A') ||
       setweight(to_tsvector('english', NEW.description), 'B')
     );
@@ -252,13 +253,15 @@ BEFORE INSERT OR UPDATE ON contents
 FOR EACH ROW
 EXECUTE PROCEDURE content_search_update();
 
-CREATE INDEX search_idx ON contents USING GIN (tsvectors);
-
-ALTER TABLE albums ADD COLUMN search_vector tsvector;
+CREATE INDEX search_idx ON contents USING GIN (search_vector);
 
 -----------------------------------------
 -- Triggers
 -----------------------------------------
+
+ALTER TABLE albums ADD COLUMN search_vector tsvector;
+
+DROP FUNCTION IF EXISTS album_search_update() CASCADE;
 
 CREATE FUNCTION album_search_update() RETURNS trigger AS $$
 BEGIN
@@ -271,6 +274,8 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER album_search_trigger
 BEFORE INSERT OR UPDATE ON albums
 FOR EACH ROW EXECUTE FUNCTION album_search_update();
+
+CREATE INDEX IF NOT EXISTS albums_search_idx ON albums USING GIN(search_vector);
 
 
 CREATE FUNCTION spam_control() RETURNS TRIGGER AS
@@ -432,6 +437,71 @@ FOR EACH ROW
 EXECUTE FUNCTION update_comment_count();
 
 
+---------------------------------------
+-- Full Text Search (missing) infra
+---------------------------------------
 
+-- users
+ALTER TABLE users ADD COLUMN search_vector tsvector;
 
+CREATE FUNCTION user_search_update() RETURNS TRIGGER AS $$
+BEGIN
+  NEW.search_vector = (
+    setweight(to_tsvector('english', COALESCE(NEW.username, '')), 'A') ||
+    setweight(to_tsvector('english', COALESCE(NEW.name, '')), 'A') ||
+    setweight(to_tsvector('english', COALESCE(NEW.description, '')), 'B')
+  );
+  RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
 
+CREATE TRIGGER user_search_update
+BEFORE INSERT OR UPDATE ON users
+FOR EACH ROW
+EXECUTE PROCEDURE user_search_update();
+
+CREATE INDEX users_search_idx ON users USING GIN(search_vector);
+
+-- groups
+ALTER TABLE groups ADD COLUMN search_vector tsvector;
+
+CREATE FUNCTION group_search_update() RETURNS TRIGGER AS $$
+BEGIN
+  NEW.search_vector = (
+    setweight(to_tsvector('english', COALESCE(NEW.name, '')), 'A') ||
+    setweight(to_tsvector('english', COALESCE(NEW.description, '')), 'B')
+  );
+  RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER group_search_update
+BEFORE INSERT OR UPDATE ON groups
+FOR EACH ROW
+EXECUTE PROCEDURE group_search_update();
+
+CREATE INDEX groups_search_idx ON groups USING GIN(search_vector);
+
+-- artists
+ALTER TABLE artists ADD COLUMN search_vector tsvector;
+
+-- Create trigger function
+CREATE FUNCTION artist_search_update() RETURNS TRIGGER AS $$
+BEGIN
+  NEW.search_vector = (
+    setweight(to_tsvector('english', COALESCE(NEW.name, '')), 'A') ||
+    setweight(to_tsvector('english', COALESCE(NEW.description, '')), 'B') ||
+    setweight(to_tsvector('english', COALESCE(NEW.country, '')), 'C')
+  );
+  RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+-- Create trigger
+CREATE TRIGGER artist_search_update
+BEFORE INSERT OR UPDATE ON artists
+FOR EACH ROW
+EXECUTE PROCEDURE artist_search_update();
+
+-- Create GIN index
+CREATE INDEX artists_search_idx ON artists USING GIN(search_vector);

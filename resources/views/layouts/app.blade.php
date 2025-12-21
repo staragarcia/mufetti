@@ -24,12 +24,17 @@
 
         {{-- NAVBAR --}}
         @include('partials.navbar')
-
         <main class="pt-20 pb-12">
             <section id="content">
                 @yield('content')
             </section>
+
         </main>
+
+        {{-- Container para o pusher notification --}}
+            <div id="notification"
+                class="fixed bottom-15 right-10 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 transition-opacity duration-500 pointer-events-none z-50">
+            </div>
 
         {{-- FOOTER --}}
         @include('partials.footer')
@@ -37,3 +42,12 @@
         @stack('scripts')
     </body>
 </html>
+
+{{-- isto é usado para o pusher notification, para conseguir saber o user que vai receber a notification, deve ser seguro --}}
+<script>
+    @auth
+        window.userId = {{ auth()->id() }};
+    @else
+        window.userId = null;
+    @endauth
+</script>

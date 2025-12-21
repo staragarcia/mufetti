@@ -241,7 +241,7 @@ Route::middleware('auth')->group(function () {
 
     //pusher notifications
     Broadcast::channel('notifications.{userId}', function ($user, $userId) {
-            return $user->id === (int) $userId;
+            return (int) $user->id === (int) $userId;
         });
 
 });

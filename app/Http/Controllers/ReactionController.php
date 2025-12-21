@@ -6,7 +6,8 @@ use App\Models\Content;
 use App\Models\Reaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Services\NotificationService;
+use App\Events\NotificationCreated;
+
 
 /**
  * @OA\Tag(
@@ -16,47 +17,6 @@ use App\Services\NotificationService;
  */
 class ReactionController extends Controller
 {
-    protected $notificationService;
-
-    public function __construct(NotificationService $notificationService)
-    {
-        $this->notificationService = $notificationService;
-    }
-    /**
-     * Toggle reaction on a post (AJAX)
-     *
-     * @OA\Post(
-     *     path="/posts/{id}/reaction/toggle",
-     *     summary="Toggle reaction on a post",
-     *     description="Add, switch, or remove a reaction on a post. Returns updated counts.",
-     *     tags={"M10: Reactions"},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="ID of the post",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             @OA\Property(property="type", type="string", description="Reaction type: like or confetti")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Reaction toggled successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="action", type="string"),
-     *             @OA\Property(property="likes_count", type="integer"),
-     *             @OA\Property(property="confetti_count", type="integer"),
-     *             @OA\Property(property="user_reaction", type="string", nullable=true)
-     *         )
-     *     ),
-     *     @OA\Response(response=401, description="Unauthenticated"),
-     *     @OA\Response(response=422, description="Invalid post type")
-     * )
-     */
     public function toggle(Request $request, Content $post)
     {
         // only posts
@@ -91,7 +51,15 @@ class ReactionController extends Controller
                     'id_user' => $user->id,
                     'id_content' => $post->id,
                 ]);
-                $this->notificationService->broadcastLatestForUser();
+                if ($post->owner !== $user->id) {
+                    $notification = (object)[
+                        'type' => 'reaction',
+                        'receiver' => $post->owner,
+                        'actor' => $user->id,
+                    ];
+
+                    event(new NotificationCreated($notification));
+                }
             }
             $action = 'added_or_switched';
             $userReactionType = $reactionType;
@@ -110,32 +78,6 @@ class ReactionController extends Controller
     }
 
 
-    /**
-     * Get reaction counts for a post (AJAX)
-     *
-     * @OA\Get(
-     *     path="/posts/{id}/reaction/counts",
-     *     summary="Get reaction counts for a post",
-     *     description="Returns current likes and confetti counts, plus the user's reaction if authenticated.",
-     *     tags={"M10: Reactions"},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="ID of the post",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Reaction counts retrieved successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="likes_count", type="integer"),
-     *             @OA\Property(property="confetti_count", type="integer"),
-     *             @OA\Property(property="user_reaction", type="string", nullable=true)
-     *         )
-     *     )
-     * )
-     */
     public function getCounts(Content $post)
     {
         $likesCount = $post->reactions()->where('type', 'like')->count();
@@ -188,7 +130,15 @@ class ReactionController extends Controller
                     'id_user' => $user->id,
                     'id_content' => $comment->id,
                 ]);
-                 $this->notificationService->broadcastLatestForUser();
+                if ($comment->owner !== $user->id) {
+                    $notification = (object)[
+                        'type' => 'reaction',
+                        'receiver' => $comment->owner,
+                        'actor' => $user->id,
+                    ];
+
+                    event(new NotificationCreated($notification));
+                }
             }
             $action = 'added_or_switched';
             $userReactionType = $reactionType;

@@ -299,16 +299,18 @@ function showNotification(notification) {
             text = 'You have a new notification';
     }
 
-    container.textContent = text;
+    container.innerHTML = `<a href="/notifications"> ${text} </a>`;
 
     // Mostrar notificação
     container.classList.remove('opacity-0');
     container.classList.add('opacity-100', 'pointer-events-auto');
+    container.classList.remove('pointer-events-none');
 
     // Esconder depois de 5 segundos
     setTimeout(() => {
         container.classList.add('opacity-0');
         container.classList.remove('opacity-100', 'pointer-events-auto');
+        container.classList.add('pointer-events-none');
     }, 5000);
 }
 

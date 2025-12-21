@@ -60,7 +60,7 @@ class SearchController extends Controller
             case 'comments':
                 $results = Content::comments()
                     ->fullTextSearch($query)
-                    ->with('owner:id,username,name,profile_picture')
+                    ->with('ownerUser:id,username,name,profile_picture')
                     ->orderBy('created_at', 'desc')
                     ->limit(20)
                     ->get()
@@ -68,7 +68,7 @@ class SearchController extends Controller
                         return [
                             'id' => $comment->id,
                             'description' => $comment->description,
-                            'owner_username' => $comment->owner->username ?? null,
+                            'owner_username' => $comment->ownerUser->username ?? null,
                             'reply_to' => $comment->reply_to,
                             'likes' => $comment->likes,
                             'created_at' => $comment->created_at,

@@ -238,6 +238,12 @@ Route::middleware('auth')->group(function () {
 
     //favourites
     Route::post('/favourites/albums/{album}', [\App\Http\Controllers\FavouriteController::class, 'toggleAlbum'])->name('favourites.albums.toggle');
+
+    //pusher notifications
+    Broadcast::channel('notifications.{userId}', function ($user, $userId) {
+            return $user->id === (int) $userId;
+        });
+
 });
 
 

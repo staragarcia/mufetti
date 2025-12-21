@@ -6,6 +6,7 @@ use App\Models\Content;
 use App\Models\Reaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\NotificationService;
 
 /**
  * @OA\Tag(
@@ -15,6 +16,12 @@ use Illuminate\Support\Facades\Auth;
  */
 class ReactionController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     /**
      * Toggle reaction on a post (AJAX)
      *
@@ -84,6 +91,7 @@ class ReactionController extends Controller
                     'id_user' => $user->id,
                     'id_content' => $post->id,
                 ]);
+                $this->notificationService->broadcastLatestForUser();
             }
             $action = 'added_or_switched';
             $userReactionType = $reactionType;
@@ -180,6 +188,7 @@ class ReactionController extends Controller
                     'id_user' => $user->id,
                     'id_content' => $comment->id,
                 ]);
+                 $this->notificationService->broadcastLatestForUser();
             }
             $action = 'added_or_switched';
             $userReactionType = $reactionType;

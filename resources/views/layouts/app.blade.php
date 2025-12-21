@@ -20,7 +20,7 @@
         @stack('styles')
     </head>
 
-    <body class="bg-background text-foreground" style="overflow-y: scroll;">
+    <body class="bg-background text-foreground" style="overflow-y: scroll;" data-authenticated="{{ auth()->check() ? 'true' : 'false' }}">
 
         {{-- NAVBAR --}}
         @include('partials.navbar')

@@ -248,32 +248,33 @@ class CommentController extends Controller
      * )
      */
     public function destroy(Content $comment)
-{
-    if (!$comment->isComment()) {
-        abort(404, 'Comment not found.');
+    {
+        if (!$comment->isComment()) {
+            abort(404, 'Comment not found.');
+        }
+    
+        Gate::authorize('delete', $comment);
+    
+        $isAdminPanel = str_contains(url()->previous(), 'admin/content');
+    
+        $originalPost = $comment->parent;
+        while ($originalPost && $originalPost->isComment()) {
+            $originalPost = $originalPost->parent;
+        }
+        $postId = $originalPost ? $originalPost->id : $comment->reply_to;
+    
+
+        $comment->delete();
+    
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true, 'message' => 'Comment deleted']);
+        }
+    
+        if (auth()->user()->is_admin && $isAdminPanel) {
+            return redirect()->route('admin.content.index', ['tab' => 'comments'])
+                ->with('success', 'Comment removed by Admin.');
+        }
+    
+        return redirect()->route('posts.show', $postId)->with('success', 'Comment deleted!');
     }
-
-    Gate::authorize('delete', $comment);
-
-    // Lógica para encontrar o ID do post original para o redirect (teu código)
-    $originalPost = $comment->parent;
-    while ($originalPost && $originalPost->isComment()) {
-        $originalPost = $originalPost->parent;
-    }
-    $postId = $originalPost ? $originalPost->id : $comment->reply_to;
-
-    // Delete real (US401)
-    $comment->delete();
-
-    if (request()->expectsJson()) {
-        return response()->json(['success' => true, 'message' => 'Comment deleted']);
-    }
-
-    // Se for Admin na página de gestão, mantém-se lá
-    if (auth()->user()->is_admin && url()->previous() == route('admin.content.index')) {
-        return back()->with('success', 'Comment removed by Admin.');
-    }
-
-    return redirect()->route('posts.show', $postId)->with('success', 'Comment deleted!');
-}
 }

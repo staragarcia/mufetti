@@ -268,38 +268,28 @@ class PostController extends Controller
         
             return view('admin.content.index', compact('posts', 'comments', 'activeTab'));
         }
-    public function destroy(Content $post)
-    {
-        // O Gate vai verificar se é o dono OU se é Admin
-        Gate::authorize('delete', $post);
-
-        if (auth()->user()->is_admin) {
-            // Lógica para Admin (US403): Remoção por moderação
-            $post->update([
-                'title' => '[Removed by Admin]',
-                'description' => 'This content was removed due to a violation of community guidelines.',
-                'img' => null,
-            ]);
-            
-            // Se preferires apagar mesmo da BD, usa: $post->delete();
-            
-            $msg = 'Post moderated and cleared.';
-        } else {
-            // Lógica normal de utilizador que já tinhas
-            $post->update([
-                'title' => '[Deleted Post]',
-                'description' => 'This post has been deleted by the user.',
-                'img' => null,
-            ]);
-            $msg = 'Post deleted successfully!';
+        public function destroy(Content $post)
+        {
+            // O Gate verifica se é o dono OU se é Admin
+            Gate::authorize('delete', $post);
+        
+            $isAdmin = auth()->user()->is_admin;
+        
+            // Se quiseres que o post SUMA da base de dados (ou use SoftDeletes se configurado no Model)
+            // Em vez de fazer ->update([...]), usamos ->delete()
+            $post->delete();
+        
+            $msg = $isAdmin ? 'Content removed by moderation.' : 'Post deleted successfully!';
+        
+            // Se for Admin e estiver no painel de controlo, volta para a tab certa
+            if ($isAdmin) {
+                // Verifica se o post era um comentário ou um post principal para saber para que tab voltar
+                $tab = $post->reply_to ? 'comments' : 'posts';
+                return redirect()->route('admin.content.index', ['tab' => $tab])->with('success', $msg);
+            }
+        
+            return redirect()->route('pages.profile.show')->with('success', $msg);
         }
-
-        if (request()->expectsJson()) {
-            return response()->json(['message' => $msg]);
-        }
-
-        return back()->with('success', $msg);
-    }
 
 }
 

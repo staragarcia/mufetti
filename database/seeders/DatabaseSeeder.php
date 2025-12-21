@@ -27,6 +27,12 @@ class DatabaseSeeder extends Seeder
         // Run SQL file
         DB::unprepared($sql);
 
+        // load inserst
+        $path = base_path('database/mufetti_database/populate.sql');
+        $sql = file_get_contents($path);
+
+        DB::unprepared($sql);
+
         // Restore safe defaults
         DB::statement('SET session_replication_role = DEFAULT');
 

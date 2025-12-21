@@ -8,13 +8,6 @@
 
             {{-- Navigation Links --}}
             <div class="flex items-center gap-6">
-                @if(auth()->check() && auth()->user()->is_admin)
-                    <a href="{{ route('admin.reports.index') }}"
-                        class="text-sm font-medium transition-colors {{ request()->is('admin/reports') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
-                        Reports
-                    </a>
-                @endif
-
                 {{-- any user/visitor --}}
 
                 <a href="{{ route('feed.show') }}"

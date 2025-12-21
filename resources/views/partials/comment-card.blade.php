@@ -104,14 +104,14 @@
                     </button>
 
                     {{-- Report Button --}}
-                    <button class="flex items-center gap-1 hover:text-red-600 transition-colors" onclick="document.getElementById('report-modal-comment-{{ $comment->id }}').style.display='block'">
+                    <button class="flex items-center gap-1 hover:text-red-600 transition-colors" onclick="openReportModal('report-modal-comment-{{ $comment->id }}')">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-1.414-1.414A9 9 0 003 12v7a2 2 0 002 2h14a2 2 0 002-2v-7a9 9 0 00-2.636-6.364zM12 17a2 2 0 110-4 2 2 0 010 4z"/>
                         </svg>
                         <span>Report</span>
                     </button>
                     <!-- Report Modal -->
-                    <div id="report-modal-comment-{{ $comment->id }}" class="modal-overlay hidden">
+                    <div id="report-modal-comment-{{ $comment->id }}" class="modal-overlay hidden" onclick="if(event.target === this) closeReportModal('report-modal-comment-{{ $comment->id }}')">
                         <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative animate-fade-in">
                             <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-2xl font-bold" onclick="closeReportModal('report-modal-comment-{{ $comment->id }}')">&times;</button>
                             <h2 class="text-xl font-semibold mb-4 text-gray-900">Report Comment</h2>
@@ -234,11 +234,14 @@
     @endif
 </div>
 <script>
+function openReportModal(id) {
+    document.getElementById(id).classList.remove('hidden');
+}
 function closeReportModal(id) {
-    document.getElementById(id).style.display = 'none';
+    document.getElementById(id).classList.add('hidden');
 }
 function submitReportForm(form) {
-    const modal = form.closest('.fixed');
+    const modal = form.closest('.modal-overlay');
     const successMsg = modal.querySelector('[id^="report-success-"]');
     fetch(form.action, {
         method: 'POST',
@@ -259,7 +262,7 @@ function submitReportForm(form) {
         if (data.success) {
             form.style.display = 'none';
             successMsg.style.display = 'block';
-            setTimeout(() => { modal.style.display = 'none'; form.style.display = ''; successMsg.style.display = 'none'; }, 1500);
+            setTimeout(() => { modal.classList.add('hidden'); form.style.display = ''; successMsg.style.display = 'none'; }, 1500);
         }
     });
 }

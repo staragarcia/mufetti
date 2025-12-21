@@ -5,50 +5,89 @@
     <div class="grid grid-cols-12 gap-4">
         {{-- LEFT COLUMN: Profile Card --}}
         <div class="col-span-12 lg:col-span-3 md:col-span-4">
-            {{-- Profile Card Container --}}
             @if($user)
-            <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
-                {{-- Background Header --}}
-                <div class="h-20 bg-gray-100"></div>
-                
-                {{-- Profile Content --}}
-                <div class="px-4 pb-4 -mt-12">
-                    <a href="{{ route('pages.profile.show') }}" class="block">
-                        {{-- Avatar --}}
-                        <div class="mb-3">
-                            <img
-                                src="{{ $user->avatar }}"
-                                alt="Avatar"
-                                class="h-24 w-24 rounded-full border-4 border-white object-cover shadow-lg hover:scale-105 transition-transform duration-200"
-                            />
-                        </div>
+                {{-- Profile Card Container --}}
+                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
+                    {{-- Background Header --}}
+                    <div class="h-20 bg-gray-100"></div>
+                    
+                    {{-- Profile Content --}}
+                    <div class="px-4 pb-4 -mt-12">
+                        <a href="{{ route('pages.profile.show') }}" class="block">
+                            {{-- Avatar --}}
+                            <div class="mb-3">
+                                <img
+                                    src="{{ $user->avatar }}"
+                                    alt="Avatar"
+                                    class="h-24 w-24 rounded-full border-4 border-white object-cover shadow-lg hover:scale-105 transition-transform duration-200"
+                                />
+                            </div>
 
-                        {{-- User Info --}}
-                        <div class="space-y-1">
-                            <h2 class="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
-                                {{ $user->name }}
-                            </h2>
-                            <p class="text-sm text-gray-500">{{ "@" . $user->username }}</p>
+                            {{-- User Info --}}
+                            <div class="space-y-1">
+                                <h2 class="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
+                                    {{ $user->name }}
+                                </h2>
+                                <p class="text-sm text-gray-500">{{ "@" . $user->username }}</p>
+                            </div>
+                        </a>
+                        
+                        {{-- Stats --}}
+                        @if($user->description)
+                        <p class="mt-3 text-sm text-gray-600 line-clamp-3">{{ $user->description }}</p>
+                        @endif
+                        
+                        <div class="mt-4 flex gap-4 text-sm">
+                            <a href="{{ route('followers.show', $user) }}" class="hover:underline">
+                                <span class="font-semibold text-gray-900">{{ $user->followers()->count() }}</span>
+                                <span class="text-gray-500">Followers</span>
+                            </a>
+                            <a href="{{ route('following.show', $user) }}" class="hover:underline">
+                                <span class="font-semibold text-gray-900">{{ $user->following()->count() }}</span>
+                                <span class="text-gray-500">Following</span>
+                            </a>
                         </div>
-                    </a>
-                    
-                    {{-- Stats --}}
-                    @if($user->description)
-                    <p class="mt-3 text-sm text-gray-600 line-clamp-3">{{ $user->description }}</p>
-                    @endif
-                    
-                    <div class="mt-4 flex gap-4 text-sm">
-                        <a href="{{ route('followers.show', $user) }}" class="hover:underline">
-                            <span class="font-semibold text-gray-900">{{ $user->followers()->count() }}</span>
-                            <span class="text-gray-500">Followers</span>
-                        </a>
-                        <a href="{{ route('following.show', $user) }}" class="hover:underline">
-                            <span class="font-semibold text-gray-900">{{ $user->following()->count() }}</span>
-                            <span class="text-gray-500">Following</span>
-                        </a>
                     </div>
                 </div>
-            </div>
+            @else
+                {{-- Welcome Card for Non-Logged-In Users --}}
+                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                    {{-- Background Header --}}
+                    <div class="h-20 bg-gray-100"></div>
+                    
+                    {{-- Welcome Content --}}
+                    <div class="px-4 pb-4 -mt-12">
+                        <div class="mb-3">
+                            <div class="h-24 w-24 rounded-full border-4 border-white bg-white shadow-lg flex items-center justify-center">
+                                <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-1">
+                            <h2 class="text-xl font-bold text-gray-900">
+                                Welcome to Mufetti
+                            </h2>
+                            <p class="text-sm text-gray-500">Join the community</p>
+                        </div>
+                        
+                        <p class="mt-3 text-sm text-gray-600">
+                            Share your music passion, discover albums, and connect with music lovers.
+                        </p>
+                        
+                        <div class="mt-4 space-y-2">
+                            <a href="{{ route('register') }}" 
+                               class="block w-full px-4 py-2 bg-blue-600 text-white text-center text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                                Sign Up
+                            </a>
+                            <a href="{{ route('login') }}" 
+                               class="block w-full px-4 py-2 text-center text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                                Already have an account?
+                            </a>
+                        </div>
+                    </div>
+                </div>
             @endif
         </div>
 

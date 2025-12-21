@@ -217,6 +217,18 @@ CREATE TABLE notifications (
     )
 );
 
+-- Reports Table
+CREATE TABLE reports (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_user INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
+    reportable_id INTEGER NOT NULL,
+    reportable_type TEXT NOT NULL CHECK (reportable_type IN ('post', 'comment')),
+    motive TEXT NOT NULL,
+    description TEXT,
+    status TEXT NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 -----------------------------------------
 -- Indexes
 -----------------------------------------
@@ -430,6 +442,16 @@ CREATE TRIGGER update_comment_count
 AFTER INSERT OR DELETE ON contents
 FOR EACH ROW
 EXECUTE FUNCTION update_comment_count();
+
+-- Example Reports
+INSERT INTO reports (id_user, reportable_id, reportable_type, motive, description, status, created_at)
+VALUES (2, 5, 'post', 'Spam', 'This post is spam.', 'pending', '2025-12-01 10:00:00');
+
+INSERT INTO reports (id_user, reportable_id, reportable_type, motive, description, status, created_at)
+VALUES (3, 12, 'comment', 'Harassment', 'This comment is harassing another user.', 'pending', '2025-12-02 11:00:00');
+
+INSERT INTO reports (id_user, reportable_id, reportable_type, motive, description, status, created_at)
+VALUES (4, 7, 'post', 'Inappropriate Content', 'Contains inappropriate language.', 'reviewed', '2025-12-03 12:00:00');
 
 
 

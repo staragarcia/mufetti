@@ -103,6 +103,39 @@
                         <span class="text-xs comment-confetti-count">{{ $comment->reactions()->where('type', 'confetti')->count() }}</span>
                     </button>
 
+                    {{-- Report Button --}}
+                    <button class="flex items-center gap-1 hover:text-red-600 transition-colors" onclick="document.getElementById('report-modal-comment-{{ $comment->id }}').style.display='block'">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-1.414-1.414A9 9 0 003 12v7a2 2 0 002 2h14a2 2 0 002-2v-7a9 9 0 00-2.636-6.364zM12 17a2 2 0 110-4 2 2 0 010 4z"/>
+                        </svg>
+                        <span>Report</span>
+                    </button>
+                    <!-- Report Modal -->
+                    <div id="report-modal-comment-{{ $comment->id }}" class="modal-overlay hidden">
+                        <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative animate-fade-in">
+                            <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-2xl font-bold" onclick="closeReportModal('report-modal-comment-{{ $comment->id }}')">&times;</button>
+                            <h2 class="text-xl font-semibold mb-4 text-gray-900">Report Comment</h2>
+                            <form method="POST" action="{{ route('report.store') }}" onsubmit="event.preventDefault(); submitReportForm(this);">
+                                @csrf
+                                <input type="hidden" name="reportable_id" value="{{ $comment->id }}">
+                                <input type="hidden" name="reportable_type" value="comment">
+                                <label for="motive-comment-{{ $comment->id }}" class="block mb-2 font-medium">Reason</label>
+                                <select name="motive" id="motive-comment-{{ $comment->id }}" class="w-full mb-4 border rounded p-2" required>
+                                    <option value="">Select a reason</option>
+                                    <option value="Spam">Spam</option>
+                                    <option value="Harassment">Harassment</option>
+                                    <option value="Inappropriate Content">Inappropriate Content</option>
+                                    <option value="Misinformation">Misinformation</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <label for="description-comment-{{ $comment->id }}" class="block mb-2 font-medium">Description (optional)</label>
+                                <textarea name="description" id="description-comment-{{ $comment->id }}" class="w-full border rounded p-2 mb-4" rows="2"></textarea>
+                                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-full">Submit Report</button>
+                            </form>
+                            <div class="mt-2 text-green-600 hidden text-center" id="report-success-comment-{{ $comment->id }}">Report submitted!</div>
+                        </div>
+                    </div>
+
                     {{-- Reply Button --}}
                     @auth
                         {{-- Only show reply button if this is a top-level comment (replying to a post, not another comment) --}}
@@ -200,4 +233,35 @@
         </div>
     @endif
 </div>
+<script>
+function closeReportModal(id) {
+    document.getElementById(id).style.display = 'none';
+}
+function submitReportForm(form) {
+    const modal = form.closest('.fixed');
+    const successMsg = modal.querySelector('[id^="report-success-"]');
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': form.querySelector('[name=_token]').value,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            reportable_id: form.reportable_id.value,
+            reportable_type: form.reportable_type.value,
+            motive: form.motive.value,
+            description: form.description.value,
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            form.style.display = 'none';
+            successMsg.style.display = 'block';
+            setTimeout(() => { modal.style.display = 'none'; form.style.display = ''; successMsg.style.display = 'none'; }, 1500);
+        }
+    });
+}
+</script>
 

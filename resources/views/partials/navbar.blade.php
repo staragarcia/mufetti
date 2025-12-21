@@ -8,7 +8,6 @@
 
             {{-- Navigation Links --}}
             <div class="flex items-center gap-6">
-
                 {{-- any user/visitor --}}
 
                 <a href="{{ route('feed.show') }}"

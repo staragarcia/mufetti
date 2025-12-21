@@ -217,6 +217,18 @@ CREATE TABLE notifications (
     )
 );
 
+-- Reports Table
+CREATE TABLE reports (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_user INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
+    reportable_id INTEGER NOT NULL,
+    reportable_type TEXT NOT NULL CHECK (reportable_type IN ('post', 'comment')),
+    motive TEXT NOT NULL,
+    description TEXT,
+    status TEXT NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 -----------------------------------------
 -- Indexes
 -----------------------------------------
@@ -430,6 +442,7 @@ CREATE TRIGGER update_comment_count
 AFTER INSERT OR DELETE ON contents
 FOR EACH ROW
 EXECUTE FUNCTION update_comment_count();
+
 
 
 

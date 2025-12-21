@@ -255,7 +255,12 @@ function initializeReviewTruncation() {
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    initializeReactions();
+    // Only initialize reactions if user is authenticated
+    const isAuthenticated = document.body.dataset.authenticated === 'true';
+    if (isAuthenticated) {
+        initializeReactions();
+    }
+    
     initializePostTruncation();
     initializeReviewTruncation();
 });

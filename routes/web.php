@@ -292,15 +292,17 @@ Route::middleware(['auth', 'admin'])
     ->name('admin.')
     ->group(function () {
 
+
         Route::resource('users', AdminUserController::class);
 
-        Route::get('content', [ContentManagementController::class, 'index'])
+        // Admin Content Management
+        Route::get('content', [PostController::class, 'adminIndex'])
             ->name('content.index');
 
-        Route::delete('posts/{post}', [ContentManagementController::class, 'destroyPost'])
+        Route::delete('posts/{post}', [PostController::class, 'destroy'])
             ->name('posts.destroy');
 
-        Route::delete('comments/{comment}', [ContentManagementController::class, 'destroyComment'])
+        Route::delete('comments/{comment}', [CommentController::class, 'destroy'])
             ->name('comments.destroy');
 
         Route::get('groups', [GroupController::class, 'adminIndex'])

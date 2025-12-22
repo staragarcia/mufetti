@@ -105,17 +105,54 @@
                 <table class="w-full text-left">
                     <thead class="bg-slate-50 border-b border-slate-100">
                         <tr>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">#</th>
                             <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Reporter</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Reported User</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Type</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Content</th>
                             <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Motive</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Description</th>
                             <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Status</th>
                             <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase text-right">Manage</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-50">
                         @foreach($reports as $report)
-                            <tr class="content-row">
-                                <td class="px-6 py-4 text-sm font-medium text-slate-700">{{ $report->user->name ?? 'User' }}</td>
-                                <td class="px-6 py-4 text-sm text-slate-500">{{ $report->motive }}</td>
+                            @php
+                                $reportedUser = null;
+                                if($report->reportable_type === 'post' || $report->reportable_type === 'comment') {
+                                    $content = \App\Models\Content::find($report->reportable_id);
+                                    $reportedUser = $content ? $content->ownerUser : null;
+                                }
+                            @endphp
+                            <tr class="content-row hover:bg-slate-50/50 transition-colors">
+                                <td class="px-6 py-4 text-sm text-slate-600">{{ $report->id }}</td>
+                                <td class="px-6 py-4 text-sm font-medium text-slate-700">{{ $report->user->name ?? 'Unknown' }}</td>
+                                <td class="px-6 py-4 text-sm">
+                                    @if($reportedUser)
+                                        <span class="font-medium text-slate-900">{{ $reportedUser->name }}</span>
+                                    @else
+                                        <span class="text-slate-400">N/A</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 text-sm capitalize text-slate-600">{{ $report->reportable_type }}</td>
+                                <td class="px-6 py-4 text-sm">
+                                    @if($report->reportable_type === 'post')
+                                        <a href="{{ route('posts.show', $report->reportable_id) }}" class="text-[rgb(13,162,231)] hover:underline font-medium" target="_blank">View Post</a>
+                                    @elseif($report->reportable_type === 'comment')
+                                        @php
+                                            $comment = \App\Models\Content::find($report->reportable_id);
+                                            $postId = $comment ? $comment->reply_to : null;
+                                        @endphp
+                                        @if($postId)
+                                            <a href="{{ route('posts.show', $postId) }}" class="text-[rgb(13,162,231)] hover:underline font-medium" target="_blank">View Comment</a>
+                                        @else
+                                            <span class="text-slate-400">Not found</span>
+                                        @endif
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-600">{{ $report->motive }}</td>
+                                <td class="px-6 py-4 text-sm text-slate-500 max-w-xs truncate" title="{{ $report->description }}">{{ $report->description ?? '-' }}</td>
                                 <td class="px-6 py-4">
                                     <span class="text-[10px] font-bold uppercase 
                                         {{ $report->status == 'pending' ? 'text-amber-500' : ($report->status == 'dismissed' ? 'text-slate-400' : 'text-emerald-500') }}">

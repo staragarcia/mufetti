@@ -4,7 +4,6 @@
 <div class="container mx-auto px-4 py-10">
     <div class="grid grid-cols-12 gap-6">
         
-        {{-- COLUNA ESQUERDA: Perfil --}}
         <div class="col-span-12 lg:col-span-3">
             @if($user)
                 <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm sticky top-10">
@@ -34,7 +33,6 @@
             @endif
         </div>
 
-        {{-- COLUNA CENTRAL: Feed --}}
         <div class="col-span-12 lg:col-span-6 space-y-6">
             @if($user)
             <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
@@ -51,15 +49,13 @@
             </div>
             @endif
 
-            {{-- CHAMA O PARTIAL COM A LÓGICA DOS POSTS E BLOQUEIO --}}
             @include('partials.showPosts', ['posts' => $posts])
         </div>
 
-        {{-- COLUNA DIREITA: Sugestões --}}
+
         <div class="col-span-12 lg:col-span-3 hidden lg:block">
             <div class="sticky top-10 space-y-6">
                 
-                {{-- Sugestões de Álbuns --}}
                 @if(isset($suggestedAlbums) && $suggestedAlbums->count() > 0)
                 <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
                     <div class="px-4 py-3 border-b bg-gray-50 font-bold text-xs uppercase text-gray-500 tracking-wider">Hot Albums</div>
@@ -77,7 +73,6 @@
                 </div>
                 @endif
 
-                {{-- Sugestões de User --}}
                 @if(isset($suggestedUsers) && $suggestedUsers->count() > 0)
                 <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
                     <div class="px-4 py-3 border-b bg-gray-50 font-bold text-xs uppercase text-gray-500 tracking-wider">Who to follow</div>

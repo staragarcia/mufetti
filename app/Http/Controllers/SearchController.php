@@ -82,6 +82,7 @@ class SearchController extends Controller
 
             case 'groups':
                 $results = Group::fullTextSearch($query)
+                    ->accessibleTo($userId)
                     ->with('ownerUser:id,username,name')
                     ->orderBy('member_count', 'desc')
                     ->limit(20)

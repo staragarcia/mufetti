@@ -56,6 +56,7 @@ class ReactionController extends Controller
                         'type' => 'reaction',
                         'receiver' => $post->owner,
                         'actor' => $user->id,
+                        'name' => $user->username,
                     ];
 
                     event(new NotificationCreated($notification));
@@ -135,6 +136,7 @@ class ReactionController extends Controller
                         'type' => 'reaction',
                         'receiver' => $comment->owner,
                         'actor' => $user->id,
+                        'name' => $user->username,
                     ];
 
                     event(new NotificationCreated($notification));

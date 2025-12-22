@@ -44,6 +44,7 @@ class FollowController extends Controller
                     'type' => 'followRequest',
                     'receiver' => $user->id,
                     'actor' => $currentUser->id,
+                    'name' => $user->username,
                 ];
 
                 event(new NotificationCreated($notification));

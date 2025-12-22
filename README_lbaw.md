@@ -569,7 +569,7 @@ Only **one image per group** should exist. Any member can update it after loggin
 After publishing, you can run your image locally to test it:
 
 ```bash
-docker run -d --name lbawYYXX -p 8001:80 gitlab.up.pt:5050/lbaw/lbaw2526/lbaw2585
+docker run -d --name lbaw2585 -p 8001:80 gitlab.up.pt:5050/lbaw/lbaw2526/lbaw2585
 ```
 
 This command:

@@ -45,7 +45,7 @@
                                         <form
                                             action="{{ route('groups.transferOwner', [$group->id, $member->id]) }}"
                                             method="POST"
-                                            onsubmit="return confirm('Tens a certeza que queres tornar este utilizador o owner do grupo?')">
+                                            onsubmit="return confirm('Are you sure you want to make this user the owner of the group?')">
                                             @csrf
                                             @method('PUT')
                                             <button

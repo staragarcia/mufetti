@@ -10,7 +10,7 @@
                 Back to Groups
             </a>
             <h1 class="text-3xl font-bold text-slate-800 tracking-tight">Edit Group</h1>
-            <p class="text-slate-400 text-sm mt-1">Atualiza as definições de privacidade e detalhes do grupo.</p>
+            <p class="text-slate-400 text-sm mt-1">Update privacy settings and group details.</p>
         </div>
 
         <div class="max-w-xl mx-auto bg-white border border-slate-100 rounded-2xl p-8 shadow-sm">

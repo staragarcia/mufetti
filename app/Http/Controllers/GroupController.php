@@ -514,9 +514,9 @@ class GroupController extends Controller
 
     public function transferOwner(Group $group, User $user)
     {
-        // AJUSTE: Permite se for o owner OU se for um administrador (US409)
+        // ADJUSTMENT: Allows if owner OR if admin (US409)
         if (auth()->id() !== $group->owner && !auth()->user()->is_admin) {
-            abort(403, 'Apenas o dono ou um administrador podem transferir a posse do grupo.');
+            abort(403, 'Only the owner or an administrator can transfer group ownership.');
         }
     
         // Garantir que o novo owner é membro do grupo

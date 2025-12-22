@@ -78,6 +78,14 @@ class Content extends Model
     }
 
     /**
+     * Get all reports for this content.
+     */
+    public function reports(): HasMany
+    {
+        return $this->hasMany(Report::class, 'reportable_id')->where('reportable_type', $this->type);
+    }
+
+    /**
      * this function will help us get only the "post" rows, we can call it with just posts() when we build querys
      */
     public function scopePosts($query)

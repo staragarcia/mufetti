@@ -56,6 +56,7 @@ class ReactionController extends Controller
                         'type' => 'reaction',
                         'receiver' => $post->owner,
                         'actor' => $user->id,
+                        'name' => $user->username,
                     ];
 
                     event(new NotificationCreated($notification));
@@ -132,9 +133,10 @@ class ReactionController extends Controller
                 ]);
                 if ($comment->owner !== $user->id) {
                     $notification = (object)[
-                        'type' => 'reaction',
+                        'type' => 'reactionComment',
                         'receiver' => $comment->owner,
                         'actor' => $user->id,
+                        'name' => $user->username,
                     ];
 
                     event(new NotificationCreated($notification));

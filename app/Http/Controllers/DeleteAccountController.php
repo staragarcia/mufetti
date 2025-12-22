@@ -78,5 +78,18 @@ class DeleteAccountController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/')->with('success', 'A sua conta foi eliminada e os seus dados foram anonimizados.');
+        return redirect('/')->with('success', 'Your account has been deleted and the data has been anonymized.');
+    }
+
+    private function anonymizeUser(User $user)
+    {
+        $anonId = User::ANONYMOUS_ID;
+
+        DB::table('notifications')->where('actor', $user->id)->update(['actor' => $anonId]);
+        DB::table('notifications')->where('id_user', $user->id)->delete();
+
+        \App\Models\Content::where('owner', $user->id)->update(['owner' => $anonId]);
+
+        \App\Models\Reaction::where('id_user', $user->id)->update(['id_user' => $anonId]);
     }
 }

@@ -6,7 +6,6 @@ use App\Models\FollowRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Events\NotificationCreated;
 
 class FollowRequestController extends Controller
 {
@@ -33,42 +32,26 @@ class FollowRequestController extends Controller
     {
         $authUser = Auth::user();
 
-        // Cannot send request to yourself
         if ($authUser->id === $user->id) {
-            return back()->with('error', 'You cannot follow yourself.');
+            return response()->json(['error' => 'self'], 422);
         }
 
-        // Check if already following
         if ($authUser->isFollowing($user)) {
-            return back()->with('error', 'You are already following this user.');
+            return response()->json(['error' => 'already_following'], 422);
         }
 
-        // Check if there's already a pending request
-        if ($authUser->hasPendingRequestTo($user)) {
-            return back()->with('info', 'You already have a pending request to this user.');
+        if (!$user->is_public) {
+            FollowRequest::firstOrCreate([
+                'id_follower' => $authUser->id,
+                'id_followed' => $user->id,
+            ]);
+
+            return response()->json(['status' => 'pending']);
         }
 
-        // If user is public, follow directly
-        if ($user->is_public) {
-            $authUser->following()->attach($user->id);
-            return back()->with('success', 'You are now following ' . $user->name);
-        }
+        $authUser->following()->attach($user->id);
 
-        // Create follow request for private users
-        FollowRequest::create([
-            'id_follower' => $authUser->id,
-            'id_followed' => $user->id,
-            'status' => 'pending',
-        ]);
-
-        $notification = (object)[
-            'type' => 'followRequest',
-            'receiver' => $user->id,
-            'actor' => $authUser->id,
-        ];
-
-        event(new NotificationCreated($notification));
-        return back()->with('success', 'Follow request sent to ' . $user->name);
+        return response()->json(['status' => 'followed']);
     }
 
     /**

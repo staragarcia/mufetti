@@ -7,7 +7,7 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
                 <h1 class="text-2xl font-bold text-slate-800">Groups</h1>
-                <p class="text-slate-500 text-sm">Gerencie os grupos da comunidade e pedidos de adesão.</p>
+                <p class="text-slate-500 text-sm">Manage community groups and join requests.</p>
             </div>
 
             <div class="relative w-full md:w-80">

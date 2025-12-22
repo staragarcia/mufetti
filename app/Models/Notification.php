@@ -8,7 +8,7 @@ use Carbon\Carbon;
 class Notification extends Model
 {
     protected $table = 'notifications';
-    public $timestamps = false; 
+    public $timestamps = false;
 
     protected $fillable = [
         'type',
@@ -21,6 +21,10 @@ class Notification extends Model
         'id_reaction'
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime',
+    ];
+
     public function actorUser()
     {
         return $this->belongsTo(User::class, 'actor');
@@ -30,4 +34,19 @@ class Notification extends Model
     {
         return Carbon::parse($this->created_at)->diffForHumans();
     }
+
+    public function groupJoinRequest()
+    {
+        return $this->belongsTo(JoinRequest::class, 'id_group_join_request');
+    }
+    public function postComment()
+    {
+        return $this->belongsTo(Content::class, 'id_comment');
+    }
+    public function reaction()
+    {
+        return $this->belongsTo(Reaction::class, 'id_reaction');
+    }
+
+
 }

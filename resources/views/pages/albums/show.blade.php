@@ -8,8 +8,8 @@
         {{-- Album Cover --}}
         <div class="flex-shrink-0">
             @if($album->cover_url)
-                <img 
-                    src="{{ $album->cover_url }}" 
+                <img
+                    src="{{ $album->cover_url }}"
                     alt="{{ $album->title }} cover"
                     class="w-64 h-64 object-cover rounded-lg shadow-lg border border-gray-200"
                     onerror="this.onerror=null; this.src=''; this.parentElement.innerHTML='<div class=\'w-64 h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg shadow-lg border border-gray-200 flex items-center justify-center\'><svg class=\'w-24 h-24 text-gray-400\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3\'></path></svg></div>';"
@@ -38,17 +38,17 @@
 
                 {{-- Favorite Button --}}
                 @auth
-                    <button 
+                    <button
                         onclick="toggleFavorite({{ $album->id }})"
                         id="favorite-btn-{{ $album->id }}"
                         class="ml-4 p-2 rounded-full hover:bg-gray-100 transition"
                         title="{{ auth()->user()->hasFavoritedAlbum($album->id) ? 'Remove from favorites' : 'Add to favorites' }}"
                     >
-                        <svg 
+                        <svg
                             id="favorite-icon-{{ $album->id }}"
-                            class="w-8 h-8 {{ auth()->user()->hasFavoritedAlbum($album->id) ? 'text-red-500 fill-current' : 'text-gray-400' }}" 
+                            class="w-8 h-8 {{ auth()->user()->hasFavoritedAlbum($album->id) ? 'text-red-500 fill-current' : 'text-gray-400' }}"
                             fill="{{ auth()->user()->hasFavoritedAlbum($album->id) ? 'currentColor' : 'none' }}"
-                            stroke="currentColor" 
+                            stroke="currentColor"
                             viewBox="0 0 24 24"
                         >
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
@@ -62,7 +62,7 @@
                     Released {{ $album->release_date->format('Y') }}
                 </p>
             @endif
-            
+
             {{-- Rating --}}
             <div class="flex items-center gap-2 mt-4">
                 <span class="text-yellow-500 text-lg">★</span>
@@ -119,8 +119,13 @@
         <div class="mt-4 space-y-4">
             @forelse($otherReviews as $review)
                 <div class="border rounded-md p-4">
-                    <div class="flex justify-between">
-                        <span class="font-semibold">{{ $review->user->name }}</span>
+
+                    <div class="flex justify-between items-center">
+                        <a href="{{ route('profile.showOther', $review->user->id) }}" class="flex items-center hover:text-blue-600">
+                            <img src="{{ $review->user->avatar ?? 'https://via.placeholder.com/40' }}"alt="{{ $review->user->username }}"class="h-10 w-10 rounded-full mr-4 object-cover">
+                            <span class="font-semibold">{{ $review->user->name }}</span>
+                        </a>
+
                         <span class="text-yellow-500">
                             {{ str_repeat('★', $review->rating) }}
                         </span>
@@ -146,8 +151,11 @@
 
         @if ($myReview)
         <div class="border rounded-md p-4">
-            <div class="flex justify-between">
-                <span class="font-semibold">{{ $myReview->user->name }}</span>
+            <div class="flex justify-between items-center">
+                <a href="{{ route('profile.showOther', $myReview->user->id) }}" class="flex items-center hover:text-blue-600">
+                    <img src="{{ $myReview->user->avatar ?? 'https://via.placeholder.com/40' }}"alt="{{ $myReview->user->username }}"class="h-10 w-10 rounded-full mr-4 object-cover">
+                    <span class="font-semibold">{{ $myReview->user->name }}</span>
+                </a>
                 <span class="text-yellow-500">
                     {{ str_repeat('★', $myReview->rating) }}
                 </span>
@@ -232,7 +240,7 @@
         .then(data => {
             const icon = document.getElementById(`favorite-icon-${albumId}`);
             const btn = document.getElementById(`favorite-btn-${albumId}`);
-            
+
             if (data.status === 'added') {
                 icon.classList.remove('text-gray-400');
                 icon.classList.add('text-red-500', 'fill-current');

@@ -11,7 +11,7 @@
             </a>
             <div class="mt-4">
                 <h1 class="text-2xl font-bold text-slate-800">Join Requests</h1>
-                <p class="text-slate-500 text-sm">Pedidos de adesão pendentes para <span class="text-[rgb(13,162,231)] font-semibold">{{ $group->name }}</span></p>
+                <p class="text-slate-500 text-sm">Pending join requests for <span class="text-[rgb(13,162,231)] font-semibold">{{ $group->name }}</span></p>
             </div>
         </div>
 

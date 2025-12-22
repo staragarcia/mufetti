@@ -7,22 +7,29 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-slate-100 pb-6">
             <div>
                 <h1 class="text-2xl font-bold text-slate-800">Users</h1>
-                <p class="text-slate-500 text-sm">Pesquise e gira todos os membros da plataforma.</p>
+                <p class="text-slate-500 text-sm">Search and manage all platform members.</p>
             </div>
 
-            {{-- Pesquisa Simples e Eficaz --}}
-            <div class="relative w-full md:w-80">
-                <input 
-                    type="text" 
-                    id="userSearch" 
-                    placeholder="Search name, email, role..." 
-                    class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-10 pr-4 py-2 text-sm outline-none focus:border-[rgb(13,162,231)] transition-colors"
-                >
-                <div class="absolute left-3 top-2.5 text-slate-400">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
+            <div class="flex flex-col md:flex-row gap-3 items-center">
+                {{-- Simple and Effective Search --}}
+                <div class="relative w-full md:w-80">
+                    <input 
+                        type="text" 
+                        id="userSearch" 
+                        placeholder="Search name, email, role..." 
+                        class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-10 pr-4 py-2 text-sm outline-none focus:border-[rgb(13,162,231)] transition-colors"
+                    >
+                    <div class="absolute left-3 top-2.5 text-slate-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
                 </div>
+                {{-- Add User Button --}}
+                <a href="{{ route('admin.users.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[rgb(13,162,231)] text-white font-semibold rounded-lg shadow hover:bg-[rgb(10,140,200)] transition-colors text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Create User
+                </a>
             </div>
         </div>
 

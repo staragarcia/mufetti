@@ -274,32 +274,32 @@ class CommentController extends Controller
      */
     public function destroy(Content $comment)
     {
-        // Ensure we're deleting a comment
         if (!$comment->isComment()) {
             abort(404, 'Comment not found.');
         }
-
-        // Authorization - user can only delete their own comments
+    
         Gate::authorize('delete', $comment);
-
-        // Get the parent post before deletion (for redirect)
+    
+        $isAdminPanel = str_contains(url()->previous(), 'admin/content');
+    
         $originalPost = $comment->parent;
         while ($originalPost && $originalPost->isComment()) {
             $originalPost = $originalPost->parent;
         }
         $postId = $originalPost ? $originalPost->id : $comment->reply_to;
+    
 
-        // Actually delete the comment (this will trigger update_comment_count)
         $comment->delete();
-
+    
         if (request()->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Comment deleted successfully'
-            ]);
+            return response()->json(['success' => true, 'message' => 'Comment deleted']);
         }
-
-        return redirect()->route('posts.show', $postId)
-            ->with('success', 'Comment deleted successfully!');
+    
+        if (auth()->user()->is_admin && $isAdminPanel) {
+            return redirect()->route('admin.content.index', ['tab' => 'comments'])
+                ->with('success', 'Comment removed by Admin.');
+        }
+    
+        return redirect()->route('posts.show', $postId)->with('success', 'Comment deleted!');
     }
 }

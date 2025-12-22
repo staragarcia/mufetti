@@ -42,9 +42,17 @@ class ReportController extends Controller
         return response()->json(['success' => true, 'report' => $report]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $reports = Report::with('user')->orderBy('created_at', 'desc')->get();
+        $query = Report::with('user')->orderBy('created_at', 'desc');
+    
+        // Se vier um tipo na URL (ex: ?type=post), filtra a lista
+        if ($request->has('type')) {
+            $query->where('reportable_type', $request->type);
+        }
+    
+        $reports = $query->get();
+    
         return view('admin.reports.index', compact('reports'));
     }
 

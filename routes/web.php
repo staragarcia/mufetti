@@ -24,7 +24,6 @@ use App\Http\Controllers\RecoverController;
 
 use App\Http\Controllers\NotificationController;
 
-
 // -----------------------------------------------------
 // HOME
 // -----------------------------------------------------
@@ -273,3 +272,39 @@ Route::get('/notifications', [NotificationController::class, 'index'])
 Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])
     ->middleware('auth')
     ->name('notifications.read');
+// Rotas de Admin Unificadas
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    
+    // Users
+    Route::resource('users', AdminUserController::class);
+    // Página principal de gestão de conteúdo (Posts e Comentários)
+    Route::get('/content', [ContentManagementController::class, 'index'])->name('admin.content.index');
+
+    // Rotas para eliminar Posts (Geral e Reported)
+    Route::delete('/posts/{post}', [ContentManagementController::class, 'destroyPost'])->name('admin.posts.destroy');
+
+    // Rotas para eliminar Comentários (Geral e Reported)
+    Route::delete('/comments/{comment}', [ContentManagementController::class, 'destroyComment'])->name('admin.comments.destroy');
+
+    Route::get('/groups', [App\Http\Controllers\GroupController::class, 'adminIndex'])->name('groups.index');
+    Route::get('/groups/{group}/edit', [App\Http\Controllers\GroupController::class, 'adminEdit'])->name('groups.edit');
+    
+    // Define a rota de update de forma simples sem o sufixo "/update"
+    // Isso fará com que a URL seja /admin/groups/1
+    Route::put('/groups/{group}', [App\Http\Controllers\GroupController::class, 'update'])->name('groups.update');
+    
+    Route::get('/groups/{group}/requests', [App\Http\Controllers\GroupController::class, 'adminRequests'])->name('groups.requests');
+    Route::get('/groups/{group}/members', [App\Http\Controllers\GroupController::class, 'adminMembers'])->name('groups.members');
+    Route::delete('/groups/{group}', [App\Http\Controllers\GroupController::class, 'destroy'])->name('groups.destroy');
+});
+// Rota para a página de gestão de conteúdo (Admin)
+// Adiciona isto dentro do teu grupo de rotas de admin
+Route::get('/admin/content', [PostController::class, 'adminIndex'])->name('admin.content.index')->middleware(['auth', 'admin']);
+// Rotas de Eliminação (reutilizando os controllers normais)
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+    // Apagar Post
+    Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('admin.posts.destroy');
+    
+    // Apagar Comentário
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('admin.comments.destroy');
+});

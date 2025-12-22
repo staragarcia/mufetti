@@ -100,8 +100,12 @@ class ContentPolicy
      */
     public function update(User $user, Content $content): bool
     {
-        // (User can only update their own content OR group owner) AND it must not be deleted
-        return !$content->isDeleted() && ($user->id === $content->owner || ($content->group && $user->id === $content->group->owner)) ;
+        // Adicionado: user->is_admin
+        return !$content->isDeleted() && (
+            $user->id === $content->owner || 
+            ($content->group && $user->id === $content->group->owner) ||
+            $user->is_admin
+        );
     }
 
     /**
@@ -109,8 +113,10 @@ class ContentPolicy
      */
     public function delete(User $user, Content $content): bool
     {
-        // (User can only delete their own content OR group owner )AND it must not already be deleted
-        return !$content->isDeleted() && ($user->id === $content->owner || ($content->group && $user->id === $content->group->owner))  ;
+        // O utilizador pode apagar se for o dono, dono do grupo OU ADMIN
+        return ($user->id === $content->owner || 
+                ($content->group && $user->id === $content->group->owner) || 
+                $user->is_admin); // <--- Adiciona isto
     }
 
     /**

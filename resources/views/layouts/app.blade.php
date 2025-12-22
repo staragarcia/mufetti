@@ -22,8 +22,14 @@
 
     <body class="bg-background text-foreground" style="overflow-y: scroll;" data-authenticated="{{ auth()->check() ? 'true' : 'false' }}">
 
-        {{-- NAVBAR --}}
-        @include('partials.navbar')
+        {{-- NAVBAR DINÂMICA --}}
+        {{-- Se o URL começar por /admin, carrega a navbar de administração, caso contrário a normal --}}
+        @if(request()->is('admin*'))
+            @include('partials.admin-navbar')
+        @else
+            @include('partials.navbar')
+        @endif
+
         <main class="pt-20 pb-12">
             <section id="content">
                 @yield('content')

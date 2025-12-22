@@ -262,22 +262,28 @@ class GroupController extends Controller
 
     public function update(Request $request, Group $group)
     {
-        if ($group->owner !== auth()->id()) {
+        // AJUSTE: Permite se for o dono OU se for um administrador
+        if (auth()->id() !== $group->owner && !auth()->user()->is_admin) {
             abort(403);
         }
-
+    
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'is_public' => 'required|boolean',
         ]);
-
+    
         $group->update($request->only('name', 'description', 'is_public'));
-
+    
+        // AJUSTE: Se for admin, volta para a lista de admin. Se for user, volta para o grupo.
+        if (auth()->user()->is_admin) {
+            return redirect()->route('admin.groups.index')
+                             ->with('success', 'Group updated successfully by Administrator.');
+        }
+    
         return redirect()->route('groups.show', $group->id)
                          ->with('success', 'Group updated successfully.');
     }
-
 
     /**
      * @OA\Post(
@@ -476,18 +482,22 @@ class GroupController extends Controller
     public function destroy(Group $group)
     {
         Gate::authorize('delete', $group);
-
-        $group->update([
-            'name' => '[Deleted Group]',
-            'description' => 'This group has been deleted by the user.',
-        ]);
-
-        if (request()->expectsJson()) {
-            return response()->json(['message' => 'Group deleted successfully']);
+    
+        // 1. Remover os membros da tabela pivô primeiro
+        $group->members()->detach();
+    
+        // 2. Se houver posts, pedidos de adesão, etc., também tens de os tratar:
+        // $group->posts()->delete(); 
+        // $group->joinRequests()->delete();
+    
+        // 3. Agora sim, apagar o grupo
+        $group->delete();
+    
+        if (auth()->user()->is_admin) {
+            return redirect()->route('admin.groups.index')->with('success', 'Group deleted.');
         }
-
-        return redirect()->route('groups.showUserGroups')
-            ->with('success', 'Group deleted successfully!');
+    
+        return redirect()->route('groups.showUserGroups');
     }
 
 
@@ -504,24 +514,68 @@ class GroupController extends Controller
 
     public function transferOwner(Group $group, User $user)
     {
-        // Garantir que o utilizador autenticado é o owner atual
-        if (auth()->id() !== $group->owner) {
-            abort(403);
+        // ADJUSTMENT: Allows if owner OR if admin (US409)
+        if (auth()->id() !== $group->owner && !auth()->user()->is_admin) {
+            abort(403, 'Only the owner or an administrator can transfer group ownership.');
         }
-
+    
         // Garantir que o novo owner é membro do grupo
+        // Nota: Usei 'id_user' conforme o teu código original
         $isMember = $group->members()
-            ->where('id_user', $user->id)
+            ->where('id_user', $user->id) 
             ->exists();
-
+    
         if (!$isMember) {
-            return back()->with('error', 'User is not a member of this group.');
+            return back()->with('error', 'O utilizador selecionado não é membro deste grupo.');
         }
-
+    
         // Transferir ownership
         $group->owner = $user->id;
         $group->save();
-
+    
         return back()->with('success', 'Group ownership transferred successfully.');
+    }
+    /**
+     * Exibe a lista de todos os grupos para o painel de administração.
+     */
+    public function adminIndex()
+    {
+        // Verifica novamente se é admin por segurança, embora o middleware já o faça
+        if (!auth()->user()->is_admin) {
+            abort(403);
+        }
+
+        // Carrega todos os grupos com a contagem de membros e o utilizador dono (owner)
+        // Usamos paginate para não sobrecarregar a página se houver muitos grupos
+        $groups = \App\Models\Group::with('ownerUser')
+            ->withCount('members as member_count')
+            ->paginate(15);
+
+        return view('admin.groups.index', compact('groups'));
+    }
+
+    // Método para ver requests como Admin// 2. Vista de Edição do Admin (Edit)
+    public function adminEdit(Group $group)
+    {
+        return view('admin.groups.edit', compact('group'));
+    }
+
+    // 3. Vista de Pedidos (Requests)
+    public function adminRequests(Group $group)
+    {
+        // Carrega os pedidos pendentes para este grupo específico
+        $requests = $group->joinRequests()->with('user')->get();
+        return view('admin.groups.requests', compact('group', 'requests'));
+    }
+    public function adminMembers(Group $group)
+    {
+        // Apenas admins podem aceder a esta rota específica
+        if (!auth()->user()->is_admin) {
+            abort(403);
+        }
+
+        $members = $group->members()->paginate(20);
+        
+        return view('admin.groups.members', compact('group', 'members'));
     }
 }

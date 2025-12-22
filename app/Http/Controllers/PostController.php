@@ -248,24 +248,55 @@ class PostController extends Controller
     *     @OA\Response(response=200, description="Post deleted successfully"),
     *     @OA\Response(response=403, description="Access denied")
     * )
-    */
-    public function destroy(Content $post)
-    {
-        Gate::authorize('delete', $post);
+        */
+        public function adminIndex(Request $request)
+{
+    // 1. Pegar os Posts (onde reply_to é null)
+    $posts = Content::whereNull('reply_to')
+        ->with('ownerUser')
+        ->latest()
+        ->paginate(10, ['*'], 'posts_page');
 
-        $post->update([
-            'title' => '[Deleted Post]',
-            'description' => 'This post has been deleted by the user.',
-            'img' => null,
-        ]);
+    // 2. Pegar os Comentários (onde reply_to NÃO é null)
+    $comments = Content::whereNotNull('reply_to')
+        ->with('ownerUser')
+        ->latest()
+        ->paginate(10, ['*'], 'comments_page');
 
-        if (request()->expectsJson()) {
-            return response()->json(['message' => 'Post deleted successfully']);
+    // 3. BUSCAR OS REPORTS (O que estava a faltar!)
+    // Usamos o \App\Models\Report caso não tenhas o 'use' no topo
+    $reports = \App\Models\Report::with('user')
+        ->latest()
+        ->get();
+
+    // 4. Definir a tab ativa
+    $activeTab = $request->input('tab', 'posts');
+
+    // Agora passamos as TRÊS variáveis para a view
+    return view('admin.content.index', compact('posts', 'comments', 'reports', 'activeTab'));
+}
+        public function destroy(Content $post)
+        {
+            // O Gate verifica se é o dono OU se é Admin
+            Gate::authorize('delete', $post);
+        
+            $isAdmin = auth()->user()->is_admin;
+        
+            // Se quiseres que o post SUMA da base de dados (ou use SoftDeletes se configurado no Model)
+            // Em vez de fazer ->update([...]), usamos ->delete()
+            $post->delete();
+        
+            $msg = $isAdmin ? 'Content removed by moderation.' : 'Post deleted successfully!';
+        
+            // Se for Admin e estiver no painel de controlo, volta para a tab certa
+            if ($isAdmin) {
+                // Verifica se o post era um comentário ou um post principal para saber para que tab voltar
+                $tab = $post->reply_to ? 'comments' : 'posts';
+                return redirect()->route('admin.content.index', ['tab' => $tab])->with('success', $msg);
+            }
+        
+            return redirect()->route('pages.profile.show')->with('success', $msg);
         }
-
-        return redirect()->route('pages.profile.show')
-            ->with('success', 'Post deleted successfully!');
-    }
 
 }
 

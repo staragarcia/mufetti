@@ -327,7 +327,7 @@
                         <div class="p-3 hover:bg-gray-50 transition-colors duration-150">
                             <div class="flex items-center gap-3">
                                 {{-- User Avatar --}}
-                                <a href="{{ route('pages.profile.show', $suggestedUser->id) }}" class="flex-shrink-0">
+                                <a href="{{ route('profile.showOther', $suggestedUser->id) }}" class="flex-shrink-0">
                                     <img src="{{ $suggestedUser->avatar }}" 
                                          alt="{{ $suggestedUser->name }}"
                                          class="w-10 h-10 rounded-full object-cover hover:opacity-90 transition-opacity">
@@ -335,7 +335,7 @@
                                 
                                 {{-- User Info --}}
                                 <div class="flex-1 min-w-0">
-                                    <a href="{{ route('pages.profile.show', $suggestedUser->id) }}" 
+                                    <a href="{{ route('profile.showOther', $suggestedUser->id) }}" 
                                        class="block">
                                         <h4 class="text-sm font-medium text-gray-900 hover:text-purple-600 transition-colors truncate">
                                             {{ $suggestedUser->name }}

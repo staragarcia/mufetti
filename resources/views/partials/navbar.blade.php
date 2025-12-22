@@ -39,25 +39,8 @@
                             {{ request()->is('posts/create') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
                         Create
                     </a>
-                    <a href="/notifications"
-                    class="text-sm font-medium transition-colors relative
-                            {{ request()->is('notifications') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
-                        
-                        <!-- Sininho -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002
-                                    6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388
-                                    6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0
-                                    11-6 0v-1m6 0H9" />
-                        </svg>
 
-                        <!-- Círculo vermelho se houver notificações não lidas -->
-                        @if($unreadCount > 0)
-                            <span class="absolute top-0 right-0 inline-flex h-2 w-2 rounded-full bg-red-500"></span>
-                        @endif
-                    </a>
+
 
 
 
@@ -65,6 +48,24 @@
                        class="text-sm font-medium transition-colors
                             {{ request()->is('profile') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
                         Profile
+                    </a>
+
+                    <a href="/notifications"
+                       class="relative flex items-center justify-center w-10 h-10 rounded-full transition-colors duration-150 group
+                       {{ request()->is('notifications') ? 'bg-blue-50 text-blue-500' : 'hover:bg-blue-50 text-muted-foreground hover:text-blue-500' }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002
+                                    6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388
+                                    6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0
+                                    11-6 0v-1m6 0H9" />
+                        </svg>
+                        @if($unreadCount > 0)
+                            <span class="absolute -top-0.5 -right-0.5 flex items-center justify-center w-3 h-3 rounded-full bg-red-500 border-2 border-white animate-pulse">
+                                <span class="sr-only">Unread notifications</span>
+                            </span>
+                        @endif
                     </a>
 
                     {{-- Admin link for admins only --}}
@@ -76,7 +77,7 @@
                         </a>
                     @endif
 
-                    <form action="{{ route('logout') }}" method="POST">
+                    <form action="{{ route('logout') }}" method="POST" class="m-0">
                         @csrf
                         <button
                             class="px-3 py-1 border border-border rounded-md text-sm text-muted-foreground hover:text-primary transition">

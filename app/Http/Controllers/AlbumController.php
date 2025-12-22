@@ -18,62 +18,61 @@ class AlbumController extends Controller
         $this->musicBrainz = $musicBrainz;
     }
 
-    /**
-     * Import album from MusicBrainz
-     */
-    public function import(Request $request)
+    public function index()
     {
-        $request->validate([
-            'musicbrainz_id' => 'required|uuid',
-        ]);
+        return view('pages.albums.index');
+    }
 
-        return DB::transaction(function () use ($request) {
+    public function search(Request $request)
+    {
+        $q = $request->query('q');
+        $sort = $request->query('sort', 'relevance');
 
-            // 1️⃣ Buscar dados ao MusicBrainz
-            $data = $this->musicBrainz->getAlbumDetails($request->musicbrainz_id);
+        $query = Album::query();
 
-            // 2️⃣ Criar ou obter álbum
-            $album = Album::firstOrCreate(
-                ['musicbrainz_id' => $data['album']['musicbrainz_id']],
-                [
-                    'title' => $data['album']['title'],
-                    'release_date' => $data['album']['release_date'] ?: null,
-                    'cover_url' => $data['album']['cover_url'] ?? null,
-                ]
-            );
+        if ($q && strlen($q) >= 2) {
+            $query->fullTextSearch($q);
+        }
 
-            // Update cover if it was null and we now have one
-            if (!$album->cover_url && isset($data['album']['cover_url'])) {
-                $album->update(['cover_url' => $data['album']['cover_url']]);
-            }
+        // sorting
+        switch ($sort) {
+            case 'rating':
+                $query->orderByDesc('avg_rating')->orderByDesc('reviews_total');
+                break;
+            case 'reviews':
+                $query->orderByDesc('reviews_total')->orderByDesc('avg_rating');
+                break;
+            default:
+                // if there's a search query, sort by relevance (rank). otherwise, sort by rating
+                if ($q && strlen($q) >= 2) {
+                    $query->orderByDesc('rank');
+                } else {
+                    $query->orderByDesc('avg_rating')->orderByDesc('reviews_total');
+                }
+                break;
+        }
 
-            // 3️⃣ Criar artistas e associar
-            foreach ($data['artists'] as $artistData) {
-                $artist = Artist::firstOrCreate(
-                    ['musicbrainz_id' => $artistData['musicbrainz_id']],
-                    ['name' => $artistData['name']]
-                );
+        $albums = $query
+            ->with(['artists:id,name'])
+            ->limit(20)
+            ->get();
 
-                $album->artists()->syncWithoutDetaching($artist->id);
-            }
-
-            // 4️⃣ Criar songs (se ainda não existirem)
-            foreach ($data['tracks'] as $track) {
-                Song::firstOrCreate(
-                    ['musicbrainz_id' => $track['musicbrainz_id']],
-                    [
-                        'title' => $track['title'],
-                        'track_number' => $track['track_number'],
-                        'duration' => $track['duration'],
-                        'id_album' => $album->id,
-                    ]
-                );
-            }
-
-            return redirect()
-                ->route('albums.index')
-                ->with('success', 'Album imported successfully!');
-        });
+        // return just the array of albums
+        return response()->json($albums->map(function($album) {
+            return [
+                'id' => $album->id,
+                'title' => $album->title,
+                'cover_url' => $album->cover_url,
+                'avg_rating' => number_format($album->avg_rating ?? 0, 1),
+                'reviews_total' => $album->reviews_total ?? 0,
+                'release_date' => $album->release_date?->format('Y'),
+                'artists' => $album->artists->map(fn($a) => [
+                    'id' => $a->id,
+                    'name' => $a->name
+                ]),
+                'relevance' => isset($album->rank) ? round($album->rank, 4) : null
+            ];
+        }));
     }
 
     public function show(Album $album)
@@ -94,57 +93,53 @@ class AlbumController extends Controller
         return view('pages.albums.show', compact('album', 'averageRating', 'myReview', 'otherReviews'));
     }
 
-    public function index()
+    public function import(Request $request)
     {
-        return view('pages.albums.index');
-    }
+        $request->validate([
+            'musicbrainz_id' => 'required|uuid',
+        ]);
 
-    public function search(Request $request)
-    {
-        $q = $request->query('q');
-        $sort = $request->query('sort'); // rating | reviews
+        return DB::transaction(function () use ($request) {
+            $data = $this->musicBrainz->getAlbumDetails($request->musicbrainz_id);
 
-        $albums = Album::query()
+            $album = Album::firstOrCreate(
+                ['musicbrainz_id' => $data['album']['musicbrainz_id']],
+                [
+                    'title' => $data['album']['title'],
+                    'release_date' => $data['album']['release_date'] ?: null,
+                    'cover_url' => $data['album']['cover_url'] ?? null,
+                ]
+            );
 
-            // text search
-            ->when($q, function ($query) use ($q) {
-                $query->where(function ($sub) use ($q) {
+            if (!$album->cover_url && isset($data['album']['cover_url'])) {
+                $album->update(['cover_url' => $data['album']['cover_url']]);
+            }
 
-                    // Exact + partial
-                    $sub->where('title', 'ILIKE', "%{$q}%")
+            foreach ($data['artists'] as $artistData) {
+                $artist = Artist::firstOrCreate(
+                    ['musicbrainz_id' => $artistData['musicbrainz_id']],
+                    ['name' => $artistData['name']]
+                );
 
-                        // Full-text
-                        ->orWhereRaw(
-                            "search_vector @@ plainto_tsquery('english', ?)",
-                            [$q]
-                        )
+                $album->artists()->syncWithoutDetaching($artist->id);
+            }
 
-                        // Artist
-                        ->orWhereHas('artists', function ($a) use ($q) {
-                            $a->where('name', 'ILIKE', "%{$q}%");
-                        })
+            foreach ($data['tracks'] as $track) {
+                Song::firstOrCreate(
+                    ['musicbrainz_id' => $track['musicbrainz_id']],
+                    [
+                        'title' => $track['title'],
+                        'track_number' => $track['track_number'],
+                        'duration' => $track['duration'],
+                        'id_album' => $album->id,
+                    ]
+                );
+            }
 
-                        // Song
-                        ->orWhereHas('songs', function ($s) use ($q) {
-                            $s->where('title', 'ILIKE', "%{$q}%");
-                        });
-                });
-            })
-
-            // sorting
-            ->when($sort === 'rating', fn ($q) =>
-            $q->orderByDesc('avg_rating')
-            )
-
-            ->when($sort === 'reviews', fn ($q) =>
-            $q->orderByDesc('reviews_total')
-            )
-
-            ->with('artists')
-            ->limit(20)
-            ->get();
-
-        return response()->json($albums);
+            return redirect()
+                ->route('albums.index')
+                ->with('success', 'Album imported successfully!');
+        });
     }
 
     public function searchImport(Request $request)
@@ -165,10 +160,8 @@ class AlbumController extends Controller
         );
     }
 
-
     public function showImportForm()
     {
         return view('pages.albums.import');
     }
 }
-

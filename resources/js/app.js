@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (isAuthenticated) {
         initializeReactions();
     }
-    
+
     initializePostTruncation();
     initializeReviewTruncation();
 });

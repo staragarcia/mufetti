@@ -51,7 +51,7 @@
                                         @endif
                                     </a>
                                 @endif
-                                
+
                                 <a href="{{ route('pages.profile.edit') }}"
                                    class="px-4 py-2 rounded-md border border-border text-sm font-medium hover:bg-muted transition">
                                     Edit Profile
@@ -138,8 +138,8 @@
                             <div class="flex-shrink-0 w-32">
                                 <a href="{{ route('albums.show', $album->id) }}" class="block group">
                                     @if($album->cover_url)
-                                        <img 
-                                            src="{{ $album->cover_url }}" 
+                                        <img
+                                            src="{{ $album->cover_url }}"
                                             alt="{{ $album->title }}"
                                             class="w-32 h-32 object-cover rounded-lg shadow-md group-hover:shadow-lg transition mb-2"
                                             onerror="this.onerror=null; this.src=''; this.parentElement.innerHTML='<div class=\'w-32 h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center mb-2\'><svg class=\'w-12 h-12 text-gray-400\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3\'></path></svg></div>';"
@@ -206,8 +206,8 @@
                                 <div class="flex-shrink-0">
                                     <a href="{{ route('albums.show', $review->album->id) }}">
                                         @if($review->album->cover_url)
-                                            <img 
-                                                src="{{ $review->album->cover_url }}" 
+                                            <img
+                                                src="{{ $review->album->cover_url }}"
                                                 alt="{{ $review->album->title }} cover"
                                                 class="w-20 h-20 object-cover rounded"
                                                 onerror="this.onerror=null; this.src=''; this.parentElement.innerHTML='<div class=\'w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded flex items-center justify-center\'><svg class=\'w-8 h-8 text-gray-400\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3\'></path></svg></div>';"

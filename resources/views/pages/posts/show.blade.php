@@ -13,12 +13,22 @@
                     Back to Admin Panel
                 </a>
             @else
-                <a href="{{ auth()->id() === $post->ownerUser->id ? route('pages.profile.show', $post->ownerUser) : route('profile.showOther', $post->ownerUser) }}" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                    </svg>
-                    Back to {{ $backLabel ?? (optional($post->ownerUser)->name ?? 'Profile') }}
-                </a>
+                @if (str_contains(url()->previous(), '/feed'))
+
+                    <a href="{{ str_contains(url()->previous(), '/feed') ? route('feed.show') : (auth()->id() === $post->ownerUser->id ? route('pages.profile.show', $post->ownerUser) : route('profile.showOther', $post->ownerUser)) }}" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Back to feed
+                    </a>
+                @else
+                    <a href="{{ str_contains(url()->previous(), '/feed') ? route('feed.show') : (auth()->id() === $post->ownerUser->id ? route('pages.profile.show', $post->ownerUser) : route('profile.showOther', $post->ownerUser)) }}" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Back to {{ $backLabel ?? (optional($post->ownerUser)->name ?? 'Profile') }}
+                    </a>
+                @endif
             @endif
         </div>
 

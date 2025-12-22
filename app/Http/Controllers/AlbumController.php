@@ -31,25 +31,44 @@ class AlbumController extends Controller
         $query = Album::query();
 
         if ($q && strlen($q) >= 2) {
-            $query->fullTextSearch($q);
+            $query->where(function ($sub) use ($q) {
+
+                // Full-text search (mantido como está)
+                $sub->fullTextSearch($q)
+
+                    // Artist name
+                    ->orWhereHas('artists', function ($a) use ($q) {
+                        $a->where('name', 'ILIKE', "%{$q}%");
+                    })
+
+                    // Song title
+                    ->orWhereHas('songs', function ($s) use ($q) {
+                        $s->where('title', 'ILIKE', "%{$q}%");
+                    });
+            });
         }
 
         // sorting
         switch ($sort) {
-            case 'rating':
-                $query->orderByDesc('avg_rating')->orderByDesc('reviews_total');
-                break;
-            case 'reviews':
-                $query->orderByDesc('reviews_total')->orderByDesc('avg_rating');
-                break;
-            default:
-                // if there's a search query, sort by relevance (rank). otherwise, sort by rating
-                if ($q && strlen($q) >= 2) {
-                    $query->orderByDesc('rank');
-                } else {
-                    $query->orderByDesc('avg_rating')->orderByDesc('reviews_total');
-                }
-                break;
+        case 'rating':
+            $query->orderByDesc('avg_rating')
+                  ->orderByDesc('reviews_total');
+            break;
+
+        case 'reviews':
+            $query->orderByDesc('reviews_total')
+                  ->orderByDesc('avg_rating');
+            break;
+
+        default:
+            // if there's a search query, sort by relevance (rank)
+            if ($q && strlen($q) >= 2) {
+                $query->orderByDesc('rank');
+            } else {
+                $query->orderByDesc('avg_rating')
+                      ->orderByDesc('reviews_total');
+            }
+            break;
         }
 
         $albums = $query
@@ -57,22 +76,25 @@ class AlbumController extends Controller
             ->limit(20)
             ->get();
 
-        // return just the array of albums
-        return response()->json($albums->map(function($album) {
-            return [
-                'id' => $album->id,
-                'title' => $album->title,
-                'cover_url' => $album->cover_url,
-                'avg_rating' => number_format($album->avg_rating ?? 0, 1),
-                'reviews_total' => $album->reviews_total ?? 0,
-                'release_date' => $album->release_date?->format('Y'),
-                'artists' => $album->artists->map(fn($a) => [
-                    'id' => $a->id,
-                    'name' => $a->name
-                ]),
-                'relevance' => isset($album->rank) ? round($album->rank, 4) : null
-            ];
-        }));
+        return response()->json(
+            $albums->map(function ($album) {
+                return [
+                    'id' => $album->id,
+                    'title' => $album->title,
+                    'cover_url' => $album->cover_url,
+                    'avg_rating' => number_format($album->avg_rating ?? 0, 1),
+                    'reviews_total' => $album->reviews_total ?? 0,
+                    'release_date' => $album->release_date?->format('Y'),
+                    'artists' => $album->artists->map(fn ($a) => [
+                        'id' => $a->id,
+                        'name' => $a->name,
+                    ]),
+                    'relevance' => isset($album->rank)
+                    ? round($album->rank, 4)
+                    : null,
+                ];
+            })
+        );
     }
 
     public function show(Album $album)

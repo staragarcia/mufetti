@@ -7,8 +7,11 @@
         <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-foreground">Users</h1>
-                <p class="text-muted-foreground text-sm mt-1">Search and manage platform members.</p>
-            </div>
+        <div class="flex gap-2">
+            <a href="{{ route('admin.reports.index') }}" class="px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">View Reports</a>
+                    <p class="text-muted-foreground text-sm mt-1">Search and manage platform members.</p>
+                </div>
+    </div>
 
             {{-- Pesquisa Chique --}}
             <div class="relative w-full md:w-96">

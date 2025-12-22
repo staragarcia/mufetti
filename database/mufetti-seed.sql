@@ -203,10 +203,10 @@ CREATE TABLE notifications (
     type NotificationTypes NOT NULL,
     receiver INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
     actor INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
-    id_follow_request INTEGER REFERENCES follow_requests (id) ON UPDATE CASCADE,
-    id_group_join_request INTEGER REFERENCES join_requests (id) ON UPDATE CASCADE,
-    id_comment INTEGER REFERENCES contents (id) ON UPDATE CASCADE,
-    id_reaction INTEGER REFERENCES reactions (id) ON UPDATE CASCADE,
+    id_follow_request INTEGER REFERENCES follow_requests (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    id_group_join_request INTEGER REFERENCES join_requests (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    id_comment INTEGER REFERENCES contents (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    id_reaction INTEGER REFERENCES reactions (id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT notification_type_ck CHECK (
         (type <> 'followRequest' OR id_follow_request IS NOT NULL) AND
         (type <> 'acceptedFollowRequest' OR id_follow_request IS NOT NULL) AND
@@ -215,6 +215,18 @@ CREATE TABLE notifications (
         (type <> 'comment' OR id_comment IS NOT NULL) AND
         (type <> 'reaction' OR id_reaction IS NOT NULL)
     )
+);
+
+-- Reports Table
+CREATE TABLE reports (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_user INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
+    reportable_id INTEGER NOT NULL,
+    reportable_type TEXT NOT NULL CHECK (reportable_type IN ('post', 'comment')),
+    motive TEXT NOT NULL,
+    description TEXT,
+    status TEXT NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -----------------------------------------
@@ -232,33 +244,40 @@ CLUSTER contents USING content_owner_idx;
 CREATE INDEX reaction_content_idx ON reactions USING hash (id_content);
 
 
-ALTER TABLE contents
-ADD COLUMN tsvectors TSVECTOR;
+ALTER TABLE contents ADD COLUMN search_vector TSVECTOR;
 
+DROP FUNCTION IF EXISTS content_search_update() CASCADE;
 CREATE FUNCTION content_search_update() RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
-    NEW.tsvectors = (
+  IF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') AND NEW.type = 'post' THEN
+    NEW.search_vector = (
       setweight(to_tsvector('english', NEW.title), 'A') ||
       setweight(to_tsvector('english', NEW.description), 'B')
+    );
+  ELSIF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') AND NEW.type = 'comment' THEN
+    NEW.search_vector = (
+        setweight(to_tsvector('english', NEW.description), 'A')
     );
   END IF;
   RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS content_search_update ON contents;
 CREATE TRIGGER content_search_update
 BEFORE INSERT OR UPDATE ON contents
 FOR EACH ROW
 EXECUTE PROCEDURE content_search_update();
 
-CREATE INDEX search_idx ON contents USING GIN (tsvectors);
-
-ALTER TABLE albums ADD COLUMN search_vector tsvector;
+CREATE INDEX search_idx ON contents USING GIN (search_vector);
 
 -----------------------------------------
 -- Triggers
 -----------------------------------------
+
+ALTER TABLE albums ADD COLUMN search_vector tsvector;
+
+DROP FUNCTION IF EXISTS album_search_update() CASCADE;
 
 CREATE FUNCTION album_search_update() RETURNS trigger AS $$
 BEGIN
@@ -271,6 +290,8 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER album_search_trigger
 BEFORE INSERT OR UPDATE ON albums
 FOR EACH ROW EXECUTE FUNCTION album_search_update();
+
+CREATE INDEX IF NOT EXISTS albums_search_idx ON albums USING GIN(search_vector);
 
 
 CREATE FUNCTION spam_control() RETURNS TRIGGER AS
@@ -430,6 +451,75 @@ CREATE TRIGGER update_comment_count
 AFTER INSERT OR DELETE ON contents
 FOR EACH ROW
 EXECUTE FUNCTION update_comment_count();
+
+
+
+
+---------------------------------------
+-- Full Text Search (missing) infra
+---------------------------------------
+
+-- users
+ALTER TABLE users ADD COLUMN search_vector tsvector;
+
+CREATE FUNCTION user_search_update() RETURNS TRIGGER AS $$
+BEGIN
+  NEW.search_vector = (
+    setweight(to_tsvector('english', COALESCE(NEW.username, '')), 'A') ||
+    setweight(to_tsvector('english', COALESCE(NEW.name, '')), 'A') ||
+    setweight(to_tsvector('english', COALESCE(NEW.description, '')), 'B')
+  );
+  RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER user_search_update
+BEFORE INSERT OR UPDATE ON users
+FOR EACH ROW
+EXECUTE PROCEDURE user_search_update();
+
+CREATE INDEX users_search_idx ON users USING GIN(search_vector);
+
+-- groups
+ALTER TABLE groups ADD COLUMN search_vector tsvector;
+
+CREATE FUNCTION group_search_update() RETURNS TRIGGER AS $$
+BEGIN
+  NEW.search_vector = (
+    setweight(to_tsvector('english', COALESCE(NEW.name, '')), 'A') ||
+    setweight(to_tsvector('english', COALESCE(NEW.description, '')), 'B')
+  );
+  RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER group_search_update
+BEFORE INSERT OR UPDATE ON groups
+FOR EACH ROW
+EXECUTE PROCEDURE group_search_update();
+
+CREATE INDEX groups_search_idx ON groups USING GIN(search_vector);
+
+-- artists
+ALTER TABLE artists ADD COLUMN search_vector tsvector;
+
+CREATE FUNCTION artist_search_update() RETURNS TRIGGER AS $$
+BEGIN
+  NEW.search_vector = (
+    setweight(to_tsvector('english', COALESCE(NEW.name, '')), 'A') ||
+    setweight(to_tsvector('english', COALESCE(NEW.description, '')), 'B') ||
+    setweight(to_tsvector('english', COALESCE(NEW.country, '')), 'C')
+  );
+  RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER artist_search_update
+BEFORE INSERT OR UPDATE ON artists
+FOR EACH ROW
+EXECUTE PROCEDURE artist_search_update();
+
+CREATE INDEX artists_search_idx ON artists USING GIN(search_vector);
 
 -- ID 1 é o utilizador de sistema
 INSERT INTO users (id, name, username, email, password, birth_date, is_public, is_admin)

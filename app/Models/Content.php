@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Content extends Model
 {
-    // Use timestamps since your schema has created_at
+    use Searchable;
+
+    // Use timestamps since our schema has created_at
     public $timestamps = false; // disabled here, we'll use the default current date
 
     /**
@@ -88,6 +91,60 @@ class Content extends Model
     public function scopeComments($query)
     {
         return $query->where('type', 'comment');
+    }
+
+    /**
+     * Filter content visible to a specific user
+     * Takes into account:
+     * - Owner's profile privacy (public vs private)
+     * - Following relationships
+     * - Group access (public groups vs member-only groups)
+     */
+    public function scopeVisibleTo($query, $userId = null)
+    {
+        $userId = $userId ?? auth()->id();
+
+        return $query->where(function($mainQ) use ($userId) {
+            // Filter by owner accessibility
+            $mainQ->where(function($ownerQ) use ($userId) {
+                // Public profile owners
+                $ownerQ->whereHas('ownerUser', function($userQ) {
+                    $userQ->where('is_public', true);
+                });
+
+                // OR users that the current user follows
+                if ($userId) {
+                    $ownerQ->orWhereHas('ownerUser', function($userQ) use ($userId) {
+                        $userQ->whereHas('followers', function($followQ) use ($userId) {
+                            $followQ->where('id_user', $userId);
+                        });
+                    });
+                }
+
+                // OR user's own content
+                if ($userId) {
+                    $ownerQ->orWhere('owner', $userId);
+                }
+            });
+
+            // AND filter by group access
+            $mainQ->where(function($groupQ) use ($userId) {
+                // Content not in any group
+                $groupQ->whereNull('id_group');
+
+                // OR content in public groups
+                $groupQ->orWhereHas('group', function($grpQ) {
+                    $grpQ->where('is_public', true);
+                });
+
+                // OR content in groups the user is a member/owner of
+                if ($userId) {
+                    $groupQ->orWhereHas('group', function($grpQ) use ($userId) {
+                        $grpQ->forUser($userId);
+                    });
+                }
+            });
+        });
     }
 
     /**

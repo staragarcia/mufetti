@@ -122,7 +122,7 @@
 
             {{-- Reaction Footer --}}
             <div class="flex justify-between items-center text-sm text-gray-500 pt-6 border-t border-gray-200">
-                <div class="flex gap-6">
+                <div class="flex gap-6 flex-1">
                     @if($post->isDeleted())
                         <span class="text-gray-300">Post Deleted</span>
                     @else
@@ -133,14 +133,97 @@
                             </svg>
                             <span>{{ $post->likes }}</span>
                         </div>
-                        <div class="flex items-center gap-1">
+
+                        {{-- Greyed out Confetti Button --}}
+                        <div class="flex items-center gap-1 text-gray-300 cursor-not-allowed">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2v4M12 22v-4M2 12h4M22 12h-4"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5l3 3M19 5l-3 3M5 19l3-3M19 19l-3-3"/>
+                            </svg>
+                            <span>0</span>
+                        </div>
+
+                        {{-- Comment Button --}}
+                        <div class="flex items-center gap-1 text-gray-300 cursor-not-allowed">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                            </svg>
+                            <span>0</span>
+                        </div>
+                        {{-- Disabled Report Button --}}
+                        <div class="flex items-center gap-1 text-gray-300 cursor-not-allowed">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-1.414-1.414A9 9 0 003 12v7a2 2 0 002 2h14a2 2 0 002-2v-7a9 9 0 00-2.636-6.364zM12 17a2 2 0 110-4 2 2 0 010 4z"/>
+                            </svg>
+                        </div>
+                    @else
+                        {{-- Like Button --}}
+                        <button class="reaction-btn flex items-center gap-1 hover:text-blue-600 transition-colors"
+                                data-post-id="{{ $post->id }}"
+                                data-type="like"
+                                data-likes-count="{{ $post->likes }}">
+                            <svg class="w-5 h-5 like-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                            </svg>
+                            <span class="likes-count">{{ $post->likes }}</span>
+                        </button>
+
+                        {{-- Confetti Button --}}
+                        <button class="reaction-btn flex items-center gap-1 hover:text-yellow-600 transition-colors"
+                                data-post-id="{{ $post->id }}"
+                                data-type="confetti"
+                                data-confetti-count="{{ $post->comments }}">
+                            <svg class="w-5 h-5 confetti-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2v4M12 22v-4M2 12h4M22 12h-4"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5l3 3M19 5l-3 3M5 19l3-3M19 19l-3-3"/>
+                            </svg>
+                            <span class="confetti-count">{{ $post->comments }}</span>
+                        </button>
+
+                        {{-- Comment Button --}}
+                        <div class="flex items-center gap-1 text-gray-500">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                             </svg>
                             <span>{{ $post->replies->count() }}</span>
                         </div>
+                    </div>
+
+                    {{-- Report Button - Positioned on the right, only show if user is not the post owner --}}
+                    @if(auth()->check() && auth()->id() !== $post->owner)
+                    <button class="flex items-center gap-1.5 text-gray-400 hover:text-red-600 transition-colors text-xs" onclick="openReportModal('report-modal-{{ $post->id }}')" title="Report this post">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/>
+                        </svg>
+                        <span class="font-medium">Report</span>
+                    </button>
+                        <!-- Report Modal (only rendered once, hidden by default) -->
+                        <div id="report-modal-{{ $post->id }}" class="modal-overlay hidden" onclick="if(event.target === this) closeReportModal('report-modal-{{ $post->id }}')">
+                            <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative animate-fade-in">
+                                <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-2xl font-bold" onclick="closeReportModal('report-modal-{{ $post->id }}')">&times;</button>
+                                <h2 class="text-xl font-semibold mb-4 text-gray-900">Report Post</h2>
+                                <form method="POST" action="{{ route('report.store') }}" onsubmit="event.preventDefault(); submitReportForm(this);">
+                                    @csrf
+                                    <input type="hidden" name="reportable_id" value="{{ $post->id }}">
+                                    <input type="hidden" name="reportable_type" value="post">
+                                    <label for="motive-{{ $post->id }}" class="block mb-2 font-medium">Reason</label>
+                                    <select name="motive" id="motive-{{ $post->id }}" class="w-full mb-4 border rounded p-2" required>
+                                        <option value="">Select a reason</option>
+                                        <option value="Spam">Spam</option>
+                                        <option value="Harassment">Harassment</option>
+                                        <option value="Inappropriate Content">Inappropriate Content</option>
+                                        <option value="Misinformation">Misinformation</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <label for="description-{{ $post->id }}" class="block mb-2 font-medium">Description (optional)</label>
+                                    <textarea name="description" id="description-{{ $post->id }}" class="w-full border rounded p-2 mb-4" rows="2"></textarea>
+                                    <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-full">Submit Report</button>
+                                </form>
+                                <div class="mt-2 text-green-600 hidden text-center" id="report-success-{{ $post->id }}">Report submitted!</div>
+                            </div>
+                        </div>
                     @endif
-                </div>
+                    @endif
             </div>
         </div>
 
@@ -173,7 +256,42 @@
 
     </main>
 </div>
+<script>
+function openReportModal(id) {
+    document.getElementById(id).classList.remove('hidden');
+}
+function closeReportModal(id) {
+    document.getElementById(id).classList.add('hidden');
+}
+function submitReportForm(form) {
+    const modal = form.closest('.modal-overlay');
+    const successMsg = modal.querySelector('[id^="report-success-"]');
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': form.querySelector('[name=_token]').value,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            reportable_id: form.reportable_id.value,
+            reportable_type: form.reportable_type.value,
+            motive: form.motive.value,
+            description: form.description.value,
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            form.style.display = 'none';
+            successMsg.style.display = 'block';
+            setTimeout(() => { modal.classList.add('hidden'); form.style.display = ''; successMsg.style.display = 'none'; }, 1500);
+        }
+    });
+}
+</script>
 
+{{-- Add Alpine.js for dropdown functionality --}}
 <script src="//unpkg.com/alpinejs" defer></script>
 <style>[x-cloak] { display: none !important; }</style>
 @endsection

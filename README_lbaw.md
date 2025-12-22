@@ -569,12 +569,12 @@ Only **one image per group** should exist. Any member can update it after loggin
 After publishing, you can run your image locally to test it:
 
 ```bash
-docker run -d --name lbawYYXX -p 8001:80 gitlab.up.pt:5050/lbaw/lbawYYYY/lbawYYXX
+docker run -d --name lbawYYXX -p 8001:80 gitlab.up.pt:5050/lbaw/lbaw2526/lbaw2585
 ```
 
 This command:
 
-* Starts a container named `lbawYYXX` from your published image
+* Starts a container named `lbaw2585` from your published image
 * Runs it in the background (`-d`)
 * Maps **port 8001** on your machine to **port 80** inside the container
 * Makes the app available at: `http://localhost:8001`
@@ -585,7 +585,7 @@ This command:
 While running your container, you can use another terminal to run a shell inside the container:
 
 ```bash
-docker exec -it lbawYYXX bash
+docker exec -it lbaw2585 bash
 ```
 
 Inside the container you may, for example, see the content of the web server logs:
@@ -604,8 +604,8 @@ root@2804d54698c0:/# tail -f /var/log/nginx/access.log
 To stop and remove the container:
 
 ```bash
-docker stop lbawYYXX
-docker rm lbawYYXX
+docker stop lbaw2585
+docker rm lbaw2585
 ```
 
 

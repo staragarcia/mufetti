@@ -6,6 +6,7 @@ use App\Models\FollowRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Events\NotificationCreated;
 
 class FollowRequestController extends Controller
 {
@@ -15,7 +16,7 @@ class FollowRequestController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
+
         $requests = FollowRequest::where('id_followed', $user->id)
             ->where('status', 'pending')
             ->with('follower')
@@ -60,6 +61,13 @@ class FollowRequestController extends Controller
             'status' => 'pending',
         ]);
 
+        $notification = (object)[
+            'type' => 'followRequest',
+            'receiver' => $user->id,
+            'actor' => $authUser->id,
+        ];
+
+        event(new NotificationCreated($notification));
         return back()->with('success', 'Follow request sent to ' . $user->name);
     }
 

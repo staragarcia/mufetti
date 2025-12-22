@@ -6,6 +6,7 @@ use App\Models\Content;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use App\Events\NotificationCreated;
 
 /**
  * @OA\Tag(
@@ -66,6 +67,15 @@ class CommentController extends Controller
             'id_group' => $post->id_group, // Inherit group from parent post
         ]);
 
+        if ($post->owner !== Auth::id()) {
+            $notification = (object)[
+                'type' => 'comment',
+                'receiver' => $post->owner,
+                'actor' => Auth::id(),
+            ];
+
+            event(new NotificationCreated($notification));
+        }
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
@@ -73,6 +83,8 @@ class CommentController extends Controller
                 'message' => 'Comment posted successfully!'
             ]);
         }
+
+
 
         return redirect()->route('posts.show', $post)
             ->with('success', 'Comment posted successfully!');
@@ -123,7 +135,7 @@ class CommentController extends Controller
                     'message' => 'Cannot reply to a reply. Please reply to the main comment instead.'
                 ], 403);
             }
-            
+
             return redirect()->back()
                 ->with('error', 'Cannot reply to a reply. Please reply to the main comment instead.');
         }
@@ -141,6 +153,17 @@ class CommentController extends Controller
             'reply_to' => $comment->id, // Reply to the comment
             'id_group' => $comment->id_group, // Inherit group
         ]);
+
+
+        if ($comment->owner !== Auth::id()) {
+            $notification = (object)[
+                'type' => 'comment',
+                'receiver' => $comment->owner,
+                'actor' => Auth::id(),
+            ];
+
+            event(new NotificationCreated($notification));
+        }
 
         if ($request->expectsJson()) {
             return response()->json([

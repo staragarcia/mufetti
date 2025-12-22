@@ -37,4 +37,26 @@
     .border-border { border-color: hsl(var(--border)); }
     .bg-input { background-color: hsl(var(--input)); }
   }
-  
+
+/* Modal overlay (we use this for the report feature */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.4);
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fade-in 0.25s ease;
+}

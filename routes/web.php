@@ -64,6 +64,8 @@ Route::get('/feed', [FeedController::class, 'showFeed'])->name('feed.show');
 
 // Personalized Feed (Following only) - Auth required
 Route::middleware('auth')->group(function () {
+        // REPORTS
+        Route::post('/report', [\App\Http\Controllers\ReportController::class, 'store'])->name('report.store');
     Route::get('/feed/following', [FeedController::class, 'showPersonalizedFeed'])->name('feed.following');
 });
 
@@ -214,6 +216,9 @@ Route::middleware('auth')->group(function () {
 
     // Admin - simple user management panel (search, view, edit, create, delete)
     Route::prefix('admin')->name('admin.')->group(function () {
+            // Reports
+            Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+            Route::post('/reports/{id}/status', [\App\Http\Controllers\ReportController::class, 'updateStatus'])->name('reports.updateStatus');
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
         Route::get('/users/create', [AdminUserController::class, 'create'])->name('users.create');
         Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
@@ -237,6 +242,12 @@ Route::middleware('auth')->group(function () {
 
     //favourites
     Route::post('/favourites/albums/{album}', [\App\Http\Controllers\FavouriteController::class, 'toggleAlbum'])->name('favourites.albums.toggle');
+
+    //pusher notifications
+    Broadcast::channel('notifications.{userId}', function ($user, $userId) {
+            return (int) $user->id === (int) $userId;
+        });
+
 });
 
 

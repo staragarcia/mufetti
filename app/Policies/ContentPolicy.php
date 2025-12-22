@@ -25,6 +25,52 @@ class ContentPolicy
             return true; // If no owner, allow viewing
         }
 
+        // Owner can always see their own content
+        if ($user && $user->id === $owner->id) {
+            return true;
+        }
+
+        if ($content->id_group) {
+            $group = $content->group;
+
+            // group doesnt exist
+            if (!$group) {
+                return false;
+            }
+
+            // public group
+            if ($group->is_public) {
+                if ($owner->is_public) {
+                    return true;
+                }
+
+                if ($user && $user->isFollowing($owner)) {
+                    return true;
+                }
+
+                return false;
+            }
+
+            // private group
+            if (!$user) {
+                // not authenticated
+                return false;
+            }
+
+            $isGroupOwner = $group->owner === $user->id;
+            $isGroupMember = $group->members()->where('id_user', $user->id)->exists();
+
+            if (!$isGroupOwner || !$isGroupMember) {
+                // user isnt member or owner
+                return false;
+            }
+
+            // being part of the group, the user should see every post even if the other has a private profile
+            return true;
+        }
+
+        // content not in a group
+
         // If owner's profile is public, everyone can see
         if ($owner->is_public) {
             return true;
@@ -35,10 +81,6 @@ class ContentPolicy
             return false;
         }
 
-        // Owner can always see their own content
-        if ($user->id === $owner->id) {
-            return true;
-        }
 
         // For private profiles, only approved followers can view their content
         return $user->isFollowing($owner);

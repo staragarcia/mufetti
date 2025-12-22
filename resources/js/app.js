@@ -24,14 +24,14 @@ function initializeReactions() {
 
                 if (response.ok) {
                     // Find post card using multiple possible selectors
-                    const postCard = this.closest('.bg-white') || 
+                    const postCard = this.closest('.bg-white') ||
                                    this.closest('.border-gray-200')?.closest('.border-gray-200') ||
                                    this.closest('[data-post-id]')?.closest('div');
-                    
+
                     if (postCard) {
                         const likesCountElement = postCard.querySelector('.likes-count');
                         const confettiCountElement = postCard.querySelector('.confetti-count');
-                        
+
                         if (likesCountElement) {
                             likesCountElement.textContent = data.likes_count;
                         }
@@ -70,21 +70,21 @@ function initializeReactions() {
     // Load initial reaction states on page load
     document.querySelectorAll('[data-post-id]').forEach(async (element) => {
         const postId = element.dataset.postId;
-        const postCard = element.closest('.bg-white') || 
+        const postCard = element.closest('.bg-white') ||
                         element.closest('.border-gray-200')?.closest('.border-gray-200') ||
                         element.closest('div');
-        
+
         if (!postCard) return;
-        
+
         try {
             const response = await fetch(`/posts/${postId}/reactions`);
             const data = await response.json();
-            
+
             if (response.ok) {
                 //counts
                 const likesCountElement = postCard.querySelector('.likes-count');
                 const confettiCountElement = postCard.querySelector('.confetti-count');
-                
+
                 if (likesCountElement) likesCountElement.textContent = data.likes_count;
                 if (confettiCountElement) confettiCountElement.textContent = data.confetti_count;
 
@@ -129,11 +129,11 @@ function initializeReactions() {
 
                 if (response.ok) {
                     const commentCard = this.closest('.bg-gray-50');
-                    
+
                     if (commentCard) {
                         const likesCountElement = commentCard.querySelector('.comment-likes-count');
                         const confettiCountElement = commentCard.querySelector('.comment-confetti-count');
-                        
+
                         if (likesCountElement) {
                             likesCountElement.textContent = data.likes_count;
                         }
@@ -172,17 +172,17 @@ function initializeReactions() {
     document.querySelectorAll('[data-comment-id]').forEach(async (element) => {
         const commentId = element.dataset.commentId;
         const commentCard = element.closest('.bg-gray-50');
-        
+
         if (!commentCard) return;
-        
+
         try {
             const response = await fetch(`/comments/${commentId}/reactions`);
             const data = await response.json();
-            
+
             if (response.ok) {
                 const likesCountElement = commentCard.querySelector('.comment-likes-count');
                 const confettiCountElement = commentCard.querySelector('.comment-confetti-count');
-                
+
                 if (likesCountElement) likesCountElement.textContent = data.likes_count;
                 if (confettiCountElement) confettiCountElement.textContent = data.confetti_count;
 
@@ -206,12 +206,12 @@ function initializePostTruncation() {
     document.querySelectorAll('[id^="text-"]').forEach(textElement => {
         const postId = textElement.id.replace('text-', '');
         const fadeElement = document.getElementById(`fade-${postId}`);
-        
+
         if (!fadeElement) return;
-        
+
         // Check if text is overflowing
         const maxHeight = 192; // max-h-48 in pixels (12rem = 192px)
-        
+
         if (textElement.scrollHeight > maxHeight) {
             fadeElement.classList.remove('hidden');
         }
@@ -222,22 +222,22 @@ function initializeReviewTruncation() {
     document.querySelectorAll('.review-text').forEach(textElement => {
         const reviewCard = textElement.closest('.review-card');
         if (!reviewCard) return;
-        
+
         const readMoreBtn = reviewCard.querySelector('.read-more-btn');
         if (!readMoreBtn) return;
-        
+
         const maxHeight = 24;
-        
+
         if (textElement.scrollHeight > maxHeight) {
             readMoreBtn.classList.remove('hidden');
             textElement.classList.add('line-clamp-1');
         }
-        
+
         // Toggle read more/less
         readMoreBtn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             if (textElement.classList.contains('line-clamp-1')) {
                 textElement.classList.remove('line-clamp-1');
                 reviewCard.classList.remove('h-28', 'overflow-hidden');
@@ -255,7 +255,67 @@ function initializeReviewTruncation() {
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    initializeReactions();
+    // Only initialize reactions if user is authenticated
+    const isAuthenticated = document.body.dataset.authenticated === 'true';
+    if (isAuthenticated) {
+        initializeReactions();
+    }
+    
     initializePostTruncation();
     initializeReviewTruncation();
 });
+
+
+//para pusher notifications
+import Echo from "laravel-echo";
+import Pusher from "pusher-js";
+
+window.Pusher = Pusher;
+
+window.Echo = new Echo({
+    broadcaster: "pusher",
+    key: import.meta.env.VITE_PUSHER_APP_KEY,
+    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
+    forceTLS: true,
+});
+
+window.Echo.private(`notifications.${window.userId}`)
+    .listen('.notification.created', (e) => {
+        console.log('New notification:', e.notification);
+        showNotification(e.notification);
+    });
+
+function showNotification(notification) {
+    const container = document.getElementById('notification');
+
+    let text = '';
+
+    switch (notification.type) {
+        case 'reaction':
+            text = 'Someone reacted to your post';
+            break;
+        case 'comment':
+            text = 'New comment on your post';
+            break;
+        case 'followRequest':
+            text = 'New follow request';
+            break;
+        default:
+            text = 'You have a new notification';
+    }
+
+    container.innerHTML = `<a href="/notifications"> ${text} </a>`;
+
+    // Mostrar notificação
+    container.classList.remove('opacity-0');
+    container.classList.add('opacity-100', 'pointer-events-auto');
+    container.classList.remove('pointer-events-none');
+
+    // Esconder depois de 5 segundos
+    setTimeout(() => {
+        container.classList.add('opacity-0');
+        container.classList.remove('opacity-100', 'pointer-events-auto');
+        container.classList.add('pointer-events-none');
+    }, 5000);
+}
+

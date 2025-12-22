@@ -198,7 +198,7 @@ CREATE TABLE reactions (
 
 CREATE TABLE notifications (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at DATE NOT NULL DEFAULT CURRENT_DATE,
     is_read BOOLEAN DEFAULT FALSE,
     type NotificationTypes NOT NULL,
     receiver INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
@@ -273,21 +273,6 @@ CREATE INDEX search_idx ON contents USING GIN (search_vector);
 
 -----------------------------------------
 -- Triggers
--- Notify when a user gains a new follower
-CREATE FUNCTION notify_start_following() RETURNS TRIGGER AS
-$BODY$
-BEGIN
-    INSERT INTO notifications (type, receiver, actor)
-    VALUES ('startFollowing', NEW.id_following, NEW.id_user);
-    RETURN NEW;
-END;
-$BODY$
-LANGUAGE plpgsql;
-
-CREATE TRIGGER notify_start_following
-AFTER INSERT ON followings
-FOR EACH ROW
-EXECUTE FUNCTION notify_start_following();
 -----------------------------------------
 
 ALTER TABLE albums ADD COLUMN search_vector tsvector;
@@ -535,3 +520,13 @@ FOR EACH ROW
 EXECUTE PROCEDURE artist_search_update();
 
 CREATE INDEX artists_search_idx ON artists USING GIN(search_vector);
+
+-----------------------------------------
+-- Structural Adjustments
+-----------------------------------------
+
+-- Adiciona restrição de bloqueio aos utilizadores
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_blocked BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- Adiciona restrição de estado aos grupos
+ALTER TABLE groups ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;

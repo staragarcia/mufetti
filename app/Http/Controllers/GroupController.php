@@ -578,4 +578,16 @@ class GroupController extends Controller
         
         return view('admin.groups.members', compact('group', 'members'));
     }
+
+    public function deactivate(Group $group)
+    {
+        if (!auth()->user()->is_admin) {
+            abort(403, 'Only admins can deactivate groups');
+        }
+
+        $group->is_active = false;
+        $group->save();
+
+        return redirect()->back()->with('success', "O grupo '{$group->name}' foi desativado com sucesso.");
+    }
 }

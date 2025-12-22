@@ -322,5 +322,8 @@ Route::middleware(['auth', 'admin'])
 
         Route::delete('groups/{group}', [GroupController::class, 'destroy'])
             ->name('groups.destroy');
+        
+        Route::patch('groups/{group}/deactivate', [GroupController::class, 'deactivate'])
+            ->name('groups.deactivate');
     });
 

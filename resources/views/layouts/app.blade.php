@@ -7,7 +7,11 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>@yield('title', config('app.name', 'Laravel'))</title>
-
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ url()->current() }}">
+        <meta property="og:title" content="@yield('title', 'Mufetti - Music Community')">
+        <meta property="og:description" content="@yield('description', 'Share your music passion, discover albums, and connect with music lovers.')">
+        <meta property="og:image" content="@yield('og_image', asset('images/og-default.jpg'))">
         {{-- Tailwind + Vite --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 

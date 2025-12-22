@@ -1,70 +1,70 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen bg-background pt-24 pb-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-white pt-20 pb-12">
+    <div class="w-[80%] mx-auto">
 
-        <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-slate-100 pb-6">
             <div>
-                <h1 class="text-3xl font-bold text-foreground">Content Management</h1>
-                <p class="text-muted-foreground text-sm mt-1">Review posts, comments and user reports.</p>
+                <h1 class="text-2xl font-bold text-slate-800">Content Management</h1>
+                <p class="text-slate-500 text-sm">Moderação de publicações, comentários e denúncias.</p>
             </div>
 
-            <div class="relative w-full md:w-96">
+            <div class="relative w-full md:w-80">
                 <input 
                     type="text" 
                     id="contentSearch" 
                     placeholder="Search content..." 
-                    class="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-10 pr-4 py-2 text-sm outline-none focus:border-[rgb(13,162,231)] transition-colors"
                 >
-                <div class="absolute left-3 top-3 text-muted-foreground">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
+                <div class="absolute left-3 top-2.5 text-slate-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
             </div>
         </div>
 
-        {{-- TABS --}}
-        <div class="flex border-b border-border mb-8 gap-8 overflow-x-auto">
-            <button onclick="switchTab('posts')" id="tab-posts-btn" class="pb-4 text-sm font-bold border-b-2 transition-all whitespace-nowrap">
-                Posts Management
+        <div class="flex gap-8 mb-6 border-b border-slate-100">
+            <button onclick="switchTab('posts')" id="tab-posts-btn" class="tab-btn pb-4 text-sm font-bold transition-all border-b-2">
+                Posts
             </button>
-            <button onclick="switchTab('comments')" id="tab-comments-btn" class="pb-4 text-sm font-bold border-b-2 transition-all whitespace-nowrap">
-                Comments Management
+            <button onclick="switchTab('comments')" id="tab-comments-btn" class="tab-btn pb-4 text-sm font-bold transition-all border-b-2">
+                Comments
             </button>
-            <button onclick="switchTab('reports')" id="tab-reports-btn" class="pb-4 text-sm font-bold border-b-2 transition-all whitespace-nowrap flex items-center gap-2">
-                User Reports
+            <button onclick="switchTab('reports')" id="tab-reports-btn" class="tab-btn pb-4 text-sm font-bold transition-all border-b-2 flex items-center gap-2">
+                Reports
                 @if(isset($reports) && $reports->where('status', 'pending')->count() > 0)
-                    <span class="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{{ $reports->where('status', 'pending')->count() }}</span>
+                    <span class="bg-rose-500 text-white text-[10px] px-1.5 py-0.5 rounded">
+                        {{ $reports->where('status', 'pending')->count() }}
+                    </span>
                 @endif
             </button>
         </div>
 
-        {{-- TAB: POSTS --}}
-        <div id="tab-posts" class="tab-content space-y-8">
-            <div class="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+        <div class="border border-slate-100 rounded-lg overflow-hidden">
+            
+            {{-- Tab: Posts --}}
+            <div id="tab-posts" class="tab-content">
                 <table class="w-full text-left border-collapse">
-                    <thead class="bg-muted/30 border-b border-border">
-                        <tr>
-                            <th class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground tracking-wider">Post Title</th>
-                            <th class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground tracking-wider">Author</th>
-                            <th class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground tracking-wider text-right">Actions</th>
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-100">
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Post Title</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Author</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-border text-sm">
+                    <tbody class="divide-y divide-slate-50">
                         @foreach($posts as $post)
-                            <tr class="hover:bg-muted/5 transition-colors content-row">
-                                <td class="px-6 py-4 font-bold text-foreground">{{ $post->title }}</td>
-                                <td class="px-6 py-4 text-muted-foreground">{{ "@".$post->ownerUser->username }}</td>
+                            <tr class="hover:bg-slate-50/50 transition-colors content-row">
+                                <td class="px-6 py-4 font-semibold text-slate-700 text-sm">{{ $post->title }}</td>
+                                <td class="px-6 py-4 text-xs text-slate-500">{{ "@".$post->ownerUser->username }}</td>
                                 <td class="px-6 py-4 text-right">
-                                    <div class="flex justify-end gap-2">
-                                        <a href="{{ route('posts.show', $post->id) }}" class="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary transition-all">
+                                    <div class="flex justify-end gap-3 text-slate-400">
+                                        <a href="{{ route('posts.show', $post->id) }}" class="hover:text-[rgb(13,162,231)] transition-colors">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                         </a>
-                                        <form action="{{ route('admin.posts.destroy', $post) }}" method="POST" onsubmit="return confirm('Delete this post?')">
+                                        <form action="{{ route('admin.posts.destroy', $post) }}" method="POST" onsubmit="return confirm('Delete post?')">
                                             @csrf @method('DELETE')
-                                            <button class="p-2 hover:bg-red-50 rounded-lg text-muted-foreground hover:text-red-600 transition-all">
+                                            <button class="hover:text-red-500 transition-colors">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                             </button>
                                         </form>
@@ -74,111 +74,61 @@
                         @endforeach
                     </tbody>
                 </table>
+                <div class="p-4 border-t border-slate-50">{{ $posts->links() }}</div>
             </div>
-            <div class="mt-4 pagination-container">{{ $posts->links() }}</div>
-        </div>
 
-        {{-- TAB: COMMENTS --}}
-        <div id="tab-comments" class="tab-content hidden space-y-8">
-            <div class="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
-                <table class="w-full text-left border-collapse">
-                    <tbody class="divide-y divide-border text-sm">
+            {{-- Tab: Comments --}}
+            <div id="tab-comments" class="tab-content hidden">
+                <table class="w-full text-left">
+                    <tbody class="divide-y divide-slate-50">
                         @foreach($comments as $comment)
-                            <tr class="hover:bg-muted/5 transition-colors content-row">
+                            <tr class="hover:bg-slate-50/50 transition-colors content-row">
                                 <td class="px-6 py-4">
-                                    <span class="font-bold text-foreground">{{ "@".$comment->ownerUser->username }}:</span>
-                                    <span class="text-muted-foreground">{{ Str::limit($comment->description, 100) }}</span>
+                                    <div class="text-xs font-bold text-slate-800">{{ "@".$comment->ownerUser->username }}</div>
+                                    <div class="text-sm text-slate-500 mt-1">"{{ Str::limit($comment->description, 100) }}"</div>
                                 </td>
                                 <td class="px-6 py-4 text-right">
-                                    <div class="flex justify-end gap-2">
-                                        @php
-                                            $current = $comment;
-                                            while($current->reply_to && $current->parent) { $current = $current->parent; }
-                                            $rootId = $current->reply_to ?? $current->id; 
-                                        @endphp
-                                        <a href="{{ route('posts.show', $rootId) }}" class="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary transition-all">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z"/></svg>
-                                        </a>
-                                        <form action="{{ route('admin.comments.destroy', $comment) }}" method="POST">
-                                            @csrf @method('DELETE')
-                                            <button class="p-2 hover:bg-red-50 rounded-lg text-muted-foreground hover:text-red-600 transition-all">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                            </button>
-                                        </form>
-                                    </div>
+                                    <form action="{{ route('admin.comments.destroy', $comment) }}" method="POST">
+                                        @csrf @method('DELETE')
+                                        <button class="text-xs font-bold text-red-400 hover:text-red-600 transition-colors uppercase tracking-wider">Delete</button>
+                                    </form>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
+                <div class="p-4">{{ $comments->links() }}</div>
             </div>
-            <div class="mt-4 pagination-container">{{ $comments->links() }}</div>
-        </div>
 
-        {{-- TAB: REPORTS --}}
-        <div id="tab-reports" class="tab-content hidden space-y-8">
-            <div class="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-muted/30 border-b border-border">
-                        <tr class="text-xs font-bold uppercase text-muted-foreground tracking-wider">
-                            <th class="px-6 py-4">Reporter</th>
-                            <th class="px-6 py-4">Target User</th>
-                            <th class="px-6 py-4">Type</th>
-                            <th class="px-6 py-4">Motive</th>
-                            <th class="px-6 py-4">Status</th>
-                            <th class="px-6 py-4 text-right">Actions</th>
+            {{-- Tab: Reports --}}
+            <div id="tab-reports" class="tab-content hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 border-b border-slate-100">
+                        <tr>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Reporter</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Motive</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Status</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase text-right">Manage</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-border text-sm">
+                    <tbody class="divide-y divide-slate-50">
                         @foreach($reports as $report)
-                            @php
-                                $reportedUser = null;
-                                if($report->reportable_type === 'post' || $report->reportable_type === 'comment') {
-                                    $content = \App\Models\Content::find($report->reportable_id);
-                                    $reportedUser = $content ? $content->ownerUser : null;
-                                }
-                            @endphp
-                            <tr class="hover:bg-muted/5 transition-colors content-row">
-                                <td class="px-6 py-4 text-muted-foreground">{{ $report->user->name ?? 'Unknown' }}</td>
-                                <td class="px-6 py-4 font-bold text-foreground">
-                                    {{ $reportedUser->name ?? 'N/A' }}
-                                </td>
+                            <tr class="content-row">
+                                <td class="px-6 py-4 text-sm font-medium text-slate-700">{{ $report->user->name ?? 'User' }}</td>
+                                <td class="px-6 py-4 text-sm text-slate-500">{{ $report->motive }}</td>
                                 <td class="px-6 py-4">
-                                    <span class="capitalize px-2 py-0.5 bg-muted rounded text-[10px] font-bold">{{ $report->reportable_type }}</span>
-                                </td>
-                                <td class="px-6 py-4 text-foreground truncate max-w-[150px]" title="{{ $report->description }}">
-                                    {{ $report->motive }}
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="inline-block px-2 py-1 rounded text-[10px] font-bold uppercase
-                                        @if($report->status=='pending') bg-yellow-100 text-yellow-800
-                                        @elseif($report->status=='reviewed') bg-green-100 text-green-800
-                                        @elseif($report->status=='dismissed') bg-gray-200 text-gray-600
-                                        @endif">
+                                    <span class="text-[10px] font-bold uppercase {{ $report->status == 'pending' ? 'text-amber-500' : 'text-emerald-500' }}">
                                         {{ $report->status }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-right">
-                                    <div class="flex justify-end items-center gap-3">
-                                        @if($report->reportable_type === 'post')
-                                            <a href="{{ route('posts.show', $report->reportable_id) }}" class="text-primary hover:underline text-xs font-bold" target="_blank">View</a>
-                                        @elseif($report->reportable_type === 'comment')
-                                            @php
-                                                $comment = \App\Models\Content::find($report->reportable_id);
-                                                $postId = $comment ? $comment->reply_to : null;
-                                            @endphp
-                                            <a href="{{ route('posts.show', $postId ?? $report->reportable_id) }}" class="text-primary hover:underline text-xs font-bold" target="_blank">View</a>
-                                        @endif
-
-                                        <form method="POST" action="{{ route('admin.reports.updateStatus', $report->id) }}">
-                                            @csrf
-                                            <select name="status" class="bg-background border border-border rounded px-2 py-1 text-xs outline-none focus:ring-2 focus:ring-primary/20" onchange="this.form.submit()">
-                                                <option value="pending" @if($report->status=='pending') selected @endif>Pending</option>
-                                                <option value="reviewed" @if($report->status=='reviewed') selected @endif>Reviewed</option>
-                                                <option value="dismissed" @if($report->status=='dismissed') selected @endif>Dismissed</option>
-                                            </select>
-                                        </form>
-                                    </div>
+                                    <form method="POST" action="{{ route('admin.reports.updateStatus', $report->id) }}">
+                                        @csrf
+                                        <select onchange="this.form.submit()" name="status" class="bg-slate-50 border border-slate-200 rounded-md px-2 py-1 text-xs font-bold text-slate-600 outline-none focus:border-[rgb(13,162,231)]">
+                                            <option value="pending" @if($report->status=='pending') selected @endif>Pending</option>
+                                            <option value="reviewed" @if($report->status=='reviewed') selected @endif>Resolved</option>
+                                        </select>
+                                    </form>
                                 </td>
                             </tr>
                         @endforeach
@@ -190,6 +140,24 @@
 </div>
 
 <script>
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.getElementById('tab-' + tab).classList.remove('hidden');
+        
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('border-[rgb(13,162,231)]', 'text-[rgb(13,162,231)]');
+            btn.classList.add('border-transparent', 'text-slate-400');
+        });
+
+        const activeBtn = document.getElementById('tab-' + tab + '-btn');
+        activeBtn.classList.add('border-[rgb(13,162,231)]', 'text-[rgb(13,162,231)]');
+        activeBtn.classList.remove('border-transparent', 'text-slate-400');
+
+        const url = new URL(window.location);
+        url.searchParams.set('tab', tab);
+        window.history.pushState({}, '', url);
+    }
+
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
         switchTab(urlParams.get('tab') || 'posts');
@@ -197,30 +165,9 @@
 
     document.getElementById('contentSearch').addEventListener('input', function(e) {
         const term = e.target.value.toLowerCase();
-        const activeTabContent = document.querySelector('.tab-content:not(.hidden)');
-        const rows = activeTabContent.querySelectorAll('.content-row');
-
-        rows.forEach(row => {
+        document.querySelectorAll('.content-row').forEach(row => {
             row.style.display = row.innerText.toLowerCase().includes(term) ? '' : 'none';
         });
     });
-
-    function switchTab(tab) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-        document.getElementById('tab-' + tab).classList.remove('hidden');
-        
-        document.querySelectorAll('[id$="-btn"]').forEach(btn => {
-            btn.classList.remove('border-primary', 'text-primary');
-            btn.classList.add('border-transparent', 'text-muted-foreground');
-        });
-
-        const activeBtn = document.getElementById('tab-' + tab + '-btn');
-        activeBtn.classList.add('border-primary', 'text-primary');
-        activeBtn.classList.remove('border-transparent', 'text-muted-foreground');
-
-        const url = new URL(window.location);
-        url.searchParams.set('tab', tab);
-        window.history.pushState({}, '', url);
-    }
 </script>
 @endsection

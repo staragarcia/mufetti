@@ -1,143 +1,131 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen bg-background pt-24 pb-12">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-white pt-20 pb-12">
+    <div class="w-[80%] mx-auto">
 
-        {{-- Navegação de Retorno --}}
-        <div class="mb-8">
-            <a href="{{ route('admin.groups.index') }}" class="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors">
-                ← Back to Admin Groups
+        <div class="mb-8 border-b border-slate-100 pb-6">
+            <a href="{{ route('admin.groups.index') }}" class="text-xs font-bold text-slate-400 hover:text-[rgb(13,162,231)] flex items-center gap-2 uppercase tracking-widest transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Back to Groups
             </a>
-            <h1 class="text-3xl font-bold text-foreground mt-4">Group Management</h1>
-            <p class="text-muted-foreground">Group: <span class="text-foreground font-semibold">{{ $group->name }}</span></p>
+            <div class="mt-4">
+                <h1 class="text-2xl font-bold text-slate-800">Manage Members</h1>
+                <p class="text-slate-500 text-sm">Grupo: <span class="text-[rgb(13,162,231)] font-semibold">{{ $group->name }}</span></p>
+            </div>
         </div>
 
-        {{-- Tabs de Navegação --}}
-        <div class="flex border-b border-border mb-8 gap-8">
-            <button onclick="switchTab('members')" id="tab-members-btn" class="pb-4 text-sm font-bold border-b-2 border-primary text-primary transition-all">
+        <div class="flex gap-8 mb-8 border-b border-slate-100">
+            <button onclick="switchTab('members')" id="tab-members-btn" class="tab-btn pb-4 text-sm font-bold transition-all border-b-2">
                 Members ({{ $members->total() }})
             </button>
             @if(!$group->is_public)
-            <button onclick="switchTab('requests')" id="tab-requests-btn" class="pb-4 text-sm font-bold border-b-2 border-transparent text-muted-foreground hover:text-foreground transition-all flex items-center gap-2">
-                Join Requests
-                @if($group->join_requests_count > 0)
-                    <span class="bg-orange-500 text-white text-[10px] px-1.5 py-0.5 rounded-full animate-pulse">
-                        {{ $group->join_requests_count }}
-                    </span>
-                @endif
-            </button>
+                <button onclick="switchTab('requests')" id="tab-requests-btn" class="tab-btn pb-4 text-sm font-bold transition-all border-b-2 flex items-center gap-2">
+                    Join Requests
+                    @if($group->join_requests_count > 0)
+                        <span class="bg-orange-500 text-white text-[10px] px-1.5 py-0.5 rounded">
+                            {{ $group->join_requests_count }}
+                        </span>
+                    @endif
+                </button>
             @endif
         </div>
 
-        {{-- Secção de Membros --}}
-        <div id="tab-members" class="tab-content">
-            @if($members->isEmpty())
-                <div class="text-center py-12 bg-card border border-border rounded-xl">
-                    <p class="text-muted-foreground">No members in this group yet.</p>
-                </div>
-            @else
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    @foreach($members as $member)
-                        <div class="bg-card border border-border rounded-xl p-4 hover:shadow-sm transition-all group">
-                            <div class="flex items-center gap-4">
-                                <img src="{{ $member->avatar }}" class="h-12 w-12 rounded-full border border-border object-cover bg-muted" />
-
-                                <div class="flex-1 min-w-0">
-                                    <span class="font-bold text-foreground block truncate">{{ $member->name }}</span>
-                                    <p class="text-xs text-muted-foreground truncate">{{ '@' . $member->username }}</p>
+        <div class="mt-6">
+            
+            {{-- Tab: Membros --}}
+            <div id="tab-members" class="tab-content">
+                @if($members->isEmpty())
+                    <p class="text-slate-400 italic">No members found.</p>
+                @else
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @foreach($members as $member)
+                            <div class="flex items-center justify-between p-4 border border-slate-100 rounded-lg hover:border-[rgb(13,162,231)] transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <img src="{{ $member->avatar }}" class="h-10 w-10 rounded-full object-cover bg-slate-100" />
+                                    <div class="min-w-0">
+                                        <div class="text-sm font-bold text-slate-800 truncate">{{ $member->name }}</div>
+                                        <div class="text-xs text-slate-400">{{ '@' . $member->username }}</div>
+                                    </div>
                                 </div>
 
-                                <div class="flex gap-2">
+                                <div class="flex items-center gap-2">
                                     @if($member->id !== $group->owner)
-                                        <form action="{{ route('groups.transferOwner', [$group->id, $member->id]) }}" method="POST" onsubmit="return confirm('Transfer group ownership?')">
+                                        <form action="{{ route('groups.transferOwner', [$group->id, $member->id]) }}" method="POST">
                                             @csrf @method('PUT')
-                                            <button class="px-3 py-1.5 bg-muted text-foreground rounded-lg hover:bg-yellow-500 hover:text-white text-[11px] font-bold transition-all">
-                                                Make Owner
+                                            <button title="Make Owner" class="p-1.5 text-slate-400 hover:text-amber-500 transition-colors">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
                                             </button>
                                         </form>
-
-                                        <form action="{{ route('groups.members.remove', [$group->id, $member->id]) }}" method="POST" onsubmit="return confirm('Remove member?')">
+                                        <form action="{{ route('groups.members.remove', [$group->id, $member->id]) }}" method="POST">
                                             @csrf @method('DELETE')
-                                            <button class="px-3 py-1.5 bg-muted text-foreground rounded-lg hover:bg-red-600 hover:text-white text-[11px] font-bold transition-all">
-                                                Remove
+                                            <button title="Remove" class="p-1.5 text-slate-400 hover:text-red-500 transition-colors">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                             </button>
                                         </form>
                                     @else
-                                        <span class="px-3 py-1.5 text-primary text-[11px] font-bold uppercase tracking-wider italic">Owner</span>
+                                        <span class="text-[10px] font-bold text-[rgb(13,162,231)] uppercase tracking-wider">Owner</span>
                                     @endif
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
-                </div>
-                <div class="mt-8">{{ $members->links() }}</div>
-            @endif
-        </div>
+                        @endforeach
+                    </div>
+                    <div class="mt-8">{{ $members->links() }}</div>
+                @endif
+            </div>
 
-        {{-- Secção de Requests (Escondida por defeito) --}}
-        <div id="tab-requests" class="tab-content hidden">
-            @php $requests = $group->joinRequests; @endphp
-            
-            @if(!$requests || $requests->isEmpty())
-                <div class="text-center py-12 bg-card border border-border rounded-xl">
-                    <p class="text-muted-foreground">No pending requests at the moment.</p>
-                </div>
-            @else
-                <div class="space-y-3">
-                    @foreach($requests as $request)
-                        <div class="bg-card border border-border rounded-xl p-4 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <img src="{{ $request->user->avatar }}" class="h-10 w-10 rounded-full border border-border object-cover">
-                                <div>
-                                    <div class="font-bold text-foreground">{{ $request->user->name }}</div>
-                                    <div class="text-xs text-muted-foreground">{{ '@' . $request->user->username }}</div>
+            {{-- Tab: Pedidos --}}
+            <div id="tab-requests" class="tab-content hidden">
+                @php $requests = $group->joinRequests; @endphp
+                @if(!$requests || $requests->isEmpty())
+                    <p class="text-slate-400 italic">No pending requests.</p>
+                @else
+                    <div class="max-w-2xl space-y-3">
+                        @foreach($requests as $request)
+                            <div class="flex items-center justify-between p-4 border border-slate-100 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <img src="{{ $request->user->avatar }}" class="h-10 w-10 rounded-full object-cover">
+                                    <div class="text-sm">
+                                        <div class="font-bold text-slate-800">{{ $request->user->name }}</div>
+                                        <div class="text-slate-400">{{ '@' . $request->user->username }}</div>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <form action="{{ route('admin.groups.requests.accept', [$group, $request]) }}" method="POST">
+                                        @csrf
+                                        <button class="px-4 py-1.5 bg-[rgb(13,162,231)] text-white text-xs font-bold rounded hover:brightness-110 transition-all">Accept</button>
+                                    </form>
+                                    <form action="{{ route('admin.groups.requests.reject', [$group, $request]) }}" method="POST">
+                                        @csrf @method('DELETE')
+                                        <button class="px-4 py-1.5 text-slate-400 hover:text-red-500 text-xs font-bold transition-all">Decline</button>
+                                    </form>
                                 </div>
                             </div>
-                            <div class="flex gap-2">
-                                <form action="{{ route('admin.groups.requests.accept', [$group, $request]) }}" method="POST">
-                                    @csrf
-                                    <button class="px-4 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-bold hover:opacity-90 transition">
-                                        Accept
-                                    </button>
-                                </form>
-                                <form action="{{ route('admin.groups.requests.reject', [$group, $request]) }}" method="POST">
-                                    @csrf @method('DELETE')
-                                    <button class="px-4 py-1.5 bg-muted text-foreground rounded-lg text-xs font-bold hover:bg-red-50 hover:text-red-600 transition">
-                                        Decline
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
+                        @endforeach
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 </div>
 
 <script>
     function switchTab(tab) {
-        // Esconder todos os conteúdos
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-        // Mostrar o selecionado
         document.getElementById('tab-' + tab).classList.remove('hidden');
 
-        // Resetar estilos dos botões
-        const membersBtn = document.getElementById('tab-members-btn');
-        const requestsBtn = document.getElementById('tab-requests-btn');
-
-        [membersBtn, requestsBtn].forEach(btn => {
-            if(btn) {
-                btn.classList.remove('border-primary', 'text-primary');
-                btn.classList.add('border-transparent', 'text-muted-foreground');
-            }
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('border-[rgb(13,162,231)]', 'text-[rgb(13,162,231)]');
+            btn.classList.add('border-transparent', 'text-slate-400');
         });
 
-        // Ativar botão atual
         const activeBtn = document.getElementById('tab-' + tab + '-btn');
-        activeBtn.classList.add('border-primary', 'text-primary');
-        activeBtn.classList.remove('border-transparent', 'text-muted-foreground');
+        if(activeBtn) {
+            activeBtn.classList.remove('border-transparent', 'text-slate-400');
+            activeBtn.classList.add('border-[rgb(13,162,231)]', 'text-[rgb(13,162,231)]');
+        }
     }
+
+    window.onload = () => switchTab('members');
 </script>
 @endsection

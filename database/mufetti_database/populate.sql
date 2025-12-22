@@ -186,50 +186,50 @@ VALUES ('Tame Impala', '63aa26c3-d59b-4da4-84ac-716b54f1ef4d', 'Australia', 'Aus
 -----------------------------------------
 -- ALBUMS
 -----------------------------------------
-INSERT INTO albums (title, release_date, musicbrainz_id)
-VALUES ('OK Computer', '1997-05-21', '6a09041b-0f79-3278-88d9-7503bc56af10');
+INSERT INTO albums (title, release_date, musicbrainz_id, cover_url)
+VALUES ('OK Computer', '1997-05-21', 'a89e1d92-5281-432d-8dfc-3c870a41d990', 'http://coverartarchive.org/release/52709206-8816-3c12-9ff6-f957f2f1eecf/front-500');
 
-INSERT INTO albums (title, release_date, musicbrainz_id)
-VALUES ('Nevermind', '1991-09-24', '1b022e01-4da6-387b-8658-8678046e4cac');
+INSERT INTO albums (title, release_date, musicbrainz_id, cover_url)
+VALUES ('Nevermind', '1991-09-24', 'd258079f-0c48-43d9-9521-4f7f2b60407a', 'http://coverartarchive.org/release/9cf44e55-9e71-4128-9ff8-029cde9843ad/front-500');
 
-INSERT INTO albums (title, release_date, musicbrainz_id)
-VALUES ('Future Nostalgia', '2020-03-27', 'b8b7ae80-e0ab-46ad-b11d-5c6c93c9e545');
+INSERT INTO albums (title, release_date, musicbrainz_id, cover_url)
+VALUES ('Future Nostalgia', '2020-03-27', 'e1cb1d06-4444-325b-8088-d6a0b0132103', 'http://coverartarchive.org/release/6696f079-e094-4e7a-a9c7-943d4ad024a4/front-500');
 
-INSERT INTO albums (title, release_date, musicbrainz_id)
-VALUES ('Kind of Blue', '1959-08-17', '2957b7b2-1f2b-3cb8-8d21-74c7ef81e8ca');
+INSERT INTO albums (title, release_date, musicbrainz_id, cover_url)
+VALUES ('Kind of Blue', '1959-08-17', 'f02931d5-21d7-353d-b4f6-8a7051df52b0', 'http://coverartarchive.org/release/82bb6cb8-0045-44bf-9a52-5d3fcde6a988/front-500');
 
-INSERT INTO albums (title, release_date, musicbrainz_id)
-VALUES ('Discovery', '2001-03-12', '5d896853-f07b-350f-9e50-b3e9e9e8c90b');
+INSERT INTO albums (title, release_date, musicbrainz_id, cover_url)
+VALUES ('Discovery', '2001-03-12', '2d6993c1-4b13-3392-aa66-07974e304b08', 'http://coverartarchive.org/release/d073287b-d1bd-4f11-a933-a4386f8cf701/front-500');
 
-INSERT INTO albums (title, release_date, musicbrainz_id)
-VALUES ('Hybrid Theory', '2000-10-24', '0d94ba69-5ab0-3f4a-b5c6-b82f9c8f6a5f');
+INSERT INTO albums (title, release_date, musicbrainz_id, cover_url)
+VALUES ('Hybrid Theory', '2000-10-24', '7ac78280-5b12-3213-9097-4226d40523e4', 'http://coverartarchive.org/release/04b8953c-969a-423a-8847-ccf78b83d013/front-500');
 
-INSERT INTO albums (title, release_date, musicbrainz_id)
-VALUES ('The Dark Side of the Moon', '1973-03-01', 'f6cf124d-0e89-3546-9240-2d9d2c9e8765');
+INSERT INTO albums (title, release_date, musicbrainz_id, cover_url)
+VALUES ('The Dark Side of the Moon', '1973-03-01', 'a1ad30cb-b8c4-3d68-966a-497452977b10', 'http://coverartarchive.org/release/d800f372-9673-4edf-8046-8baf79134257/front-500');
 
-INSERT INTO albums (title, release_date, musicbrainz_id)
-VALUES ('Folklore', '2020-07-24', '254e7dcb-9c1e-4aef-b0f7-2d5a1f4c6b8d');
+INSERT INTO albums (title, release_date, musicbrainz_id, cover_url)
+VALUES ('Folklore', '2020-07-24', 'd032228c-36f9-4674-a745-0d04b6b63d76', 'http://coverartarchive.org/release/0e37136f-a317-45d6-97a6-0aa6192ba232/front-500');
 
-INSERT INTO albums (title, release_date, musicbrainz_id)
-VALUES ('American Idiot', '2004-09-21', '19be6e4f-9165-37aa-bb88-102de0eddcd7');
+INSERT INTO albums (title, release_date, musicbrainz_id, cover_url)
+VALUES ('American Idiot', '2004-09-21', '43224090-485e-37f2-a080-60b545d137bc', 'http://coverartarchive.org/release/dd7cbde9-bffc-467f-8a39-bda4ea2d0633/front-500');
 
-INSERT INTO albums (title, release_date, musicbrainz_id)
-VALUES ('To Pimp a Butterfly', '2015-03-15', 'ad862a15-2f96-44d7-ba01-75e46045aef0');
+INSERT INTO albums (title, release_date, musicbrainz_id, cover_url)
+VALUES ('To Pimp a Butterfly', '2015-03-15', '77464a85-3498-4446-9d04-1b12481005a3', 'http://coverartarchive.org/release/b5fff328-08c8-43e7-bb44-e92d1e1e8a98/front-500');
 
-INSERT INTO albums (title, release_date, musicbrainz_id)
-VALUES ('A Moon Shaped Pool', '2016-05-08', '0c1e6c1e-9f5e-4d7b-9c8d-2e3f4a5b6c7d');
+INSERT INTO albums (title, release_date, musicbrainz_id, cover_url)
+VALUES ('A Moon Shaped Pool', '2016-05-08', '8c6a666e-2292-491f-80d4-e6992d95b5e6', 'http://coverartarchive.org/release/4081c784-59e5-4700-98f9-46e382580a82/front-500');
 
-INSERT INTO albums (title, release_date, musicbrainz_id)
-VALUES ('Blonde', '2016-08-20', '1f2a3b4c-5d6e-7f8a-9b0c-1d2e3f4a5b6c');
+INSERT INTO albums (title, release_date, musicbrainz_id, cover_url)
+VALUES ('Blonde', '2016-08-20', '4859265f-4a0b-478e-ba30-f38b24887373', 'http://coverartarchive.org/release/b6981b3a-00a1-414b-a149-f3e17c7df060/front-500');
 
-INSERT INTO albums (title, release_date, musicbrainz_id)
-VALUES ('Random Access Memories', '2013-05-17', '2a3b4c5d-6e7f-8a9b-0c1d-2e3f4a5b6c7d');
+INSERT INTO albums (title, release_date, musicbrainz_id, cover_url)
+VALUES ('Random Access Memories', '2013-05-17', '3e3e6024-e51c-4395-950c-e2c7a31b67f1', 'http://coverartarchive.org/release/f6758afb-ecff-410e-8979-b131cfa3c6d3/front-500');
 
-INSERT INTO albums (title, release_date, musicbrainz_id)
-VALUES ('Channel Orange', '2012-07-10', '3b4c5d6e-7f8a-9b0c-1d2e-3f4a5b6c7d8e');
+INSERT INTO albums (title, release_date, musicbrainz_id, cover_url)
+VALUES ('Channel Orange', '2012-07-10', '2d54e195-2c81-4217-91e9-466d33306d86', 'http://coverartarchive.org/release/9519df6d-f8a6-4b57-9ab4-ddb35aa7d09e/front-500');
 
-INSERT INTO albums (title, release_date, musicbrainz_id)
-VALUES ('Currents', '2015-07-17', '4c5d6e7f-8a9b-0c1d-2e3f-4a5b6c7d8e9f');
+INSERT INTO albums (title, release_date, musicbrainz_id, cover_url)
+VALUES ('Currents', '2015-07-17', 'e9712a4c-223d-4c3d-b14e-6e84860b73c4', 'http://coverartarchive.org/release/47349b48-0937-4519-88cc-20b6e47b1059/front-500');
 
 -----------------------------------------
 -- ALBUM_ARTISTS
@@ -519,7 +519,7 @@ INSERT INTO contents (type, created_at, likes, comments, title, description, img
 VALUES ('post', '2024-05-12 11:00:00', 9, 2, 'Check out my latest playlist', 'A bit of indie + synthwave.', 'img1.jpg', 8, 6, NULL);
 
 INSERT INTO contents (type, created_at, likes, comments, title, description, img, owner, id_group, reply_to)
-VALUES ('post', '2024-06-01 15:45:00', 4, 0, 'Festival memories', 'Photos from the weekend.', 'fest1.jpg', 26, NULL, NULL);
+VALUES ('post', '2024-06-01 15:45:00', 4, 0, 'Festival memories', 'Photos from the weekend.', '/images/fest1.jpg', 26, NULL, NULL);
 
 INSERT INTO contents (type, created_at, likes, comments, title, description, img, owner, id_group, reply_to)
 VALUES ('post', '2024-06-03 16:00:00', 6, 1, 'Bedroom production tips', 'How I EQ my vocals.', NULL, 14, NULL, NULL);

@@ -292,7 +292,10 @@ function showNotification(notification) {
 
     switch (notification.type) {
         case 'reaction':
-            text = `${notification.name} reacted to your post`;
+            text = `${notification.name} liked your post`;
+            break;
+        case 'reactionComment':
+            text = `${notification.name} liked your comment`;
             break;
         case 'comment':
             text = `${notification.name} commented on your post`;

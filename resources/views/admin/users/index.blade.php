@@ -7,10 +7,10 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-slate-100 pb-6">
             <div>
                 <h1 class="text-2xl font-bold text-slate-800">Users</h1>
-                <p class="text-slate-500 text-sm">Pesquise e gira todos os membros da plataforma.</p>
+                <p class="text-slate-500 text-sm">Search and manage all platform members.</p>
             </div>
 
-            {{-- Pesquisa Simples e Eficaz --}}
+            {{-- Simple and Effective Search --}}
             <div class="relative w-full md:w-80">
                 <input 
                     type="text" 

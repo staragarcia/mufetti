@@ -11,7 +11,7 @@
             </a>
             <div class="mt-4">
                 <h1 class="text-2xl font-bold text-slate-800">Manage Members</h1>
-                <p class="text-slate-500 text-sm">Grupo: <span class="text-[rgb(13,162,231)] font-semibold">{{ $group->name }}</span></p>
+                <p class="text-slate-500 text-sm">Group: <span class="text-[rgb(13,162,231)] font-semibold">{{ $group->name }}</span></p>
             </div>
         </div>
 
@@ -33,7 +33,7 @@
 
         <div class="mt-6">
             
-            {{-- Tab: Membros --}}
+            {{-- Tab: Members --}}
             <div id="tab-members" class="tab-content">
                 @if($members->isEmpty())
                     <p class="text-slate-400 italic">No members found.</p>
@@ -74,7 +74,7 @@
                 @endif
             </div>
 
-            {{-- Tab: Pedidos --}}
+            {{-- Tab: Requests --}}
             <div id="tab-requests" class="tab-content hidden">
                 @php $requests = $group->joinRequests; @endphp
                 @if(!$requests || $requests->isEmpty())

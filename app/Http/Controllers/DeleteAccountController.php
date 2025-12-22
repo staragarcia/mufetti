@@ -38,7 +38,7 @@ class DeleteAccountController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/')->with('success', 'A sua conta foi eliminada e os dados anonimizados.');
+        return redirect('/')->with('success', 'Your account has been deleted and the data has been anonymized.');
     }
 
     private function anonymizeUser(User $user)

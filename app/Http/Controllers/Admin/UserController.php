@@ -131,9 +131,9 @@ class UserController extends Controller
     {
         $this->ensureAdmin();
     
-        // Impede o admin de se auto-eliminar no painel
+        // Prevent admin from deleting their own account in the panel
         if ($user->id === auth()->id()) {
-            return back()->with('error', 'Não pode apagar a sua própria conta de administrador.');
+            return back()->with('error', 'You cannot delete your own administrator account.');
         }
     
         \DB::transaction(function () use ($user) {

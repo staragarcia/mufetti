@@ -7,7 +7,7 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-slate-100 pb-6">
             <div>
                 <h1 class="text-2xl font-bold text-slate-800">Content Management</h1>
-                <p class="text-slate-500 text-sm">Moderação de publicações, comentários e denúncias.</p>
+                <p class="text-slate-500 text-sm">Moderation of posts, comments and reports.</p>
             </div>
 
             <div class="relative w-full md:w-80">

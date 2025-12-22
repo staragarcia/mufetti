@@ -69,6 +69,14 @@ class CommentController extends Controller
 
         if ($post->owner !== Auth::id()) {
             // Notification is created by DB trigger. Optionally broadcast here if needed.
+            $notification = (object)[
+                'type' => 'comment',
+                'receiver' => $post->owner,
+                'actor' => Auth::id(),
+                'name' => Auth::user()->name,
+            ];
+
+            event(new NotificationCreated($notification));
         }
         if ($request->expectsJson()) {
             return response()->json([
@@ -150,7 +158,14 @@ class CommentController extends Controller
 
 
         if ($comment->owner !== Auth::id()) {
-            // Notification is created by DB trigger. Optionally broadcast here if needed.
+            $notification = (object)[
+                'type' => 'reply',
+                'receiver' => $comment->owner,
+                'actor' => Auth::id(),
+                'name' => Auth::user()->name,
+            ];
+
+            event(new NotificationCreated($notification));
         }
 
         if ($request->expectsJson()) {
@@ -263,29 +278,29 @@ class CommentController extends Controller
         if (!$comment->isComment()) {
             abort(404, 'Comment not found.');
         }
-    
+
         Gate::authorize('delete', $comment);
-    
+
         $isAdminPanel = str_contains(url()->previous(), 'admin/content');
-    
+
         $originalPost = $comment->parent;
         while ($originalPost && $originalPost->isComment()) {
             $originalPost = $originalPost->parent;
         }
         $postId = $originalPost ? $originalPost->id : $comment->reply_to;
-    
+
 
         $comment->delete();
-    
+
         if (request()->expectsJson()) {
             return response()->json(['success' => true, 'message' => 'Comment deleted']);
         }
-    
+
         if (auth()->user()->is_admin && $isAdminPanel) {
             return redirect()->route('admin.content.index', ['tab' => 'comments'])
                 ->with('success', 'Comment removed by Admin.');
         }
-    
+
         return redirect()->route('posts.show', $postId)->with('success', 'Comment deleted!');
     }
 }

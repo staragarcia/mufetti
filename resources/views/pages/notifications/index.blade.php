@@ -87,16 +87,26 @@
                                         $postId = null;
                                         if ($parent && method_exists($parent, 'isPost') && $parent->isPost()) {
                                             $postId = $parent->id;
-                                        } elseif ($parent && $parent->parent && method_exists($parent->parent, 'id')) {
+                                        } else {
                                             $postId = $parent->parent->id;
                                         }
                                     @endphp
-                                    <a href="{{ route('profile.showOther', $actor->id ?? 1) }}" class="text-amber-500 hover:underline font-medium">{{ $actor->username ?? 'Someone' }}</a>
-                                    commented on
-                                    @if($postId)
-                                        <a href="{{ route('posts.show', $postId) }}" class="text-amber-500 hover:underline font-medium">your post</a>
+                                    @if ($notification->postComment->parent && $notification->postComment->parent->isPost())
+                                        <a href="{{ route('profile.showOther', $actor->id ?? 1) }}" class="text-amber-500 hover:underline font-medium">{{ $actor->username ?? 'Someone' }}</a>
+                                        commented on
+                                        @if($postId)
+                                            <a href="{{ route('posts.show', $postId) }}" class="text-amber-500 hover:underline font-medium">your post</a>
+                                        @else
+                                            <span class="text-red-500">a post (unavailable)</span>
+                                        @endif
                                     @else
-                                        <span class="text-red-500">a post (unavailable)</span>
+                                        <a href="{{ route('profile.showOther', $actor->id ?? 1) }}" class="text-amber-500 hover:underline font-medium">{{ $actor->username ?? 'Someone' }}</a>
+                                        replied to your comment in
+                                        @if($postId)
+                                            <a href="{{ route('posts.show', $postId) }}" class="text-amber-500 hover:underline font-medium">this post</a>
+                                        @else
+                                            <span class="text-red-500">a post (unavailable)</span>
+                                        @endif
                                     @endif
                                 @break
                             @case('reaction')

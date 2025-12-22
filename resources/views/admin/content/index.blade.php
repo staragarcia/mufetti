@@ -47,24 +47,46 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100">
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">#</th>
                             <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Post Title</th>
                             <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Author</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Date</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Comments</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Reports</th>
                             <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-50">
                         @foreach($posts as $post)
                             <tr class="hover:bg-slate-50/50 transition-colors content-row">
-                                <td class="px-6 py-4 font-semibold text-slate-700 text-sm">{{ $post->title }}</td>
-                                <td class="px-6 py-4 text-xs text-slate-500">{{ "@".$post->ownerUser->username }}</td>
+                                <td class="px-6 py-4 text-sm text-slate-600">{{ $post->id }}</td>
+                                <td class="px-6 py-4 font-semibold text-slate-700 text-sm max-w-xs truncate" title="{{ $post->title }}">
+                                    <a href="{{ route('posts.show', $post->id) }}" class="text-[rgb(13,162,231)] hover:underline">{{ $post->title }}</a>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-600">
+                                    <a href="{{ route('profile.showOther', $post->ownerUser->username) }}" class="text-[rgb(13,162,231)] hover:underline font-medium">{{ "@".$post->ownerUser->username }}</a>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-500">{{ $post->created_at->format('M d, Y') }}</td>
+                                <td class="px-6 py-4 text-sm text-slate-600">
+                                    <span class="inline-flex items-center gap-1">
+                                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                                        {{ $post->replies ? $post->replies->count() : 0 }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-600">
+                                    <span class="inline-flex items-center gap-1">
+                                        <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                        {{ $post->reports ? $post->reports->count() : 0 }}
+                                    </span>
+                                </td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex justify-end gap-3 text-slate-400">
-                                        <a href="{{ route('posts.show', $post->id) }}" class="hover:text-[rgb(13,162,231)] transition-colors">
+                                        <a href="{{ route('posts.show', $post->id) }}" class="hover:text-[rgb(13,162,231)] transition-colors" title="View Post">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                         </a>
                                         <form action="{{ route('admin.posts.destroy', $post) }}" method="POST" onsubmit="return confirm('Delete post?')">
                                             @csrf @method('DELETE')
-                                            <button class="hover:text-red-500 transition-colors">
+                                            <button class="hover:text-red-500 transition-colors" title="Delete Post">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                             </button>
                                         </form>
@@ -80,15 +102,50 @@
             {{-- Tab: Comments --}}
             <div id="tab-comments" class="tab-content hidden">
                 <table class="w-full text-left">
+                    <thead class="bg-slate-50 border-b border-slate-100">
+                        <tr>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">#</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Author</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Comment</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Post</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Date</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Reports</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase text-right">Actions</th>
+                        </tr>
+                    </thead>
                     <tbody class="divide-y divide-slate-50">
                         @foreach($comments as $comment)
+                            @php
+                                $post = \App\Models\Content::find($comment->reply_to);
+                            @endphp
                             <tr class="hover:bg-slate-50/50 transition-colors content-row">
-                                <td class="px-6 py-4">
-                                    <div class="text-xs font-bold text-slate-800">{{ "@".$comment->ownerUser->username }}</div>
-                                    <div class="text-sm text-slate-500 mt-1">"{{ Str::limit($comment->description, 100) }}"</div>
+                                <td class="px-6 py-4 text-sm text-slate-600">{{ $comment->id }}</td>
+                                <td class="px-6 py-4 text-sm">
+                                    <a href="{{ route('profile.showOther', $comment->ownerUser->username) }}" class="text-[rgb(13,162,231)] hover:underline font-medium">{{ "@".$comment->ownerUser->username }}</a>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-500 max-w-md truncate" title="{{ $comment->description }}">
+                                    @if($post)
+                                        <a href="{{ route('posts.show', $post->id) }}" class="text-[rgb(13,162,231)] hover:underline">"{{ Str::limit($comment->description, 80) }}"</a>
+                                    @else
+                                        "{{ Str::limit($comment->description, 80) }}"
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 text-sm">
+                                    @if($post)
+                                        <a href="{{ route('posts.show', $post->id) }}" class="text-[rgb(13,162,231)] hover:underline font-medium" target="_blank">View Post</a>
+                                    @else
+                                        <span class="text-slate-400">Not found</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-500">{{ $comment->created_at->format('M d, Y') }}</td>
+                                <td class="px-6 py-4 text-sm text-slate-600">
+                                    <span class="inline-flex items-center gap-1">
+                                        <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                        {{ $comment->reports ? $comment->reports->count() : 0 }}
+                                    </span>
                                 </td>
                                 <td class="px-6 py-4 text-right">
-                                    <form action="{{ route('admin.comments.destroy', $comment) }}" method="POST">
+                                    <form action="{{ route('admin.comments.destroy', $comment) }}" method="POST" onsubmit="return confirm('Delete comment?')">
                                         @csrf @method('DELETE')
                                         <button class="text-xs font-bold text-red-400 hover:text-red-600 transition-colors uppercase tracking-wider">Delete</button>
                                     </form>
@@ -97,7 +154,7 @@
                         @endforeach
                     </tbody>
                 </table>
-                <div class="p-4">{{ $comments->links() }}</div>
+                <div class="p-4 border-t border-slate-50">{{ $comments->links() }}</div>
             </div>
 
             {{-- Tab: Reports --}}

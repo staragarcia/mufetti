@@ -3,101 +3,101 @@
 SET search_path TO lbaw2585;
 
 -----------------------------------------
--- Initial system accounts (Corrigido)
+-- Initial system accounts
 -----------------------------------------
 
 -- ID 1 é o utilizador de sistema
-INSERT INTO users (id, name, username, email, password, birth_date, is_public, is_admin, is_blocked)
+INSERT INTO users (id, name, username, email, password, birth_date, is_public, is_admin)
 OVERRIDING SYSTEM VALUE 
-VALUES (1, 'Anonymous User', 'deleted_user', 'deleted@mufetti.com', 'LOCKED', '1900-01-01', false, false, false);
+VALUES (1, 'Anonymous User', 'deleted_user', 'deleted@mufetti.com', 'LOCKED', '1900-01-01', false, false);
 
 -- Admin genérico é ID 2 (Password: admin)
-INSERT INTO users (id, name, username, email, password, birth_date, is_public, is_admin, is_blocked) 
+INSERT INTO users (id, name, username, email, password, birth_date, is_public, is_admin) 
 OVERRIDING SYSTEM VALUE 
-VALUES (2, 'Admin', 'admin', 'admin@email.com', '$2y$10$iMTuj9m/31PKIshvWrWYIufsw6JOEKsy.wIiWGhjH9eCTuum2AOc2', '1900-01-01', false, true, false);
+VALUES (2, 'Admin', 'admin', 'admin@email.com', '$2y$10$iMTuj9m/31PKIshvWrWYIufsw6JOEKsy.wIiWGhjH9eCTuum2AOc2', '1900-01-01', false, true);
 
 -- Sincronizar o contador de IDs
 SELECT setval(pg_get_serial_sequence('users', 'id'), coalesce(max(id), 1)) FROM users;
 
+
 -----------------------------------------
 -- USERS (25)
 -----------------------------------------
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Alice Martins', 'alice_m', 'alice@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1998-04-21', '/images/alice.jpg', 'Music lover and vinyl collector.', TRUE, FALSE);
 
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Bruno Costa', 'brunoc', 'bruno@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1995-08-10', '/images/bruno.jpg', 'Into indie and rock.', TRUE, TRUE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Alice Martins', 'alice_m', 'alice@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1998-04-21', '/images/alice.jpg', 'Music lover and vinyl collector.', TRUE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Carla Silva', 'carla_s', 'carla@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '2000-02-15', NULL, 'Pop and dance enthusiast.', TRUE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Bruno Costa', 'brunoc', 'bruno@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1995-08-10', '/images/bruno.jpg', 'Into indie and rock.', TRUE, TRUE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Daniel Ferreira', 'danielf', 'daniel@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1992-11-05', '/images/daniel.jpg', 'Metal head', TRUE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Carla Silva', 'carla_s', 'carla@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '2000-02-15', NULL, 'Pop and dance enthusiast.', TRUE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Eva Ramos', 'evar', 'eva@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1999-06-12', '/images/eva.jpg', 'Dream pop and shoegaze.', FALSE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Daniel Ferreira', 'danielf', 'daniel@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1992-11-05', '/images/daniel.jpg', 'Metal head', TRUE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Filipe Sousa', 'filipe_s', 'filipe@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '2001-09-23', NULL, 'Punk is not dead.', TRUE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Eva Ramos', 'evar', 'eva@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1999-06-12', '/images/eva.jpg', 'Dream pop and shoegaze.', FALSE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Goncalo Lima', 'goncalo', 'goncalo@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1997-01-02', '/images/goncalo.jpg', 'Collector of obscure records.', TRUE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Filipe Sousa', 'filipe_s', 'filipe@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '2001-09-23', NULL, 'Punk is not dead.', TRUE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Helena Duarte', 'helenad', 'helena@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '2002-03-30', NULL, 'Just vibes', TRUE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Goncalo Lima', 'goncalo', 'goncalo@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1997-01-02', '/images/goncalo.jpg', 'Collector of obscure records.', TRUE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Ines Oliveira', 'ines_o', 'ines@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1996-12-19', '/images/ines.jpg', 'New wave forever.', TRUE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Helena Duarte', 'helenad', 'helena@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '2002-03-30', NULL, 'Just vibes', TRUE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Joao Pinto', 'joaop', 'joao@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1994-05-08', '/images/joao.jpg', 'Admin account', TRUE, TRUE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Ines Oliveira', 'ines_o', 'ines@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1996-12-19', '/images/ines.jpg', 'New wave forever.', TRUE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Maya Johnson', 'maya_j', 'maya@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1990-11-11', '/images/maya.jpg', 'Indie singer-songwriter.', TRUE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Joao Pinto', 'joaop', 'joao@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1994-05-08', '/images/joao.jpg', 'Admin account', TRUE, TRUE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Liam OConnor', 'liam_oc', 'liam@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1988-07-07', NULL, 'Guitar nerd from Dublin.', TRUE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Maya Johnson', 'maya_j', 'maya@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1990-11-11', '/images/maya.jpg', 'Indie singer-songwriter.', TRUE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Sakura Tanaka', 'sakura_t', 'sakura@example.jp', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1993-05-03', '/images/sakura.jpg', 'Electronic producer from Tokyo.', TRUE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Liam OConnor', 'liam_oc', 'liam@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1988-07-07', NULL, 'Guitar nerd from Dublin.', TRUE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Diego Morales', 'diego_m', 'diego@example.es', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1991-09-09', NULL, 'Rap and beats curator.', TRUE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Sakura Tanaka', 'sakura_t', 'sakura@example.jp', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1993-05-03', '/images/sakura.jpg', 'Electronic producer from Tokyo.', TRUE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Amelia Brown', 'amelia_b', 'amelia@example.co.uk', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1994-12-02', '/images/amelia.jpg', 'Classical pianist and teacher.', FALSE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Diego Morales', 'diego_m', 'diego@example.es', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1991-09-09', NULL, 'Rap and beats curator.', TRUE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Noah Smith', 'noah_s', 'noah@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '2000-06-18', NULL, 'Hip-hop playlists curator.', TRUE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Amelia Brown', 'amelia_b', 'amelia@example.co.uk', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1994-12-02', '/images/amelia.jpg', 'Classical pianist and teacher.', FALSE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Yara Costa', 'yara_c', 'yara@example.pt', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1995-10-20', NULL, 'Portuguese singer.', TRUE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Noah Smith', 'noah_s', 'noah@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '2000-06-18', NULL, 'Hip-hop playlists curator.', TRUE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Oliver James', 'oliver_j', 'oliver@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1987-03-03', '/images/oliver.jpg', 'Bass player.', TRUE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Yara Costa', 'yara_c', 'yara@example.pt', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1995-10-20', NULL, 'Portuguese singer.', TRUE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Priya Kumar', 'priya_k', 'priya@example.in', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1996-08-08', NULL, 'Bollywood & fusion fan.', TRUE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Oliver James', 'oliver_j', 'oliver@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1987-03-03', '/images/oliver.jpg', 'Bass player.', TRUE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Luca Romano', 'luca_r', 'luca@example.it', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1992-02-22', NULL, 'Italian opera enthusiast.', FALSE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Priya Kumar', 'priya_k', 'priya@example.in', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1996-08-08', NULL, 'Bollywood & fusion fan.', TRUE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Chloe Martin', 'chloe_m', 'chloe@example.fr', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1998-01-01', '/images/chloe.jpg', 'Indie playlists and reviews.', TRUE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Luca Romano', 'luca_r', 'luca@example.it', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1992-02-22', NULL, 'Italian opera enthusiast.', FALSE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Hiroshi Sato', 'hiro_s', 'hiro@example.jp', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1989-10-10', NULL, 'Vinyl collector, Tokyo.', TRUE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Chloe Martin', 'chloe_m', 'chloe@example.fr', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1998-01-01', '/images/chloe.jpg', 'Indie playlists and reviews.', TRUE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Fatima Al-Masri', 'fatima_m', 'fatima@example.sa', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1993-04-29', NULL, 'World music curator.', TRUE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Hiroshi Sato', 'hiro_s', 'hiro@example.jp', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1989-10-10', NULL, 'Vinyl collector, Tokyo.', TRUE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Mateo Alvarez', 'mateo_a', 'mateo@example.mx', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1991-11-30', NULL, 'Latin beats lover.', TRUE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Fatima Al-Masri', 'fatima_m', 'fatima@example.sa', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1993-04-29', NULL, 'World music curator.', TRUE, FALSE, FALSE);
+INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin)
+VALUES ('Zoe Green', 'zoe_g', 'zoe@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1999-09-09', '/images/zoe.jpg', 'Festival photographer & music lover.', TRUE, FALSE);
 
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Mateo Alvarez', 'mateo_a', 'mateo@example.mx', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1991-11-30', NULL, 'Latin beats lover.', TRUE, FALSE, FALSE);
-
-INSERT INTO users (name, username, email, password, birth_date, profile_picture, description, is_public, is_admin, is_blocked)
-VALUES ('Zoe Green', 'zoe_g', 'zoe@example.com', '$2y$12$ZTWeADJlJJ6Yw.TLWU30SOdSlSoTZvZl2RkN1NAVg6TBW0ZOH23/2', '1999-09-09', '/images/zoe.jpg', 'Festival photographer & music lover.', TRUE, FALSE, FALSE);
 -----------------------------------------
 -- FOLLOWING
 -----------------------------------------
@@ -128,6 +128,7 @@ INSERT INTO followings (id_user, id_following) VALUES (22,5);
 INSERT INTO followings (id_user, id_following) VALUES (23,7);
 INSERT INTO followings (id_user, id_following) VALUES (24,8);
 INSERT INTO followings (id_user, id_following) VALUES (25,9);
+INSERT INTO followings (id_user, id_following) VALUES (26,12);
 
 -----------------------------------------
 -- GENRE (10)
@@ -375,18 +376,36 @@ INSERT INTO album_reviews (rating, review_text, created_at, id_album, id_user) V
 -----------------------------------------
 -- GROUPS
 -----------------------------------------
-INSERT INTO groups (name, owner, description, is_active, is_public, member_count)
-VALUES 
-('Indie Lovers', 2, 'For fans of indie rock and dream pop.', TRUE, TRUE, 5),
-('Metalheads United', 5, 'All things metal.', TRUE, TRUE, 4),
-('Pop Central', 4, 'Pop fans unite.', TRUE, TRUE, 6),
-('Jazz Appreciation', 9, 'Discover and share jazz classics.', TRUE, FALSE, 3),
-('Punk Rebellion', 7, 'Loud and proud.', TRUE, TRUE, 4),
-('Vinyl Collectors', 8, 'Share your latest vinyl finds.', TRUE, TRUE, 3),
-('Classical Harmony', 10, 'Orchestra enthusiasts.', TRUE, FALSE, 2),
-('Electronic Nation', 6, 'Beats, bass, and synths.', TRUE, TRUE, 3),
-('Rhyme & Flow', 11, 'Hip-hop and rap lovers.', TRUE, TRUE, 5),
-('Album Reviewers', 3, 'For thoughtful review discussions.', TRUE, TRUE, 5);
+INSERT INTO groups (name, owner, description, is_public, member_count)
+VALUES ('Indie Lovers', 2, 'For fans of indie rock and dream pop.', TRUE, 5);
+
+INSERT INTO groups (name, owner, description, is_public, member_count)
+VALUES ('Metalheads United', 5, 'All things metal.', TRUE, 4);
+
+INSERT INTO groups (name, owner, description, is_public, member_count)
+VALUES ('Pop Central', 4, 'Pop fans unite.', TRUE, 6);
+
+INSERT INTO groups (name, owner, description, is_public, member_count)
+VALUES ('Jazz Appreciation', 9, 'Discover and share jazz classics.', FALSE, 3);
+
+INSERT INTO groups (name, owner, description, is_public, member_count)
+VALUES ('Punk Rebellion', 7, 'Loud and proud.', TRUE, 4);
+
+INSERT INTO groups (name, owner, description, is_public, member_count)
+VALUES ('Vinyl Collectors', 8, 'Share your latest vinyl finds.', TRUE, 3);
+
+INSERT INTO groups (name, owner, description, is_public, member_count)
+VALUES ('Classical Harmony', 10, 'Orchestra enthusiasts.', FALSE, 2);
+
+INSERT INTO groups (name, owner, description, is_public, member_count)
+VALUES ('Electronic Nation', 6, 'Beats, bass, and synths.', TRUE, 3);
+
+INSERT INTO groups (name, owner, description, is_public, member_count)
+VALUES ('Rhyme & Flow', 11, 'Hip-hop and rap lovers.', TRUE, 5);
+
+INSERT INTO groups (name, owner, description, is_public, member_count)
+VALUES ('Album Reviewers', 3, 'For thoughtful review discussions.', TRUE, 5);
+
 -----------------------------------------
 -- GROUP_MEMBER
 -----------------------------------------
@@ -620,10 +639,11 @@ VALUES ('2024-07-03', FALSE, 'reaction', 11, 20, NULL, NULL, NULL, 20);
 -----------------------------------------
 -- REPORTS
 -----------------------------------------
-
+INSERT INTO reports (id_user, reportable_id, reportable_type, motive, description, status, created_at)
+VALUES (2, 5, 'post', 'Spam', 'This post is spam.', 'pending', '2025-12-01 10:00:00');
 
 INSERT INTO reports (id_user, reportable_id, reportable_type, motive, description, status, created_at)
-VALUES 
-(2, 5, 'post', 'Spam', 'This post is spam.', 'pending', '2025-12-01 10:00:00'),
-(3, 12, 'comment', 'Harassment', 'This comment is harassing another user.', 'pending', '2025-12-02 11:00:00'),
-(4, 7, 'post', 'Inappropriate Content', 'Contains inappropriate language.', 'reviewed', '2025-12-03 12:00:00');
+VALUES (3, 12, 'comment', 'Harassment', 'This comment is harassing another user.', 'pending', '2025-12-02 11:00:00');
+
+INSERT INTO reports (id_user, reportable_id, reportable_type, motive, description, status, created_at)
+VALUES (4, 7, 'post', 'Inappropriate Content', 'Contains inappropriate language.', 'reviewed', '2025-12-03 12:00:00');

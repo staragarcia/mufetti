@@ -27,16 +27,14 @@ class DatabaseSeeder extends Seeder
         // Run SQL file
         DB::unprepared($sql);
 
-        //comentei isto porque nao estava a funcionar o populate
+        // restore safe defaults, i.e. triggers will fire !!!!!
+        DB::statement('SET session_replication_role = DEFAULT');
 
         // load inserst
         $path = base_path('database/mufetti_database/populate.sql');
         $sql = file_get_contents($path);
 
         DB::unprepared($sql);
-
-        // restore safe defaults, i.e. triggers will fire !!!!!
-        DB::statement('SET session_replication_role = DEFAULT');
 
         // load initial inserts into search_vectors
         $path = base_path('database/mufetti_database/populate_search_vectors.sql');

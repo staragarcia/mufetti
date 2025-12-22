@@ -296,7 +296,7 @@ Route::middleware(['auth', 'admin'])
     ->group(function () {
 
 
-        Route::resource('users', AdminUserController::class);
+        // Route::resource('users', AdminUserController::class);
 
         // Admin Content Management
         Route::get('content', [PostController::class, 'adminIndex'])

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Events\NotificationCreated;
 
 class FollowController extends Controller
 {
@@ -38,6 +39,16 @@ class FollowController extends Controller
                 'id_followed' => $user->id,
                 'status' => 'pending',
             ]);
+            if ($user->owner !== $currentUser->id) {
+                $notification = (object)[
+                    'type' => 'followRequest',
+                    'receiver' => $user->id,
+                    'actor' => $currentUser->id,
+                    'name' => $user->username,
+                ];
+
+                event(new NotificationCreated($notification));
+            }
 
             return back()->with('success', 'Follow request sent to ' . $user->name);
         }

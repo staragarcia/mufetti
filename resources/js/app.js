@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (isAuthenticated) {
         initializeReactions();
     }
-    
+
     initializePostTruncation();
     initializeReviewTruncation();
 });
@@ -292,13 +292,19 @@ function showNotification(notification) {
 
     switch (notification.type) {
         case 'reaction':
-            text = 'Someone reacted to your post';
+            text = `${notification.name} liked your post`;
+            break;
+        case 'reactionComment':
+            text = `${notification.name} liked your comment`;
             break;
         case 'comment':
-            text = 'New comment on your post';
+            text = `${notification.name} commented on your post`;
             break;
         case 'followRequest':
-            text = 'New follow request';
+            text = `${notification.name} wants to follow you`;
+            break;
+        case 'reply':
+            text = `${notification.name} replied to your comment`
             break;
         default:
             text = 'You have a new notification';

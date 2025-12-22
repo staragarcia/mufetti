@@ -72,6 +72,7 @@ class CommentController extends Controller
                 'type' => 'comment',
                 'receiver' => $post->owner,
                 'actor' => Auth::id(),
+                'name' => Auth::user()->username,
             ];
 
             event(new NotificationCreated($notification));
@@ -157,9 +158,10 @@ class CommentController extends Controller
 
         if ($comment->owner !== Auth::id()) {
             $notification = (object)[
-                'type' => 'comment',
+                'type' => 'reply',
                 'receiver' => $comment->owner,
                 'actor' => Auth::id(),
+                'name' => Auth::user()->username,
             ];
 
             event(new NotificationCreated($notification));

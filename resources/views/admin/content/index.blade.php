@@ -117,7 +117,8 @@
                                 <td class="px-6 py-4 text-sm font-medium text-slate-700">{{ $report->user->name ?? 'User' }}</td>
                                 <td class="px-6 py-4 text-sm text-slate-500">{{ $report->motive }}</td>
                                 <td class="px-6 py-4">
-                                    <span class="text-[10px] font-bold uppercase {{ $report->status == 'pending' ? 'text-amber-500' : 'text-emerald-500' }}">
+                                    <span class="text-[10px] font-bold uppercase 
+                                        {{ $report->status == 'pending' ? 'text-amber-500' : ($report->status == 'dismissed' ? 'text-slate-400' : 'text-emerald-500') }}">
                                         {{ $report->status }}
                                     </span>
                                 </td>
@@ -127,6 +128,7 @@
                                         <select onchange="this.form.submit()" name="status" class="bg-slate-50 border border-slate-200 rounded-md px-2 py-1 text-xs font-bold text-slate-600 outline-none focus:border-[rgb(13,162,231)]">
                                             <option value="pending" @if($report->status=='pending') selected @endif>Pending</option>
                                             <option value="reviewed" @if($report->status=='reviewed') selected @endif>Resolved</option>
+                                            <option value="dismissed" @if($report->status=='dismissed') selected @endif>Dismissed</option>
                                         </select>
                                     </form>
                                 </td>

@@ -72,7 +72,7 @@
                         <a href="{{ route('admin.users.index') }}"
                         class="text-sm font-medium transition-colors
                                 {{ request()->is('admin/users*') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
-                            Painel Admin
+                            Admin
                         </a>
                     @endif
 

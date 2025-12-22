@@ -288,28 +288,31 @@ window.Echo.private(`notifications.${window.userId}`)
 function showNotification(notification) {
     const container = document.getElementById('notification');
 
-    let text = '';
-
-    switch (notification.type) {
-        case 'reaction':
-            text = `${notification.name} liked your post`;
-            break;
-        case 'reactionComment':
-            text = `${notification.name} liked your comment`;
-            break;
-        case 'comment':
-            text = `${notification.name} commented on your post`;
-            break;
-        case 'followRequest':
-            text = `${notification.name} wants to follow you`;
-            break;
-        case 'reply':
-            text = `${notification.name} replied to your comment`
-            break;
-        default:
-            text = 'You have a new notification';
+    let text = notification.content || '';
+    if (!text) {
+        switch (notification.type) {
+            case 'reaction':
+                text = `${notification.name} liked your post`;
+                break;
+            case 'reactionComment':
+                text = `${notification.name} liked your comment`;
+                break;
+            case 'comment':
+                text = `${notification.name} commented on your post`;
+                break;
+            case 'followRequest':
+                text = `${notification.name} wants to follow you`;
+                break;
+            case 'startFollowing':
+                text = `${notification.name} started following you`;
+                break;
+            case 'reply':
+                text = `${notification.name} replied to your comment`;
+                break;
+            default:
+                text = 'You have a new notification';
+        }
     }
-
     container.innerHTML = `<a href="/notifications"> ${text} </a>`;
 
     // Mostrar notificação

@@ -56,6 +56,15 @@ class FollowController extends Controller
         // Add follow for public profiles
         $currentUser->following()->attach($user->id);
 
+        // Create notification for new follower
+        $notification = (object)[
+            'type' => 'startFollowing', // new notification type for new followers
+            'receiver' => $user->id,
+            'actor' => $currentUser->id,
+            'name' => $user->username,
+        ];
+        event(new NotificationCreated($notification));
+
         return back()->with('success', 'You are now following ' . $user->name);
     }
 

@@ -68,14 +68,7 @@ class CommentController extends Controller
         ]);
 
         if ($post->owner !== Auth::id()) {
-            $notification = (object)[
-                'type' => 'comment',
-                'receiver' => $post->owner,
-                'actor' => Auth::id(),
-                'name' => Auth::user()->username,
-            ];
-
-            event(new NotificationCreated($notification));
+            // Notification is created by DB trigger. Optionally broadcast here if needed.
         }
         if ($request->expectsJson()) {
             return response()->json([
@@ -157,14 +150,7 @@ class CommentController extends Controller
 
 
         if ($comment->owner !== Auth::id()) {
-            $notification = (object)[
-                'type' => 'reply',
-                'receiver' => $comment->owner,
-                'actor' => Auth::id(),
-                'name' => Auth::user()->username,
-            ];
-
-            event(new NotificationCreated($notification));
+            // Notification is created by DB trigger. Optionally broadcast here if needed.
         }
 
         if ($request->expectsJson()) {

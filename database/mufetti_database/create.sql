@@ -254,6 +254,21 @@ CREATE INDEX search_idx ON contents USING GIN (tsvectors);
 
 -----------------------------------------
 -- Triggers
+-- Notify when a user gains a new follower
+CREATE FUNCTION notify_start_following() RETURNS TRIGGER AS
+$BODY$
+BEGIN
+    INSERT INTO notifications (type, receiver, actor)
+    VALUES ('startFollowing', NEW.id_following, NEW.id_user);
+    RETURN NEW;
+END;
+$BODY$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER notify_start_following
+AFTER INSERT ON followings
+FOR EACH ROW
+EXECUTE FUNCTION notify_start_following();
 -----------------------------------------
 
 CREATE FUNCTION spam_control() RETURNS TRIGGER AS

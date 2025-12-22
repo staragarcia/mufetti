@@ -174,4 +174,18 @@ class UserController extends Controller
     
         return redirect()->route('admin.users.index')->with('success', 'Utilizador e dados associados removidos com sucesso.');
     }
+    public function toggleBlock(User $user)
+    {
+        // Impede que o admin se bloqueie a si próprio por acidente
+        if (auth()->id() === $user->id) {
+            return back()->with('error', 'You cannot block your own account.');
+        }
+
+        $user->is_blocked = !$user->is_blocked;
+        $user->save();
+
+        $status = $user->is_blocked ? 'blocked' : 'unblocked';
+        
+        return back()->with('success', "User {$user->name} has been {$status}.");
+    }
 }

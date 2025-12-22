@@ -232,6 +232,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
         Route::delete('/users/{user}/picture', [AdminUserController::class, 'removeProfilePicture'])->name('users.removePicture');
+        Route::patch('/users/{user}/toggle-block', [AdminUserController::class, 'toggleBlock'])
+        ->name('users.toggle-block');
     });
 
 
@@ -325,5 +327,6 @@ Route::middleware(['auth', 'admin'])
         
         Route::patch('groups/{group}/deactivate', [GroupController::class, 'deactivate'])
             ->name('groups.deactivate');
+        
     });
 

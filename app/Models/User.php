@@ -157,5 +157,9 @@ class User extends Authenticatable
     {
         return $this->favouriteAlbums()->where('id_album', $albumId)->exists();
     }
+    public function isBlocked()
+    {
+        return $this->is_blocked;
+    }
 
 }

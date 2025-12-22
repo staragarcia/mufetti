@@ -33,12 +33,14 @@ class SearchController extends Controller
             ]);
         }
 
+        $userId = auth()->id();
         $results = [];
 
         switch ($type) {
             case 'posts':
                 $results = Content::posts()
                     ->fullTextSearch($query)
+                    ->visibleTo($userId)
                     ->with('ownerUser:id,username,name,profile_picture')
                     ->limit(20)
                     ->get()
@@ -60,6 +62,7 @@ class SearchController extends Controller
             case 'comments':
                 $results = Content::comments()
                     ->fullTextSearch($query)
+                    ->visibleTo($userId)
                     ->with('ownerUser:id,username,name,profile_picture')
                     ->orderBy('created_at', 'desc')
                     ->limit(20)

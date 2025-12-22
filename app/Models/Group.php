@@ -48,13 +48,35 @@ class Group extends Model
         return $this->hasMany(Content::class, 'id_group')->posts();
     }
 
-    //Groups the user is a member or owner
+    /**
+     * Groups the user is a member or owner
+     */
     public function scopeForUser($query, $userId)
     {
-        return $query->where('owner', $userId)
-                     ->orWhereHas('members', function ($q) use ($userId) {
-                         $q->where('id_user', $userId);
-                     });
+        return $query->where(function($q) use ($userId) {
+            $q->where('owner', $userId)
+              ->orWhereHas('members', function ($memberQ) use ($userId) {
+                  $memberQ->where('id_user', $userId);
+              });
+        });
+    }
+
+    /**
+     * Groups accessible to a user (public OR member/owner)
+     */
+    public function scopeAccessibleTo($query, $userId = null)
+    {
+        $userId = $userId ?? auth()->id();
+
+        return $query->where(function($q) use ($userId) {
+            $q->where('is_public', true);
+            
+            if ($userId) {
+                $q->orWhere(function($subQ) use ($userId) {
+                    $subQ->forUser($userId);
+                });
+            }
+        });
     }
 
     // Groups the user owns

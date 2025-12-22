@@ -115,7 +115,7 @@
 
                 <div class="flex gap-6 text-sm">
                     <div class="hover:underline cursor-pointer">
-                        <span class="font-semibold text-foreground">{{ $user->posts()->count() }}</span>
+                        <span class="font-semibold text-foreground">{{ $user->posts()->posts()->count() }}</span>
                         <span class="text-muted-foreground">Posts</span>
                     </div>
                     <a href="{{ route('followers.show', $user) }}" class="hover:underline cursor-pointer">

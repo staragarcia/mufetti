@@ -45,6 +45,7 @@ class FollowController extends Controller
                     'receiver' => $user->id,
                     'actor' => $currentUser->id,
                     'name' => $user->username,
+                    'content' => $currentUser->username . ' sent you a follow request',
                 ];
 
                 event(new NotificationCreated($notification));
@@ -58,10 +59,11 @@ class FollowController extends Controller
 
         // Create notification for new follower
         $notification = (object)[
-            'type' => 'startFollowing', // new notification type for new followers
+            'type' => 'startFollowing',
             'receiver' => $user->id,
             'actor' => $currentUser->id,
             'name' => $user->username,
+            'content' => $currentUser->username . ' started following you',
         ];
         event(new NotificationCreated($notification));
 

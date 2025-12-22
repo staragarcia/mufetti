@@ -190,7 +190,7 @@
                         {{-- Delete Account --}}
             <div class="mt-2 pt-1  border-border">
                 <form method="POST" action="{{ route('profile.destroy') }}"
-                    onsubmit="return confirm('Tem a certeza que quer eliminar a sua conta? Esta ação é irreversível.');">
+                    onsubmit="return confirm('Are you sure you want to delete your account? This action is irreversible.');">
                     @csrf
                     @method('DELETE')
 

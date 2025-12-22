@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\FollowRequestController;
+use App\Http\Controllers\Feed\FeedController;
 use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\AlbumReviewController;
 use App\Http\Controllers\RecoverController;

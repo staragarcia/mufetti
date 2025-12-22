@@ -33,18 +33,15 @@ class SearchController extends Controller
             ]);
         }
 
+        $userId = auth()->id();
         $results = [];
 
         switch ($type) {
             case 'posts':
                 $results = Content::posts()
+                    ->fullTextSearch($query)
+                    ->visibleTo($userId)
                     ->with('ownerUser:id,username,name,profile_picture')
-                    ->where(function($q) use ($query) {
-                        $q->where('title', 'ILIKE', "%{$query}%")
-                          ->orWhere('description', 'ILIKE', "%{$query}%");
-                    })
-                    ->select('id', 'title', 'description', 'img', 'owner', 'likes', 'comments', 'created_at')
-                    ->orderBy('created_at', 'desc')
                     ->limit(20)
                     ->get()
                     ->map(function($post) {
@@ -56,16 +53,17 @@ class SearchController extends Controller
                             'owner_username' => $post->ownerUser->username ?? null,
                             'likes' => $post->likes,
                             'comments' => $post->comments,
-                            'created_at' => $post->created_at
+                            'created_at' => $post->created_at,
+                            'relevance' => round($post->rank ?? 0,4)
                         ];
                     });
                 break;
 
             case 'comments':
                 $results = Content::comments()
-                    ->with('owner:id,username,name,profile_picture')
-                    ->where('description', 'ILIKE', "%{$query}%")
-                    ->select('id', 'description', 'owner', 'reply_to', 'likes', 'created_at')
+                    ->fullTextSearch($query)
+                    ->visibleTo($userId)
+                    ->with('ownerUser:id,username,name,profile_picture')
                     ->orderBy('created_at', 'desc')
                     ->limit(20)
                     ->get()
@@ -73,21 +71,18 @@ class SearchController extends Controller
                         return [
                             'id' => $comment->id,
                             'description' => $comment->description,
-                            'owner_username' => $comment->owner->username ?? null,
+                            'owner_username' => $comment->ownerUser->username ?? null,
                             'reply_to' => $comment->reply_to,
                             'likes' => $comment->likes,
-                            'created_at' => $comment->created_at
+                            'created_at' => $comment->created_at,
+                            'relevance' => round($comment->rank ?? 0, 4)
                         ];
                     });
                 break;
 
             case 'groups':
-                $results = Group::with('ownerUser:id,username,name')
-                    ->where(function($q) use ($query) {
-                        $q->where('name', 'ILIKE', "%{$query}%")
-                          ->orWhere('description', 'ILIKE', "%{$query}%");
-                    })
-                    ->select('id', 'name', 'description', 'owner', 'member_count', 'is_public')
+                $results = Group::fullTextSearch($query)
+                    ->with('ownerUser:id,username,name')
                     ->orderBy('member_count', 'desc')
                     ->limit(20)
                     ->get()
@@ -98,17 +93,15 @@ class SearchController extends Controller
                             'description' => $group->description,
                             'owner_username' => $group->ownerUser->username ?? null,
                             'member_count' => $group->member_count,
-                            'is_public' => $group->is_public
+                            'is_public' => $group->is_public,
+                            'relevance' => round($group->rank ?? 0, 4)
                         ];
                     });
                 break;
 
             case 'users':
-                $results = User::where(function($q) use ($query) {
-                        $q->where('username', 'ILIKE', "%{$query}%")
-                          ->orWhere('name', 'ILIKE', "%{$query}%");
-                    })
-                    ->select('id', 'username', 'name', 'description', 'profile_picture', 'is_public')
+                $results = User::fullTextSearch($query)
+                    // ->select('id', 'username', 'name', 'description', 'profile_picture', 'is_public')
                     ->limit(20)
                     ->get()
                     ->map(function($user) {
@@ -118,7 +111,8 @@ class SearchController extends Controller
                             'name' => $user->name,
                             'description' => $user->description,
                             'profile_picture' => $user->profile_picture,
-                            'is_public' => $user->is_public
+                            'is_public' => $user->is_public,
+                            'relevance' => round($user->rank ?? 0, 4)
                         ];
                     });
                 break;
@@ -130,7 +124,8 @@ class SearchController extends Controller
         return response()->json([
             'results' => $results,
             'query' => $query,
-            'type' => $type
+            'type' => $type,
+            'count' => $results->count()
         ]);
     }
 }

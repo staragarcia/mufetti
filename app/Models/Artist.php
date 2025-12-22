@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
 
 class Artist extends Model
 {
+    use Searchable;
+
     public $timestamps = false;
 
     protected $fillable = [

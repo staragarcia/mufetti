@@ -52,14 +52,25 @@ class ReactionController extends Controller
                     'id_content' => $post->id,
                 ]);
                 if ($post->owner !== $user->id) {
-                    $notification = (object)[
-                        'type' => 'reaction',
-                        'receiver' => $post->owner,
-                        'actor' => $user->id,
-                        'name' => $user->username,
-                    ];
-
-                    event(new NotificationCreated($notification));
+                    // DB trigger creates the notification, fetch it and broadcast
+                    $reaction = Reaction::latest('id')->first();
+                    $notifModel = \App\Models\Notification::where([
+                        ['type', '=', 'reaction'],
+                        ['receiver', '=', $post->owner],
+                        ['actor', '=', $user->id],
+                        ['id_reaction', '=', $reaction->id],
+                    ])->latest('id')->first();
+                    if ($notifModel) {
+                        $notification = (object)[
+                            'type' => 'reaction',
+                            'receiver' => $notifModel->receiver,
+                            'actor' => $notifModel->actor,
+                            'name' => $user->username,
+                            'content' => $user->username . ' liked your post',
+                            'id' => $notifModel->id,
+                        ];
+                        event(new NotificationCreated($notification));
+                    }
                 }
             }
             $action = 'added_or_switched';
@@ -137,6 +148,7 @@ class ReactionController extends Controller
                         'receiver' => $comment->owner,
                         'actor' => $user->id,
                         'name' => $user->username,
+                        'content' => $user->username . ' liked your comment',
                     ];
 
                     event(new NotificationCreated($notification));

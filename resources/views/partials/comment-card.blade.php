@@ -79,7 +79,8 @@
                 <p class="text-gray-700 text-sm whitespace-pre-line mb-2">{{ $comment->description }}</p>
                 
                 {{-- Reaction and Reply Buttons --}}
-                <div class="flex items-center gap-3 mt-2">
+                <div class="flex items-center justify-between mt-2">
+                    <div class="flex items-center gap-3">
                     {{-- Like Button --}}
                     <button class="comment-reaction-btn flex items-center gap-1 hover:text-blue-600 transition-colors"
                             data-comment-id="{{ $comment->id }}"
@@ -114,10 +115,46 @@
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
                                 </svg>
-                                <span x-text="replying ? 'Cancel' : 'Reply'"></span>
+                                <span>Reply</span>
                             </button>
                         @endif
                     @endauth
+                    </div>
+
+                    {{-- Report Button - Positioned on the right, only show if user is not the comment owner --}}
+                    @if(auth()->check() && auth()->id() !== $comment->owner)
+                    <button class="flex items-center gap-1 text-gray-400 hover:text-red-600 transition-colors text-xs" onclick="openReportModal('report-modal-comment-{{ $comment->id }}')" title="Report this comment">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/>
+                        </svg>
+                        <span class="font-medium">Report</span>
+                    </button>
+                    <!-- Report Modal -->
+                    <div id="report-modal-comment-{{ $comment->id }}" class="modal-overlay hidden" onclick="if(event.target === this) closeReportModal('report-modal-comment-{{ $comment->id }}')">
+                        <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative animate-fade-in">
+                            <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-2xl font-bold" onclick="closeReportModal('report-modal-comment-{{ $comment->id }}')">&times;</button>
+                            <h2 class="text-xl font-semibold mb-4 text-gray-900">Report Comment</h2>
+                            <form method="POST" action="{{ route('report.store') }}" onsubmit="event.preventDefault(); submitReportForm(this);">
+                                @csrf
+                                <input type="hidden" name="reportable_id" value="{{ $comment->id }}">
+                                <input type="hidden" name="reportable_type" value="comment">
+                                <label for="motive-comment-{{ $comment->id }}" class="block mb-2 font-medium">Reason</label>
+                                <select name="motive" id="motive-comment-{{ $comment->id }}" class="w-full mb-4 border rounded p-2" required>
+                                    <option value="">Select a reason</option>
+                                    <option value="Spam">Spam</option>
+                                    <option value="Harassment">Harassment</option>
+                                    <option value="Inappropriate Content">Inappropriate Content</option>
+                                    <option value="Misinformation">Misinformation</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <label for="description-comment-{{ $comment->id }}" class="block mb-2 font-medium">Description (optional)</label>
+                                <textarea name="description" id="description-comment-{{ $comment->id }}" class="w-full border rounded p-2 mb-4" rows="2"></textarea>
+                                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-full">Submit Report</button>
+                            </form>
+                            <div class="mt-2 text-green-600 hidden text-center" id="report-success-comment-{{ $comment->id }}">Report submitted!</div>
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
 
@@ -200,4 +237,38 @@
         </div>
     @endif
 </div>
+<script>
+function openReportModal(id) {
+    document.getElementById(id).classList.remove('hidden');
+}
+function closeReportModal(id) {
+    document.getElementById(id).classList.add('hidden');
+}
+function submitReportForm(form) {
+    const modal = form.closest('.modal-overlay');
+    const successMsg = modal.querySelector('[id^="report-success-"]');
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': form.querySelector('[name=_token]').value,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            reportable_id: form.reportable_id.value,
+            reportable_type: form.reportable_type.value,
+            motive: form.motive.value,
+            description: form.description.value,
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            form.style.display = 'none';
+            successMsg.style.display = 'block';
+            setTimeout(() => { modal.classList.add('hidden'); form.style.display = ''; successMsg.style.display = 'none'; }, 1500);
+        }
+    });
+}
+</script>
 

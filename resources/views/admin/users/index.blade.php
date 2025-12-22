@@ -4,7 +4,10 @@
 <div class="max-w-6xl mx-auto py-8">
     <div class="flex justify-between items-center mb-4">
         <h1 class="text-2xl font-bold">Admin — Users</h1>
-        <a href="{{ route('admin.users.create') }}" class="px-3 py-2 bg-primary text-white rounded">Create User</a>
+        <div class="flex gap-2">
+            <a href="{{ route('admin.reports.index') }}" class="px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">View Reports</a>
+            <a href="{{ route('admin.users.create') }}" class="px-3 py-2 bg-primary text-white rounded">Create User</a>
+        </div>
     </div>
 
     <form method="GET" class="mb-4">

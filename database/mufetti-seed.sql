@@ -203,10 +203,10 @@ CREATE TABLE notifications (
     type NotificationTypes NOT NULL,
     receiver INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
     actor INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
-    id_follow_request INTEGER REFERENCES follow_requests (id) ON UPDATE CASCADE,
-    id_group_join_request INTEGER REFERENCES join_requests (id) ON UPDATE CASCADE,
-    id_comment INTEGER REFERENCES contents (id) ON UPDATE CASCADE,
-    id_reaction INTEGER REFERENCES reactions (id) ON UPDATE CASCADE,
+    id_follow_request INTEGER REFERENCES follow_requests (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    id_group_join_request INTEGER REFERENCES join_requests (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    id_comment INTEGER REFERENCES contents (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    id_reaction INTEGER REFERENCES reactions (id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT notification_type_ck CHECK (
         (type <> 'followRequest' OR id_follow_request IS NOT NULL) AND
         (type <> 'acceptedFollowRequest' OR id_follow_request IS NOT NULL) AND
@@ -215,6 +215,18 @@ CREATE TABLE notifications (
         (type <> 'comment' OR id_comment IS NOT NULL) AND
         (type <> 'reaction' OR id_reaction IS NOT NULL)
     )
+);
+
+-- Reports Table
+CREATE TABLE reports (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_user INTEGER NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
+    reportable_id INTEGER NOT NULL,
+    reportable_type TEXT NOT NULL CHECK (reportable_type IN ('post', 'comment')),
+    motive TEXT NOT NULL,
+    description TEXT,
+    status TEXT NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -----------------------------------------

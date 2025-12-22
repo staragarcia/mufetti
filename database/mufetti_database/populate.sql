@@ -529,7 +529,13 @@ INSERT INTO contents (type, created_at, likes, comments, title, description, img
 VALUES ('post', '2024-06-15 20:00:00', 3, 0, 'Classical q&a', 'What recordings of the 9th do you recommend?', NULL, 16, 7, NULL);
 
 INSERT INTO contents (type, created_at, likes, comments, title, description, img, owner, id_group, reply_to)
-VALUES ('comment', '2024-05-02 11:00:00', 3, 0, NULL, 'Agree completely!', NULL, 3, 1, 1);
+VALUES ('post', '2024-07-01', 8, 2, 'New single released', 'Dropped my new single today — feedback welcome!', NULL, 11, NULL, NULL);
+
+INSERT INTO contents (type, created_at, likes, comments, title, description, img, owner, id_group, reply_to)
+VALUES ('post', '2024-07-10', 2, 0, 'Practice session', '30 minute live stream tomorrow.', NULL, 20, NULL, NULL);
+
+INSERT INTO contents (type, created_at, likes, comments, title, description, img, owner, id_group, reply_to)
+VALUES ('comment', '2024-05-02', 3, 0, NULL, 'Agree completely!', NULL, 2, 1, 1);
 
 INSERT INTO contents (type, created_at, likes, comments, title, description, img, owner, id_group, reply_to)
 VALUES ('comment', '2024-05-06 16:30:00', 2, 0, NULL, 'In the End, hands down.', NULL, 7, 2, 3);
@@ -625,5 +631,17 @@ VALUES ('2024-06-09', FALSE, 'reaction', 4, 14, NULL, NULL, NULL, 15);
 INSERT INTO notifications (created_at, is_read, type, receiver, actor, id_follow_request, id_group_join_request, id_comment, id_reaction)
 VALUES ('2024-06-15', FALSE, 'comment', 16, 15, NULL, NULL, 15, NULL);
 
-INSERT INTO notifications (created_at, is_read, type, receiver, actor, id_follow_request, id_group_join_request, id_comment, id_reaction)
-VALUES ('2024-07-03', FALSE, 'reaction', 12, 21, NULL, NULL, NULL, 20);
+INSERT INTO  notifications (created_at, is_read, type, receiver, actor, id_follow_request, id_group_join_request, id_comment, id_reaction)
+VALUES ('2024-07-03', FALSE, 'reaction', 11, 20, NULL, NULL, NULL, 20);
+
+-----------------------------------------
+-- REPORTS
+-----------------------------------------
+INSERT INTO reports (id_user, reportable_id, reportable_type, motive, description, status, created_at)
+VALUES (2, 5, 'post', 'Spam', 'This post is spam.', 'pending', '2025-12-01 10:00:00');
+
+INSERT INTO reports (id_user, reportable_id, reportable_type, motive, description, status, created_at)
+VALUES (3, 12, 'comment', 'Harassment', 'This comment is harassing another user.', 'pending', '2025-12-02 11:00:00');
+
+INSERT INTO reports (id_user, reportable_id, reportable_type, motive, description, status, created_at)
+VALUES (4, 7, 'post', 'Inappropriate Content', 'Contains inappropriate language.', 'reviewed', '2025-12-03 12:00:00');

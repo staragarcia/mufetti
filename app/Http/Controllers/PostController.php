@@ -250,24 +250,31 @@ class PostController extends Controller
     * )
         */
         public function adminIndex(Request $request)
-        {
-            // 1. Pegar os Posts (onde reply_to é null)
-            $posts = Content::whereNull('reply_to')
-                ->with('ownerUser') // Importante para não dar erro no @username
-                ->latest()
-                ->paginate(10, ['*'], 'posts_page');
-        
-            // 2. Pegar os Comentários (onde reply_to NÃO é null)
-            $comments = Content::whereNotNull('reply_to')
-                ->with('ownerUser')
-                ->latest()
-                ->paginate(10, ['*'], 'comments_page');
-        
-            // 3. Definir a tab ativa
-            $activeTab = $request->input('tab', 'posts');
-        
-            return view('admin.content.index', compact('posts', 'comments', 'activeTab'));
-        }
+{
+    // 1. Pegar os Posts (onde reply_to é null)
+    $posts = Content::whereNull('reply_to')
+        ->with('ownerUser')
+        ->latest()
+        ->paginate(10, ['*'], 'posts_page');
+
+    // 2. Pegar os Comentários (onde reply_to NÃO é null)
+    $comments = Content::whereNotNull('reply_to')
+        ->with('ownerUser')
+        ->latest()
+        ->paginate(10, ['*'], 'comments_page');
+
+    // 3. BUSCAR OS REPORTS (O que estava a faltar!)
+    // Usamos o \App\Models\Report caso não tenhas o 'use' no topo
+    $reports = \App\Models\Report::with('user')
+        ->latest()
+        ->get();
+
+    // 4. Definir a tab ativa
+    $activeTab = $request->input('tab', 'posts');
+
+    // Agora passamos as TRÊS variáveis para a view
+    return view('admin.content.index', compact('posts', 'comments', 'reports', 'activeTab'));
+}
         public function destroy(Content $post)
         {
             // O Gate verifica se é o dono OU se é Admin

@@ -131,22 +131,35 @@ class GroupController extends Controller
      *     ),
      *     @OA\Response(response=403, description="Access denied")
      * )
-     */
-    public function showGroup(Group $group)
+     */public function showGroup(Group $group)
     {
         $userId = auth()->id();
+        $isAdmin = auth()->user() && auth()->user()->is_admin;
+        $isOwner = $userId && $group->owner == $userId;
 
         $isMember = $group->members()
-                          ->where('id_user', $userId)
-                          ->exists();
+                        ->where('id_user', $userId)
+                        ->exists();
 
-        $canView = $group->is_public
-            || ($userId && $group->owner == $userId)
-            || $isMember;
+        if (!$group->is_active && !$isAdmin && !$isOwner) {
+            return view('pages.groups.show', [
+                'group'             => $group,
+                'posts'             => collect(),
+                'canView'           => false,
+                'isMember'          => $isMember, 
+                'hasPendingRequest' => false,
+                'members'           => [],
+                'requests'          => collect()
+            ]);
+        }
 
-        $posts = $group->posts()->where('title', '!=', '[Deleted Post]')->latest()->get();
+        $canView = $group->is_public || $isOwner || $isMember;
 
-        // Verificar se existe join request pendente
+        $posts = $group->posts()
+                    ->where('title', '!=', '[Deleted Post]')
+                    ->latest()
+                    ->get();
+
         $hasPendingRequest = false;
         if ($userId) {
             $hasPendingRequest = JoinRequest::where('id_user', $userId)
@@ -155,16 +168,12 @@ class GroupController extends Controller
                 ->exists();
         }
 
-        $members = [];
-        if ($canView || $isMember) {
-            $members = $group->members()->get();
-        }
+        $members = ($canView || $isMember) ? $group->members()->get() : [];
 
-
-        $requests = $group->joinRequests()
-                          ->where('status', 'pending')
-                          ->with('user')
-                          ->get();
+        $requests = $isOwner ? $group->joinRequests()
+                                    ->where('status', 'pending')
+                                    ->with('user')
+                                    ->get() : collect();
 
         return view('pages.groups.show', compact(
             'group', 'posts', 'canView', 'isMember', 'hasPendingRequest', 'members', 'requests'
@@ -581,13 +590,10 @@ class GroupController extends Controller
 
     public function deactivate(Group $group)
     {
-        if (!auth()->user()->is_admin) {
-            abort(403, 'Only admins can deactivate groups');
-        }
-
-        $group->is_active = false;
+        $group->is_active = !$group->is_active;
         $group->save();
-
-        return redirect()->back()->with('success', "O grupo '{$group->name}' foi desativado com sucesso.");
+    
+        $status = $group->is_active ? 'activated' : 'deactivated';
+        return back()->with('success', "Group {$group->name} has been {$status}.");
     }
 }

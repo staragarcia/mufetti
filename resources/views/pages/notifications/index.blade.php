@@ -82,12 +82,22 @@
                                 <span class="text-green-500">Your request to join the group was accepted</span>
                                 @break
                             @case('comment')
-                                @php
-                                    $postId = $notification->postComment->parent->isPost()
-                                        ? $notification->postComment->parent->id
-                                        : $notification->postComment->parent->parent->id;
-                                @endphp
-                                <a href="{{ route('profile.showOther', $actor->id ?? 1) }}" class="text-amber-500 hover:underline font-medium">{{ $actor->username ?? 'Someone' }}</a> commented on <a href="{{ route('posts.show', $postId) }}" class="text-amber-500 hover:underline font-medium">your post</a>
+                                    @php
+                                        $parent = $notification->postComment->parent ?? null;
+                                        $postId = null;
+                                        if ($parent && method_exists($parent, 'isPost') && $parent->isPost()) {
+                                            $postId = $parent->id;
+                                        } elseif ($parent && $parent->parent && method_exists($parent->parent, 'id')) {
+                                            $postId = $parent->parent->id;
+                                        }
+                                    @endphp
+                                    <a href="{{ route('profile.showOther', $actor->id ?? 1) }}" class="text-amber-500 hover:underline font-medium">{{ $actor->username ?? 'Someone' }}</a>
+                                    commented on
+                                    @if($postId)
+                                        <a href="{{ route('posts.show', $postId) }}" class="text-amber-500 hover:underline font-medium">your post</a>
+                                    @else
+                                        <span class="text-red-500">a post (unavailable)</span>
+                                    @endif
                                 @break
                             @case('reaction')
                                 @php

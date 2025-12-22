@@ -13,7 +13,7 @@
                 <a href="{{ route('feed.show') }}"
                 class="text-sm font-medium transition-colors
                 {{ request()->is('feed') ? 'text-primary' : 'text-muted-foreground hover:text-primary' }}">
-                    Public Feed
+                    Feed
                 </a>
 
                 <a href="/search"

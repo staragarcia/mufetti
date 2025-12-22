@@ -9,7 +9,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $schema = env('DB_SCHEMA');
+        $schema = env('DB_SCHEMA', 'lbaw2585');
 
         // Disable all triggers, constraints, and transactional restrictions
         // so DROP SCHEMA CASCADE doesn't kill Postgres inside a transaction.

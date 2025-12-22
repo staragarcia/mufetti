@@ -81,6 +81,9 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [LoginController::class, 'authenticate']);
 
     // Register
+// Admin group join request moderation
+Route::post('/admin/groups/{group}/requests/{request}/accept', [App\Http\Controllers\Admin\UserController::class, 'acceptRequest'])->name('admin.groups.requests.accept');
+Route::delete('/admin/groups/{group}/requests/{request}/reject', [App\Http\Controllers\Admin\UserController::class, 'rejectRequest'])->name('admin.groups.requests.reject');
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
 

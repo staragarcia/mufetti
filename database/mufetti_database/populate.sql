@@ -3,19 +3,21 @@
 SET search_path TO lbaw2585;
 
 -----------------------------------------
--- Anonymous User (system account)
+-- Initial system accounts
 -----------------------------------------
 
-INSERT INTO users (name, username, email, password, birth_date, is_public, is_admin)
-VALUES (
-    'Anonymous',
-    'anonymous',
-    'anonymous@example.com',
-    '$2y$12$PrQOmJPndLG6ZkafsZKIw.FyiBrVXmYKjsQfXXA8RYhZzDiX0/Mcq',
-    '1900-01-01',
-    true,
-    false
-);
+-- ID 1 é o utilizador de sistema
+INSERT INTO users (id, name, username, email, password, birth_date, is_public, is_admin)
+OVERRIDING SYSTEM VALUE 
+VALUES (1, 'Anonymous User', 'deleted_user', 'deleted@mufetti.com', 'LOCKED', '1900-01-01', false, false);
+
+-- Admin genérico é ID 2 (Password: admin)
+INSERT INTO users (id, name, username, email, password, birth_date, is_public, is_admin) 
+OVERRIDING SYSTEM VALUE 
+VALUES (2, 'Admin', 'admin', 'admin@email.com', '$2y$10$iMTuj9m/31PKIshvWrWYIufsw6JOEKsy.wIiWGhjH9eCTuum2AOc2', '1900-01-01', false, true);
+
+-- IMPORTANTE: Sincronizar o contador de IDs para que o próximo registo manual use o ID 3
+SELECT setval(pg_get_serial_sequence('users', 'id'), coalesce(max(id), 1)) FROM users;
 
 
 -----------------------------------------

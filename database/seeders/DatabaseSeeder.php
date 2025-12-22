@@ -30,10 +30,10 @@ class DatabaseSeeder extends Seeder
         //comentei isto porque nao estava a funcionar o populate
 
         // load inserst
-        //$path = base_path('database/mufetti_database/populate.sql');
-        //$sql = file_get_contents($path);
+        $path = base_path('database/mufetti_database/populate.sql');
+        $sql = file_get_contents($path);
 
-        //DB::unprepared($sql);
+        DB::unprepared($sql);
 
         // restore safe defaults, i.e. triggers will fire !!!!!
         DB::statement('SET session_replication_role = DEFAULT');

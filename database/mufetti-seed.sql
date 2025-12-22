@@ -535,17 +535,3 @@ FOR EACH ROW
 EXECUTE PROCEDURE artist_search_update();
 
 CREATE INDEX artists_search_idx ON artists USING GIN(search_vector);
-
--- ID 1 é o utilizador de sistema
-INSERT INTO users (id, name, username, email, password, birth_date, is_public, is_admin)
-OVERRIDING SYSTEM VALUE 
-VALUES (1, 'Utilizador Anónimo', 'deleted_user', 'deleted@mufetti.com', 'LOCKED', '1900-01-01', false, false);
-
--- Admin genérico é ID 2 (Password: admin)
--- Nota: Se o login não funcionar, substitui 'admin' por '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi' (que é a hash de 'password')
-INSERT INTO users (id, name, username, email, password, birth_date, is_public, is_admin) 
-OVERRIDING SYSTEM VALUE 
-VALUES (2, 'Admin', 'admin', 'admin@email.com', 'admin', '1900-01-01', false, true);
-
--- IMPORTANTE: Sincronizar o contador de IDs para que o próximo registo manual use o ID 3
-SELECT setval(pg_get_serial_sequence('users', 'id'), coalesce(max(id), 1)) FROM users;
